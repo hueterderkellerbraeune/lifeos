@@ -1592,4 +1592,87 @@ document.addEventListener('click',function(e){
  draw();
 })();
 </script>
+
+<style id="lifeos-year-v27-style">
+.ly27{margin:18px 0;padding:16px;border:1px solid #e8bbd1;border-radius:17px;background:#fff8fc;color:#612440;min-width:0;max-width:100%;box-sizing:border-box}
+.ly27 *{box-sizing:border-box}.ly27 h3{margin:0 0 8px}.ly27 p{color:#80546a;font-size:12px;line-height:1.5}.ly27-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0}.ly27-controls select{font-size:16px;max-width:100%;padding:8px 12px;border:1px solid #d6a7bf;border-radius:10px;background:#fff;color:#612440}
+.ly27-stats{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.ly27-stat{flex:1 1 95px;min-width:0;background:#fff;border-radius:10px;padding:10px}.ly27-stat b{display:block;font-size:20px;color:#8b255c}.ly27-stat small{display:block;color:#80546a}
+.ly27-months{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;min-width:0}.ly27-month{background:#fff;border:1px solid #f0d7e4;border-radius:12px;padding:10px;min-width:0}.ly27-month h4{margin:0 0 8px;font-size:14px}.ly27-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.ly27-day{aspect-ratio:1;min-width:0;border-radius:4px;background:#f3e9ef;display:flex;align-items:center;justify-content:center;font-size:10px;color:#76556a}.ly27-day.active{background:#b62e74;color:white;font-weight:700}.ly27-day.future{background:#f7f4f6;color:#c1b4bc}.ly27-day.blank{background:transparent}.ly27-weekday{text-align:center;color:#8b6b7b;font-size:10px;margin-bottom:4px}.ly27-legend{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px;margin:12px 0;color:#80546a}.ly27-swatch{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin-right:4px;background:#b62e74}.ly27-swatch.off{background:#f3e9ef;border:1px solid #e3d5de}
+@media(max-width:430px){.ly27{padding:12px}.ly27-months{grid-template-columns:1fr 1fr;gap:7px}.ly27-month{padding:7px}.ly27-days{gap:2px}.ly27-day{font-size:9px;border-radius:3px}.ly27-month h4{font-size:12px}}@media(max-width:330px){.ly27-months{grid-template-columns:1fr}}
+</style>
+<script id="lifeos-year-v27-script">
+(()=>{
+ 'use strict';
+ const host=document.getElementById('view-progress');if(!host)return;
+ const panel=document.createElement('section');panel.className='ly27';panel.setAttribute('aria-label','Jahresübersicht der Trainingstage');
+ panel.innerHTML='<h3>Dein Trainingsjahr</h3><p>Alle Monate auf einen Blick: Rosa markiert Tage, an denen du mindestens einen Satz dokumentiert oder eine Einheit abgeschlossen hast.</p><div class="ly27-controls"><label for="ly27Year">Jahr auswählen:</label><select id="ly27Year" aria-label="Trainingsjahr"></select></div><div class="ly27-stats" aria-live="polite"></div><div class="ly27-months"></div><div class="ly27-legend"><span><i class="ly27-swatch"></i>Trainiert</span><span><i class="ly27-swatch off"></i>Kein Training dokumentiert</span></div><p>Mehrere Trainingseinheiten am selben Tag zählen als ein Trainingstag. Zukünftige Tage sind ausgegraut. Die Übersicht wird aus deinen lokal gespeicherten Trainingsdaten berechnet.</p>';
+ const previous=host.querySelector('.lmg25');if(previous)previous.insertAdjacentElement('afterend',panel);else host.append(panel);
+ const yearSelect=panel.querySelector('#ly27Year');
+ const dateISO=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+ const hasTraining=s=>s.status==='completed'||Object.values(s.exerciseDetails||{}).some(d=>Array.isArray(d?.setRecords)&&d.setRecords.some(r=>r?.done===true));
+ let chosenYear=new Date().getFullYear();
+ function draw(){
+  const today=new Date(),currentYear=today.getFullYear();
+  const dates=new Set((data.sessions||[]).filter(s=>typeof s.date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s.date)&&hasTraining(s)).map(s=>s.date));
+  const years=[...new Set([currentYear,...Array.from(dates,d=>Number(d.slice(0,4)))] )].filter(y=>y>=2000&&y<=currentYear).sort((a,b)=>b-a);
+  if(!years.includes(chosenYear))chosenYear=currentYear;
+  yearSelect.replaceChildren();for(const y of years){const option=document.createElement('option');option.value=String(y);option.textContent=String(y);yearSelect.append(option)}yearSelect.value=String(chosenYear);
+  const grid=panel.querySelector('.ly27-months');grid.replaceChildren();
+  const monthCounts=[];let total=0;
+  for(let month=0;month<12;month++){
+   const first=new Date(chosenYear,month,1),last=new Date(chosenYear,month+1,0).getDate();
+   const box=document.createElement('div');box.className='ly27-month';const title=document.createElement('h4');title.textContent=first.toLocaleDateString('de-DE',{month:'long'});box.append(title);
+   const days=document.createElement('div');days.className='ly27-days';for(const day of ['M','D','M','D','F','S','S']){const cell=document.createElement('div');cell.className='ly27-weekday';cell.textContent=day;days.append(cell)}
+   const pad=(first.getDay()+6)%7;for(let p=0;p<pad;p++){const cell=document.createElement('span');cell.className='ly27-day blank';cell.setAttribute('aria-hidden','true');days.append(cell)}
+   let count=0;
+   for(let day=1;day<=last;day++){
+    const date=new Date(chosenYear,month,day),iso=dateISO(date),trained=dates.has(iso),future=date>today;
+    const cell=document.createElement('button');cell.type='button';cell.className='ly27-day'+(trained?' active':'')+(future?' future':'');cell.textContent=String(day);cell.title=date.toLocaleDateString('de-DE')+(trained?' – Training dokumentiert':future?' – liegt in der Zukunft':' – kein Training dokumentiert');cell.setAttribute('aria-label',cell.title+'; im Monatsplan öffnen');cell.dataset.ly28Date=iso;days.append(cell);
+    if(trained)count++;
+   }
+   box.append(days);grid.append(box);monthCounts.push(count);total+=count;
+  }
+  const stats=panel.querySelector('.ly27-stats');stats.replaceChildren();
+  for(const [value,label] of [[total,'Trainingstage'],[monthCounts.filter(x=>x>0).length,'Aktive Monate'],[Math.max(0,...monthCounts),'Trainingstage im aktivsten Monat']]){
+   const cell=document.createElement('div');cell.className='ly27-stat';const b=document.createElement('b');b.textContent=String(value);const small=document.createElement('small');small.textContent=label;cell.append(b,small);stats.append(cell);
+  }
+ }
+ yearSelect.addEventListener('change',()=>{chosenYear=Number(yearSelect.value);draw()});
+ const priorRender=renderProgress;renderProgress=function(...args){const result=priorRender.apply(this,args);draw();return result};
+ draw();
+})();
+</script>
+
+<style id="lifeos-year-navigation-v28-style">
+.ly27-day[data-ly28-date]{appearance:none;border:1px solid transparent;padding:0;cursor:pointer;font-family:inherit;line-height:1;touch-action:manipulation}
+.ly27-day[data-ly28-date]:focus-visible{outline:3px solid #ff9acb;outline-offset:2px}
+.ly27-day[data-ly28-date]:active{transform:scale(.93)}
+.ly27-day.active[data-ly28-date]{border-color:#8b255c}
+.ly27-day.future[data-ly28-date]{cursor:pointer}
+.ly28-hint{font-size:12px;color:#80546a;margin:6px 0 10px}
+</style>
+<script id="lifeos-year-navigation-v28-script">
+(()=>{
+ 'use strict';
+ const panel=document.querySelector('.ly27');
+ if(!panel)return;
+ const hint=document.createElement('p');hint.className='ly28-hint';hint.textContent='Tippe auf einen Kalendertag, um direkt seine Trainingseinheiten im Monatsplan zu öffnen – auch an Tagen ohne dokumentiertes Training.';
+ const grid=panel.querySelector('.ly27-months');if(grid)grid.insertAdjacentElement('beforebegin',hint);
+ panel.addEventListener('click',event=>{
+  const day=event.target.closest('button[data-ly28-date]');
+  if(!day||!panel.contains(day))return;
+  const date=day.dataset.ly28Date;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
+  const chosen=new Date(date+'T12:00:00');
+  if(Number.isNaN(chosen.getTime()))return;
+  const now=new Date();
+  monthOffset=(chosen.getFullYear()-now.getFullYear())*12+(chosen.getMonth()-now.getMonth());
+  selectedDate=date;
+  navTo('week');
+  renderWeek();
+  const target=document.getElementById('selectedDateLabel');
+  if(target)requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));
+ });
+})();
+</script>
 </body></html>
