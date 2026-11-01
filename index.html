@@ -1513,4 +1513,54 @@ document.addEventListener('click',function(e){
  const previous=renderProgress;renderProgress=function(...args){const result=previous.apply(this,args);draw();return result};draw();
 })();
 </script>
+
+<style id="lifeos-month-goals-v25-style">
+.lmg25{margin:18px 0;padding:18px;border:1px solid #e8bbd1;border-radius:17px;background:#fff8fc;color:#612440}.lmg25 h3{margin:0 0 8px}.lmg25 p{font-size:12px;color:#80546a;line-height:1.5}.lmg25-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px}.lmg25-card{background:#fff;border:1px solid #f0d7e4;border-radius:13px;padding:12px}.lmg25-card strong{display:block;font-size:16px}.lmg25-meta{font-size:12px;color:#80546a;margin:5px 0}.lmg25-track{height:9px;background:#f0d9e5;border-radius:10px;overflow:hidden}.lmg25-fill{height:100%;background:#b62e74}.lmg25-badge{font-size:12px;font-weight:700;color:#a52c6b}.lmg25-stats{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}.lmg25-stats span{background:#fff;padding:10px;border-radius:10px;font-size:13px}.lmg25-stats b{display:block;font-size:21px;color:#7e2152}
+</style>
+<script id="lifeos-month-goals-v25-script">
+(()=>{
+ 'use strict';
+ const host=document.getElementById('view-progress');if(!host)return;
+ const panel=document.createElement('section');panel.className='lmg25';panel.setAttribute('aria-label','Monatliche Wochenziel-Auswertung');
+ panel.innerHTML='<h3>Wochenziele im Monatsvergleich</h3><p>Vergleiche die letzten sechs Kalendermonate. Eine Woche zählt zum Monat, in dem ihr Montag liegt. Nur vollständig vergangene Wochen werden als erreicht oder verfehlt bewertet.</p><div class="lmg25-stats" aria-live="polite"></div><div class="lmg25-grid"></div><p>Die Auswertung verwendet dein aktuell eingestelltes Wochenziel auch für vergangene Monate. Wochen am Anfang oder Ende des betrachteten Zeitraums können deshalb fehlen. Die laufende Woche wird nicht bewertet.</p>';
+ const goalPanel=host.querySelector('.lifeos-goal-v24');if(goalPanel)goalPanel.insertAdjacentElement('afterend',panel);else host.append(panel);
+ const iso=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+ const monday=d=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-(x.getDay()+6)%7);return x};
+ const trained=s=>s.status==='completed'||Object.values(s.exerciseDetails||{}).some(d=>Array.isArray(d?.setRecords)&&d.setRecords.some(r=>r?.done===true));
+ function draw(){
+  const today=new Date(),currentMonday=monday(today),goal=Number(document.getElementById('lg24Goal')?.value)||3;
+  const months=[];let allReached=0,allWeeks=0;
+  for(let back=5;back>=0;back--){
+   const first=new Date(today.getFullYear(),today.getMonth()-back,1),next=new Date(first.getFullYear(),first.getMonth()+1,1);
+   let weeks=0,reached=0,days=0;
+   for(let cursor=monday(first);cursor<next;cursor.setDate(cursor.getDate()+7)){
+    if(cursor<first||cursor>=currentMonday)continue;
+    const end=new Date(cursor);end.setDate(end.getDate()+7);
+    const from=iso(cursor),to=iso(end);
+    const unique=new Set((data.sessions||[]).filter(s=>typeof s.date==='string'&&s.date>=from&&s.date<to&&trained(s)).map(s=>s.date));
+    weeks++;days+=unique.size;if(unique.size>=goal)reached++;
+   }
+   allWeeks+=weeks;allReached+=reached;
+   months.push({name:first.toLocaleDateString('de-DE',{month:'long',year:'numeric'}),weeks,reached,days});
+  }
+  const stats=panel.querySelector('.lmg25-stats');stats.replaceChildren();
+  for(const [number,label] of [[allReached,'Wochenziele erreicht'],[allWeeks,'Bewertete Wochen'],[allWeeks?Math.round(allReached/allWeeks*100)+' %':'–','Zielquote']]){
+   const el=document.createElement('span'),strong=document.createElement('b');strong.textContent=number;el.append(strong,document.createTextNode(label));stats.append(el);
+  }
+  const grid=panel.querySelector('.lmg25-grid');grid.replaceChildren();
+  for(const m of months){
+   const card=document.createElement('div');card.className='lmg25-card';
+   const title=document.createElement('strong');title.textContent=m.name;
+   const meta=document.createElement('div');meta.className='lmg25-meta';meta.textContent=m.weeks?m.reached+' von '+m.weeks+' Wochenzielen erreicht':'Keine vollständig bewertbare Woche';
+   const track=document.createElement('div');track.className='lmg25-track';track.setAttribute('role','progressbar');track.setAttribute('aria-label',m.name+': erreichte Wochenziele');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax',String(m.weeks));track.setAttribute('aria-valuenow',String(m.reached));
+   const fill=document.createElement('div');fill.className='lmg25-fill';fill.style.width=(m.weeks?Math.round(m.reached/m.weeks*100):0)+'%';track.append(fill);
+   const foot=document.createElement('div');foot.className='lmg25-meta';foot.textContent=m.days+' Trainingstage in bewerteten Wochen';
+   card.append(title,meta,track,foot);grid.append(card);
+  }
+ }
+ const select=document.getElementById('lg24Goal');if(select)select.addEventListener('change',draw);
+ const previous=renderProgress;renderProgress=function(...args){const result=previous.apply(this,args);draw();return result};
+ draw();
+})();
+</script>
 </body></html>
