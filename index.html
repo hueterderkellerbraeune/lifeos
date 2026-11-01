@@ -2387,4 +2387,36 @@ input::placeholder,textarea::placeholder{color:var(--muted)}
  #sessionDetailOverlay *{scroll-behavior:auto!important;transition:none!important}
 }
 </style>
+
+<style id="forest-calm-v40-mobile-overflow-fix">
+/* Correct intrinsic min-content sizing: keep dashboard cards and all seven days inside viewport. */
+html,body{max-width:100%;overflow-x:clip}
+.app,.main,.view,.columns,.panel,.panel-head,.month-grid,.month-day{min-width:0;max-width:100%}
+.main{box-sizing:border-box}
+.columns{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+.columns>.panel{min-width:0;width:100%}
+.month-grid{width:100%;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.month-grid>*{min-width:0;max-width:100%;box-sizing:border-box}
+.month-weekday{min-width:0;white-space:nowrap}
+.month-day{width:100%;padding:4px 1px;min-width:0;overflow:hidden;text-align:center}
+.panel-head>*{min-width:0}
+.panel-head .btn{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:1000px){.columns{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:680px){
+ .app{width:100%;max-width:100%;min-width:0}
+ .main{width:100%;min-width:0;max-width:100%;padding:14px 12px!important;margin:0;overflow-x:clip}
+ .view{width:100%;min-width:0}
+ .columns{width:100%;grid-template-columns:minmax(0,1fr);gap:12px}
+ .columns>.panel{width:100%;min-width:0;max-width:100%;padding:12px!important}
+ .panel-head{gap:8px;flex-wrap:wrap;align-items:flex-start}
+ .panel-head .btn.ghost{flex:0 1 auto;min-width:0;font-size:12px;padding:7px 8px}
+ .month-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:3px!important;width:100%!important;min-width:0!important;max-width:100%!important}
+ .month-day{min-width:0!important;max-width:100%!important;width:100%!important;min-height:40px!important;padding:4px 0!important;border-radius:7px!important;overflow:hidden!important}
+ .month-day .date-number{font-size:11px!important}
+ .month-weekday{font-size:10px!important;padding:5px 0!important}
+ #view-dashboard .month-day{min-height:39px!important}
+ #view-dashboard .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #view-dashboard .stat{min-width:0;overflow:hidden}
+}
+</style>
 </body></html>
