@@ -1314,4 +1314,203 @@ document.addEventListener('click',function(e){
  root.addEventListener('click',e=>{if(e.target.closest('.lifeos-focus-toggle'))setTimeout(ensureSetting,0)});
 })();
 </script>
+
+<style id="lifeos-summary-v21-style">
+.lifeos-summary-v21{border:1px solid #e5a6c7;border-radius:16px;background:#fff7fb;padding:14px;margin:14px 0;color:#692647}
+.lifeos-summary-v21 summary{cursor:pointer;font-weight:750;font-size:16px;min-height:34px}
+.lifeos-summary-v21 .lifeos-summary-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.lifeos-summary-v21 .lifeos-summary-stat{background:white;border:1px solid #f0d3e1;border-radius:12px;padding:10px}
+.lifeos-summary-v21 .lifeos-summary-stat strong{display:block;font-size:20px}
+.lifeos-summary-v21 .lifeos-summary-stat small{font-size:12px;color:#80566b}
+.lifeos-summary-v21 .lifeos-summary-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid #efd6e3;font-size:13px}
+.lifeos-summary-v21 .lifeos-summary-row span:last-child{text-align:right;white-space:nowrap}
+.lifeos-summary-v21 .lifeos-summary-note{font-size:12px;color:#81586b;margin:10px 0 0}
+</style>
+<script id="lifeos-summary-v21-script">
+(()=>{
+ 'use strict';
+ const root=document.getElementById('sessionDetailContent');
+ if(!root)return;
+ const number=value=>{if(value===''||value==null)return null;const n=Number(String(value).replace(',','.'));return Number.isFinite(n)&&n>=0?n:null};
+ const fmt=n=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:1}).format(n);
+ function refresh(){
+  const cards=[...root.querySelectorAll('.exercise-detail[data-exercise-id]')];
+  let panel=root.querySelector('.lifeos-summary-v21');
+  if(!cards.length){panel?.remove();return}
+  if(!panel){
+   panel=document.createElement('details');panel.className='lifeos-summary-v21';
+   panel.innerHTML='<summary>Trainingszusammenfassung ansehen</summary><div class="lifeos-summary-body" aria-live="polite"></div>';
+   const overview=root.querySelector('.lifeos-workout-overview');
+   if(overview)overview.insertAdjacentElement('afterend',panel);else root.prepend(panel);
+  }
+  let done=0,total=0,exDone=0,volume=0;
+  const lines=[];
+  cards.forEach((card,i)=>{
+   const checks=[...card.querySelectorAll('input[data-set-done]')];
+   let count=0,exVolume=0;
+   checks.forEach(box=>{
+    total++;
+    if(!box.checked)return;
+    done++;count++;
+    const index=box.getAttribute('data-set-done');
+    const reps=number(card.querySelector(`[data-set-reps="${index}"]`)?.value);
+    const weight=number(card.querySelector(`[data-set-weight="${index}"]`)?.value);
+    if(reps!==null&&weight!==null)exVolume+=reps*weight;
+   });
+   volume+=exVolume;
+   if(checks.length&&count===checks.length)exDone++;
+   const name=(card.querySelector('h4,h3')?.textContent||`Übung ${i+1}`).trim();
+   lines.push({name,count,total:checks.length,volume:exVolume});
+  });
+  const body=panel.querySelector('.lifeos-summary-body');
+  body.replaceChildren();
+  const stats=document.createElement('div');stats.className='lifeos-summary-stats';
+  for(const [value,label] of [[`${done} / ${total}`,'Absolvierte Sätze'],[`${exDone} / ${cards.length}`,'Fertige Übungen'],[`${fmt(volume)} kg`,'Erfasstes Volumen'],[`${total?Math.round(done/total*100):0} %`,'Satzfortschritt']]){
+   const cell=document.createElement('div');cell.className='lifeos-summary-stat';
+   const strong=document.createElement('strong');strong.textContent=value;
+   const small=document.createElement('small');small.textContent=label;
+   cell.append(strong,small);stats.append(cell);
+  }
+  body.append(stats);
+  for(const line of lines){
+   const row=document.createElement('div');row.className='lifeos-summary-row';
+   const name=document.createElement('span');name.textContent=line.name;
+   const result=document.createElement('span');result.textContent=`${line.count}/${line.total} Sätze · ${fmt(line.volume)} kg`;
+   row.append(name,result);body.append(row);
+  }
+  const note=document.createElement('p');note.className='lifeos-summary-note';
+  note.textContent='Nur abgehakte Sätze zählen. Volumen = Gewicht × Wiederholungen, sofern beides eingetragen ist. Die Zusammenfassung beendet kein Training.';
+  body.append(note);
+ }
+ const previous=showSessionDetails;
+ showSessionDetails=function(...args){const result=previous.apply(this,args);refresh();return result};
+ root.addEventListener('change',e=>{if(e.target.closest('.exercise-detail'))setTimeout(refresh,80)});
+ root.addEventListener('input',e=>{if(e.target.matches('[data-set-reps],[data-set-weight]'))setTimeout(refresh,80)});
+ root.addEventListener('click',e=>{if(e.target.closest('[data-next-set],[data-add-set],[data-remove-set],[data-lifeos-add-exercise],[data-remove-exercise],[data-exercise-up],[data-exercise-down]'))setTimeout(refresh,100)});
+})();
+</script>
+
+<style id="lifeos-activity-v22-style">
+.lifeos-activity-v22{margin:20px 0;padding:17px;border:1px solid #e8bbd1;border-radius:17px;background:#fff8fc;color:#612440}.lifeos-activity-v22 h3{margin:0 0 6px}.lifeos-activity-v22 p{font-size:13px;color:#80546a}.lifeos-activity-switch{display:flex;gap:8px;margin:12px 0}.lifeos-activity-switch button{border:1px solid #e4abc8;background:white;border-radius:9px;padding:9px 15px;color:#712e50;font-weight:700;cursor:pointer}.lifeos-activity-switch button[aria-pressed="true"]{background:#a72d6b;color:white}.lifeos-activity-bars{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:end;margin:14px 0}.lifeos-activity-item{text-align:center;min-width:0}.lifeos-activity-count{font-size:12px;font-weight:700}.lifeos-activity-track{height:112px;border-radius:8px;background:#f3dfeb;display:flex;align-items:end;overflow:hidden;margin:5px 0}.lifeos-activity-fill{width:100%;background:#c03b82;border-radius:7px 7px 0 0;min-height:0}.lifeos-activity-label{font-size:11px;overflow-wrap:anywhere}.lifeos-activity-total{font-weight:750;margin-top:10px}.lifeos-activity-v22 button:focus-visible{outline:3px solid #772352;outline-offset:2px}
+</style>
+<script id="lifeos-activity-v22-script">
+(()=>{
+ 'use strict';
+ const host=document.getElementById('view-progress');if(!host)return;
+ const panel=document.createElement('section');panel.className='lifeos-activity-v22';panel.setAttribute('aria-label','Trainingsaktivität nach Woche und Monat');
+ panel.innerHTML='<h3>Trainingsaktivität</h3><p>Vergleiche deine dokumentierten Trainingstage nach Woche oder Monat.</p><div class="lifeos-activity-switch"><button type="button" data-period="week" aria-pressed="true">Wochen</button><button type="button" data-period="month" aria-pressed="false">Monate</button></div><div class="lifeos-activity-bars"></div><div class="lifeos-activity-total"></div><p>Ein Trainingstag zählt, wenn eine Einheit als abgeschlossen markiert ist oder mindestens ein Satz abgehakt wurde. Mehrere Einheiten am selben Tag zählen als ein Trainingstag.</p>';
+ const anchor=host.querySelector('.stats');if(anchor)anchor.insertAdjacentElement('afterend',panel);else host.append(panel);
+ let period='week';
+ function activeDates(){
+  const days=new Set();
+  for(const s of data.sessions||[]){
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(s.date||''))continue;
+   const hasSets=Object.values(s.exerciseDetails||{}).some(d=>Array.isArray(d?.setRecords)&&d.setRecords.some(r=>r?.done===true));
+   if(s.status==='completed'||hasSets)days.add(s.date);
+  }
+  return days;
+ }
+ function draw(){
+  const now=new Date(),dates=activeDates(),groups=[];
+  for(let i=5;i>=0;i--){
+   let start,end,label;
+   if(period==='week'){
+    start=new Date(now.getFullYear(),now.getMonth(),now.getDate());start.setDate(start.getDate()-(start.getDay()+6)%7-i*7);
+    end=new Date(start);end.setDate(end.getDate()+7);
+    label=start.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
+   }else{
+    start=new Date(now.getFullYear(),now.getMonth()-i,1);end=new Date(start.getFullYear(),start.getMonth()+1,1);
+    label=start.toLocaleDateString('de-DE',{month:'short',year:'2-digit'});
+   }
+   const a=[start.getFullYear(),String(start.getMonth()+1).padStart(2,'0'),String(start.getDate()).padStart(2,'0')].join('-');
+   const b=[end.getFullYear(),String(end.getMonth()+1).padStart(2,'0'),String(end.getDate()).padStart(2,'0')].join('-');
+   const count=[...dates].filter(d=>d>=a&&d<b).length;groups.push({label,count});
+  }
+  const max=Math.max(1,...groups.map(g=>g.count));
+  const bars=panel.querySelector('.lifeos-activity-bars');bars.replaceChildren();
+  for(const g of groups){
+   const item=document.createElement('div');item.className='lifeos-activity-item';
+   const count=document.createElement('div');count.className='lifeos-activity-count';count.textContent=String(g.count);
+   const track=document.createElement('div');track.className='lifeos-activity-track';track.setAttribute('role','img');track.setAttribute('aria-label',g.label+': '+g.count+' Trainingstage');
+   const fill=document.createElement('div');fill.className='lifeos-activity-fill';fill.style.height=(g.count/max*100)+'%';track.append(fill);
+   const label=document.createElement('div');label.className='lifeos-activity-label';label.textContent=g.label;
+   item.append(count,track,label);bars.append(item);
+  }
+  panel.querySelector('.lifeos-activity-total').textContent='Trainingstage in diesem Zeitraum: '+groups.reduce((n,g)=>n+g.count,0);
+ }
+ panel.addEventListener('click',e=>{const b=e.target.closest('[data-period]');if(!b)return;period=b.dataset.period;panel.querySelectorAll('[data-period]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));draw()});
+ const previous=renderProgress;renderProgress=function(...args){const result=previous.apply(this,args);draw();return result};draw();
+})();
+</script>
+
+<style id="lifeos-plan-v23-style">
+.lifeos-plan-v23{margin:18px 0;padding:18px;border:1px solid #e8bbd1;border-radius:17px;background:#fff8fc;color:#612440}.lifeos-plan-v23 h3{margin:0 0 6px}.lifeos-plan-v23 p{font-size:13px;color:#80546a}.lifeos-plan-v23 .lp23-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0}.lifeos-plan-v23 select{border:1px solid #d6a7bf;border-radius:10px;padding:9px;background:white;color:#612440}.lp23-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.lp23-stat{background:white;border-radius:12px;padding:12px 7px;text-align:center}.lp23-stat strong{display:block;font-size:22px}.lp23-stat span{font-size:12px}.lp23-progress{height:12px;background:#eed6e3;border-radius:12px;overflow:hidden;margin:12px 0}.lp23-progress>div{height:100%;background:#b62e74;transition:width .2s}.lp23-week{display:grid;grid-template-columns:minmax(0,1fr) 45px 45px;gap:8px;padding:9px 0;border-bottom:1px solid #efd6e3;align-items:center;font-size:13px}.lp23-week b{text-align:center}.lp23-muted{font-size:12px;color:#80546a}.lp23-legend{display:grid;grid-template-columns:minmax(0,1fr) 45px 45px;gap:8px;font-size:11px;color:#80546a}.lp23-legend span:not(:first-child){text-align:center}
+</style>
+<script id="lifeos-plan-v23-script">
+(()=>{
+ 'use strict';
+ const host=document.getElementById('view-progress');if(!host)return;
+ const panel=document.createElement('section');panel.className='lifeos-plan-v23';panel.setAttribute('aria-label','Plan und tatsächliche Trainingseinheiten vergleichen');
+ panel.innerHTML='<h3>Plan und Durchführung</h3><p>Vergleiche, wie viele geplante Trainingseinheiten du tatsächlich begonnen oder abgeschlossen hast.</p><div class="lp23-controls"><label for="lp23Range">Zeitraum:</label><select id="lp23Range"><option value="4">Letzte 4 Wochen</option><option value="8" selected>Letzte 8 Wochen</option><option value="12">Letzte 12 Wochen</option></select></div><div class="lp23-stats" aria-live="polite"></div><div class="lp23-progress" role="progressbar" aria-label="Anteil begonnener Trainingseinheiten" aria-valuemin="0" aria-valuemax="100"><div></div></div><div class="lp23-muted" id="lp23Explanation"></div><h4>Wochenvergleich</h4><div class="lp23-legend"><span>Woche ab</span><span>Geplant</span><span>Trainiert</span></div><div id="lp23Weeks"></div><p>Eine Einheit zählt als trainiert, sobald mindestens ein Satz abgehakt oder die Einheit als abgeschlossen markiert wurde. Noch nicht begonnene Einheiten zählen nur als geplant. Zukünftige Termine werden nicht bewertet. Mehrere Einheiten an einem Tag werden einzeln gezählt.</p>';
+ const activity=host.querySelector('.lifeos-activity-v22');if(activity)activity.insertAdjacentElement('afterend',panel);else host.append(panel);
+ const dateISO=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+ function monday(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-(x.getDay()+6)%7);return x}
+ function trained(s){return s.status==='completed'||Object.values(s.exerciseDetails||{}).some(d=>Array.isArray(d?.setRecords)&&d.setRecords.some(r=>r?.done===true))}
+ function draw(){
+  const n=Number(panel.querySelector('#lp23Range').value)||8,now=new Date(),today=dateISO(now),start=monday(now);start.setDate(start.getDate()-(n-1)*7);
+  const weeks=[];let planned=0,done=0;
+  for(let i=0;i<n;i++){
+   const a=new Date(start);a.setDate(a.getDate()+i*7);const b=new Date(a);b.setDate(b.getDate()+7);const from=dateISO(a),to=dateISO(b);
+   const sessions=(data.sessions||[]).filter(s=>/^\d{4}-\d{2}-\d{2}$/.test(s.date||'')&&s.date>=from&&s.date<to&&s.date<=today);
+   const p=sessions.length,t=sessions.filter(trained).length;planned+=p;done+=t;
+   weeks.push({label:a.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}),p,t});
+  }
+  const percent=planned?Math.round(done/planned*100):0;
+  const stats=panel.querySelector('.lp23-stats');stats.replaceChildren();
+  for(const [value,label] of [[planned,'Geplant'],[done,'Trainiert'],[percent+' %','Umgesetzt']]){const el=document.createElement('div');el.className='lp23-stat';const strong=document.createElement('strong');strong.textContent=value;const span=document.createElement('span');span.textContent=label;el.append(strong,span);stats.append(el)}
+  panel.querySelector('.lp23-progress>div').style.width=percent+'%';panel.querySelector('.lp23-progress').setAttribute('aria-valuenow',String(percent));
+  panel.querySelector('#lp23Explanation').textContent=planned?done+' von '+planned+' geplanten Einheiten begonnen oder abgeschlossen.':'Für diesen Zeitraum sind noch keine Trainingseinheiten eingetragen.';
+  const list=panel.querySelector('#lp23Weeks');list.replaceChildren();
+  for(const w of weeks){const row=document.createElement('div');row.className='lp23-week';const label=document.createElement('span');label.textContent=w.label;const p=document.createElement('b');p.textContent=w.p;const t=document.createElement('b');t.textContent=w.t;row.append(label,p,t);list.append(row)}
+ }
+ panel.querySelector('#lp23Range').addEventListener('change',draw);
+ const old=renderProgress;renderProgress=function(...args){const result=old.apply(this,args);draw();return result};draw();
+})();
+</script>
+
+<style id="lifeos-goal-v24-style">
+.lifeos-goal-v24{margin:18px 0;padding:18px;border:1px solid #e8bbd1;border-radius:17px;background:#fff8fc;color:#612440}.lifeos-goal-v24 h3{margin:0 0 6px}.lifeos-goal-v24 p{font-size:13px;color:#80546a}.lg24-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}.lg24-controls select{border:1px solid #d6a7bf;border-radius:10px;padding:10px;background:white;color:#612440;font-size:16px}.lg24-current{background:white;border-radius:12px;padding:14px}.lg24-current strong{font-size:24px}.lg24-track{height:12px;background:#eed6e3;border-radius:12px;overflow:hidden;margin:10px 0}.lg24-fill{height:100%;background:#b62e74;transition:width .2s}.lg24-week{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #efd6e3;font-size:13px}.lg24-good{color:#16704d;font-weight:700}.lg24-muted{color:#80546a;font-size:12px}.lg24-current .lg24-muted{display:block;margin-top:5px}
+</style>
+<script id="lifeos-goal-v24-script">
+(()=>{
+ 'use strict';
+ const host=document.getElementById('view-progress');if(!host)return;
+ const key='lifeos-weekly-goal-v24';
+ let goal=3;try{const v=Number(localStorage.getItem(key));if(Number.isInteger(v)&&v>=1&&v<=7)goal=v}catch(e){}
+ const panel=document.createElement('section');panel.className='lifeos-goal-v24';panel.setAttribute('aria-label','Wöchentliches Trainingsziel');
+ panel.innerHTML='<h3>Dein Wochenziel</h3><p>Lege fest, an wie vielen unterschiedlichen Tagen du pro Woche trainieren möchtest.</p><div class="lg24-controls"><label for="lg24Goal">Trainingstage pro Woche:</label><select id="lg24Goal"><option value="1">1 Tag</option><option value="2">2 Tage</option><option value="3">3 Tage</option><option value="4">4 Tage</option><option value="5">5 Tage</option><option value="6">6 Tage</option><option value="7">7 Tage</option></select></div><div class="lg24-current" aria-live="polite"></div><h4>Die letzten 8 Wochen</h4><div id="lg24History"></div><p class="lg24-muted">Gezählt werden unterschiedliche Kalendertage mit mindestens einem abgehakten Satz oder einer als abgeschlossen markierten Einheit. Die aktuelle Woche ist noch nicht abgeschlossen. Das Ziel gilt für die angezeigte Historie; frühere Zieländerungen werden nicht gesondert gespeichert.</p>';
+ const plan=host.querySelector('.lifeos-plan-v23');if(plan)plan.insertAdjacentElement('afterend',panel);else host.append(panel);
+ panel.querySelector('#lg24Goal').value=String(goal);
+ const dayISO=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+ const monday=d=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-(x.getDay()+6)%7);return x};
+ const trained=s=>s.status==='completed'||Object.values(s.exerciseDetails||{}).some(d=>Array.isArray(d?.setRecords)&&d.setRecords.some(r=>r?.done===true));
+ function draw(){
+  const today=dayISO(new Date()),start=monday(new Date()),weeks=[];
+  for(let i=7;i>=0;i--){const fromDate=new Date(start);fromDate.setDate(fromDate.getDate()-7*i);const toDate=new Date(fromDate);toDate.setDate(toDate.getDate()+7);const from=dayISO(fromDate),to=dayISO(toDate);
+   const dates=new Set((data.sessions||[]).filter(s=>typeof s.date==='string'&&s.date>=from&&s.date<to&&s.date<=today&&trained(s)).map(s=>s.date));
+   weeks.push({from,n:dates.size,current:i===0});
+  }
+  const current=weeks[weeks.length-1],pct=Math.min(100,Math.round(current.n/goal*100));
+  const area=panel.querySelector('.lg24-current');area.replaceChildren();
+  const heading=document.createElement('strong');heading.textContent=current.n+' / '+goal+' Trainingstage';area.append(heading);
+  const track=document.createElement('div');track.className='lg24-track';track.setAttribute('role','progressbar');track.setAttribute('aria-label','Wochenziel erreicht');track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax',String(goal));track.setAttribute('aria-valuenow',String(Math.min(current.n,goal)));
+  const fill=document.createElement('div');fill.className='lg24-fill';fill.style.width=pct+'%';track.append(fill);area.append(track);
+  const note=document.createElement('span');note.className='lg24-muted';note.textContent=current.n>=goal?'Wochenziel erreicht!':(goal-current.n)+' Trainingstag'+(goal-current.n===1?'':'e')+' bis zum Wochenziel';area.append(note);
+  const history=panel.querySelector('#lg24History');history.replaceChildren();
+  for(const w of weeks){const row=document.createElement('div');row.className='lg24-week';const left=document.createElement('span');left.textContent=new Date(w.from+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'})+(w.current?' · laufende Woche':'');const right=document.createElement('span');right.textContent=w.n+' / '+goal+(w.n>=goal?' ✓':'');if(w.n>=goal)right.className='lg24-good';row.append(left,right);history.append(row)}
+ }
+ panel.querySelector('#lg24Goal').addEventListener('change',e=>{goal=Number(e.target.value);try{localStorage.setItem(key,String(goal))}catch(err){}draw()});
+ const previous=renderProgress;renderProgress=function(...args){const result=previous.apply(this,args);draw();return result};draw();
+})();
+</script>
 </body></html>
