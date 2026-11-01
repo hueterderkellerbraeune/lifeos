@@ -2000,4 +2000,106 @@ document.addEventListener('click',function(e){
  // In v33, the series list is updated by renderAll; relocating it preserves its listeners.
 })();
 </script>
-</body></html>
+
+<style id="lifeos-v35-style">
+#lifeos-v35-library{margin-top:18px;background:#fff;border:1px solid #e7d7e2;border-radius:16px;padding:16px;color:#29232a}
+#lifeos-v35-library h3{margin:0 0 8px}
+#lifeos-v35-library .v35-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;margin:12px 0}
+#lifeos-v35-library label{font-size:13px;display:grid;gap:5px}
+#lifeos-v35-library input,#lifeos-v35-library select{min-width:0;width:100%;padding:10px;border:1px solid #bbaab5;border-radius:9px;background:white;color:#29232a}
+#lifeos-v35-library button{padding:9px 12px;border-radius:9px;background:#ae3677;color:white;border:0;font:inherit;cursor:pointer}
+#lifeos-v35-library button.secondary{background:#f4e7ee;color:#722c53}
+#lifeos-v35-library button.danger{background:#96344b}
+#lifeos-v35-library .v35-list{display:grid;gap:10px;margin-top:15px}
+#lifeos-v35-library .v35-card{border:1px solid #e7d7e2;border-radius:12px;padding:12px;min-width:0}
+#lifeos-v35-library .v35-card strong{display:block;overflow-wrap:anywhere}
+#lifeos-v35-library .v35-card small{display:block;color:#675d66;margin:5px 0 10px}
+#lifeos-v35-library .v35-actions{display:flex;flex-wrap:wrap;gap:7px}
+</style>
+<script id="lifeos-v35-script">
+(function(){
+ const target=document.getElementById('lifeos-v34-sections');if(!target)return;
+ const oldToolbar=document.getElementById('lifeosTemplateToolbar');
+ if(oldToolbar)target.prepend(oldToolbar);
+ const box=document.createElement('section');box.id='lifeos-v35-library';
+ box.innerHTML='<h3>Meine Trainingsvorlagen</h3><p class="sub">Speichere eine vorhandene Trainingseinheit als Vorlage und plane sie anschließend für einen beliebigen Tag ein.</p><div class="v35-controls"><label>Training als Vorlage speichern<select id="v35-session"></select></label><label>Datum zum Einplanen<input type="date" id="v35-date"></label></div><button type="button" id="v35-save">Training als Vorlage speichern</button><div id="v35-list" class="v35-list"></div>';
+ target.prepend(box);
+ const date=document.getElementById('v35-date'),select=document.getElementById('v35-session'),list=document.getElementById('v35-list');
+ date.value=selectedDate;
+ function draw(){
+  const selected=select.value;
+  select.innerHTML=data.sessions.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(s=>'<option value="'+esc(s.id)+'">'+esc((s.title||s.type||'Training')+' · '+fmtDate(s.date))+'</option>').join('')||'<option value="">Keine Trainingseinheiten</option>';
+  if(data.sessions.some(s=>s.id===selected))select.value=selected;
+  const ts=lifeosTemplateList();
+  list.innerHTML=ts.length?ts.map(t=>{
+   const exercises=(t.session.exerciseIds||[]).map(exName).join(', ')||'Keine Übungen hinterlegt';
+   return '<div class="v35-card"><strong>'+esc(t.title)+'</strong><small>'+esc(exercises)+'</small><div class="v35-actions"><button type="button" data-v35="insert" data-id="'+esc(t.id)+'">Für Datum einplanen</button><button type="button" class="secondary" data-v35="rename" data-id="'+esc(t.id)+'">Umbenennen</button><button type="button" class="danger" data-v35="delete" data-id="'+esc(t.id)+'">Löschen</button></div></div>';
+  }).join(''):'<p class="sub">Noch keine Trainingsvorlagen gespeichert.</p>';
+ }
+ document.getElementById('v35-save').addEventListener('click',()=>{
+  const s=data.sessions.find(x=>x.id===select.value);if(!s){toast('Bitte zuerst ein Training erstellen.');return}
+  const name=prompt('Name der neuen Vorlage:',s.title||'Mein Training');if(!name?.trim())return;
+  const t={id:uid(),title:name.trim(),session:lifeosCopyAsTemplate(s)};
+  lifeosTemplateList().push(t);
+  if(!save()){lifeosTemplateList().pop();return}
+  lifeosTemplateToolbar();draw();toast('Vorlage gespeichert.');
+ });
+ list.addEventListener('click',e=>{
+  const btn=e.target.closest('button[data-v35]');if(!btn)return;
+  const ts=lifeosTemplateList(),t=ts.find(x=>x.id===btn.dataset.id);if(!t)return;
+  if(btn.dataset.v35==='insert'){
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(date.value)||Number.isNaN(dateObj(date.value).getTime())){toast('Bitte gültiges Datum auswählen.');return}
+   const s=lifeosAddFromTemplate(t.session,date.value);
+   selectedDate=s.date;monthOffset=(dateObj(s.date).getFullYear()-new Date().getFullYear())*12+dateObj(s.date).getMonth()-new Date().getMonth();
+   toast('Training für '+fmtDate(s.date)+' eingeplant.');draw();return;
+  }
+  if(btn.dataset.v35==='rename'){
+   const name=prompt('Neuer Vorlagenname:',t.title);if(!name?.trim())return;
+   const old=t.title;t.title=name.trim();if(!save()){t.title=old;return}
+   lifeosTemplateToolbar();draw();return;
+  }
+  if(btn.dataset.v35==='delete'){
+   if(!confirm('Vorlage „'+t.title+'“ löschen? Bereits eingeplante Trainings bleiben erhalten.'))return;
+   const index=ts.indexOf(t);ts.splice(index,1);if(!save()){ts.splice(index,0,t);return}
+   lifeosTemplateToolbar();draw();return;
+  }
+ });
+ const prev=renderAll;renderAll=function(){prev();draw()};draw();
+})();
+</script>
+<style id="lifeos-v36-style">
+#lifeos-v36-history{margin:18px 0;padding:16px;border:1px solid #d9abc7;border-radius:14px;box-sizing:border-box;max-width:100%}
+#lifeos-v36-history .v36-controls{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+#lifeos-v36-history .v36-controls input,#lifeos-v36-history .v36-controls select{flex:1 1 160px;min-width:0;max-width:100%;padding:10px;border:1px solid #aaa;border-radius:8px;background:#fff;color:#242024;font:inherit}
+#lifeos-v36-history .v36-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid #ded7dc;min-width:0}
+#lifeos-v36-history .v36-item div{min-width:0;overflow-wrap:anywhere}
+#lifeos-v36-history .v36-item small{display:block;margin-top:3px}
+#lifeos-v36-history .v36-item button{border:1px solid #ae3677;border-radius:9px;padding:9px;background:#ae3677;color:white;flex-shrink:0;cursor:pointer}
+#lifeos-v36-history .v36-more{margin-top:10px;border:1px solid #ae3677;border-radius:9px;padding:9px;background:transparent;color:inherit;cursor:pointer}
+</style>
+<script id="lifeos-v36-script">
+(function(){
+ const oldNav=document.querySelector('#nav button[data-view="sessions"]');
+ if(oldNav){oldNav.remove();}
+ const progress=document.getElementById('view-progress');if(!progress)return;
+ const panel=document.createElement('section');panel.id='lifeos-v36-history';
+ panel.innerHTML='<h3>Trainingshistorie</h3><p>Alle abgeschlossenen Trainingseinheiten mit ihren gespeicherten Übungen und Trainingswerten. Tippe auf „Details“, um das damalige Protokoll anzusehen.</p><div class="v36-controls"><input id="v36-search" type="search" placeholder="Training suchen …" aria-label="Training suchen"><select id="v36-period" aria-label="Zeitraum"><option value="all">Alle Zeiträume</option><option value="30">Letzte 30 Tage</option><option value="90">Letzte 90 Tage</option><option value="365">Letzte 365 Tage</option></select></div><div id="v36-count" aria-live="polite"></div><div id="v36-results"></div><button type="button" class="v36-more" id="v36-more" hidden>Weitere anzeigen</button>';
+ const title=progress.querySelector('.section-title');if(title)title.after(panel);else progress.prepend(panel);
+ const search=panel.querySelector('#v36-search'),period=panel.querySelector('#v36-period'),results=panel.querySelector('#v36-results'),count=panel.querySelector('#v36-count'),more=panel.querySelector('#v36-more');
+ let visible=20;
+ function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+ function draw(){
+  const q=search.value.trim().toLocaleLowerCase('de-DE'),days=period.value;
+  const cutoff=new Date();cutoff.setHours(0,0,0,0);if(days!=='all')cutoff.setDate(cutoff.getDate()-Number(days));
+  const matches=data.sessions.filter(s=>completed(s)&&(!q||[s.title,s.type,s.notes,...(s.exerciseIds||[]).map(exName)].some(v=>String(v||'').toLocaleLowerCase('de-DE').includes(q)))&&(days==='all'||dateObj(s.date)>=cutoff)).sort((a,b)=>b.date.localeCompare(a.date)||(b.time||'').localeCompare(a.time||''));
+  count.textContent=matches.length+' abgeschlossene Trainingseinheit(en) gefunden';
+  results.innerHTML=matches.slice(0,visible).map(s=>'<div class="v36-item"><div><strong>'+safe(s.title||s.type||'Training')+'</strong><small>'+safe(fmtDate(s.date))+(s.time?' · '+safe(s.time):'')+' · '+(s.exerciseIds||[]).length+' Übungen</small></div><button type="button" data-v36-id="'+safe(s.id)+'">Details</button></div>').join('')||'<p>Keine abgeschlossenen Trainings für diese Auswahl vorhanden.</p>';
+  more.hidden=matches.length<=visible;
+ }
+ search.addEventListener('input',()=>{visible=20;draw()});period.addEventListener('change',()=>{visible=20;draw()});more.addEventListener('click',()=>{visible+=20;draw()});
+ results.addEventListener('click',e=>{const b=e.target.closest('button[data-v36-id]');if(b)showSessionDetails(b.dataset.v36Id)});
+ const previousRenderAll=renderAll;
+ renderAll=function(){previousRenderAll();draw()};
+ draw();
+})();
+</script></body></html>
