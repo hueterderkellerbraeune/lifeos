@@ -1675,4 +1675,329 @@ document.addEventListener('click',function(e){
  });
 })();
 </script>
+
+<style id="lifeos-year-return-v29-style">
+#ly29Return{display:none;align-items:center;gap:8px;max-width:100%;white-space:normal;text-align:left;background:#352438;color:#ffe4f0;border:1px solid #bd6190;border-radius:12px;padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer;touch-action:manipulation}
+#ly29Return.ly29-visible{display:inline-flex}
+#ly29Return:focus-visible{outline:3px solid #f493c1;outline-offset:2px}
+.ly29-return-wrap{margin:0 0 12px;min-width:0}
+@media(max-width:600px){#ly29Return{width:100%;justify-content:center}}
+</style>
+<script id="lifeos-year-return-v29-script">
+(()=>{
+ 'use strict';
+ const yearPanel=document.querySelector('#view-progress .ly27');
+ const monthView=document.getElementById('view-week');
+ if(!yearPanel||!monthView)return;
+ const container=document.createElement('div');container.className='ly29-return-wrap';
+ const button=document.createElement('button');button.type='button';button.id='ly29Return';
+ button.textContent='← Zurück zur Jahresübersicht';
+ button.setAttribute('aria-label','Zurück zur Jahresübersicht im Fortschrittsbereich');
+ container.append(button);
+ const title=monthView.querySelector('.section-title');
+ if(title)title.insertAdjacentElement('afterend',container);else monthView.prepend(container);
+ let returnAvailable=false;
+ // Der vorhandene Jahreskalender öffnet den Monatsplan beim Klick auf einen Tag.
+ // Danach erscheint nur für diese Navigation der Rückweg.
+ yearPanel.addEventListener('click',event=>{
+  const target=event.target;
+  if(!(target instanceof Element)||!target.closest('button[data-ly28-date]'))return;
+  returnAvailable=true;
+  button.classList.add('ly29-visible');
+ });
+ button.addEventListener('click',()=>{
+  if(!returnAvailable)return;
+  returnAvailable=false;
+  button.classList.remove('ly29-visible');
+  navTo('progress');
+  requestAnimationFrame(()=>yearPanel.scrollIntoView({behavior:'smooth',block:'start'}));
+ });
+ const originalNav=navTo;
+ navTo=function(view,...args){
+  if(view!=='week'&&view!=='progress'){
+   returnAvailable=false;button.classList.remove('ly29-visible');
+  }
+  return originalNav.call(this,view,...args);
+ };
+})();
+</script>
+
+<style id="lifeos-v30-style">
+#view-week .lifeos-v30-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px;max-width:100%;min-width:0}
+#view-week .lifeos-v30-actions button{border:1px solid rgba(201,70,130,.45);background:rgba(201,70,130,.12);color:inherit;border-radius:10px;padding:9px 12px;font:inherit;font-size:13px;min-height:40px;cursor:pointer;max-width:100%;white-space:normal}
+#view-week .session-card .item-body{min-width:0;overflow-wrap:anywhere}
+#quickActionsContent #lifeos-v30-move{background:#74345d;color:white}
+</style>
+<script id="lifeos-v30-script">
+(function(){
+ const originalRenderWeek=renderWeek;
+ renderWeek=function(...args){
+  const result=originalRenderWeek.apply(this,args);
+  const root=document.getElementById('weekList');
+  if(root){root.querySelectorAll('[data-session-card]').forEach(card=>{
+   if(card.querySelector('.lifeos-v30-actions'))return;
+   const actions=document.createElement('div');actions.className='lifeos-v30-actions';
+   const copy=document.createElement('button');copy.type='button';copy.textContent='Kopieren / Verschieben';copy.dataset.lifeosV30Manage=card.dataset.sessionCard;
+   actions.appendChild(copy);
+   const body=card.querySelector('.item-body');(body||card).appendChild(actions);
+  })}
+  return result;
+ };
+ const originalQuickActions=openQuickActions;
+ openQuickActions=function(kind,payload){
+  const result=originalQuickActions.call(this,kind,payload);
+  if(kind==='session'){
+   const container=document.querySelector('#quickActionsContent .quick-actions-buttons');
+   if(container&&!container.querySelector('#lifeos-v30-move')){
+    const btn=document.createElement('button');btn.type='button';btn.className='btn';btn.id='lifeos-v30-move';btn.textContent='Auf diesen Tag verschieben';container.insertBefore(btn,container.querySelector('#deleteQuickSession'));
+    const help=document.createElement('p');help.textContent='Beim Verschieben bleibt das Training mit allen bisherigen Einträgen erhalten. Es wird nur das Datum geändert.';container.after(help);
+   }
+  }
+  return result;
+ };
+ document.addEventListener('click',function(event){
+  const btn=event.target.closest('[data-lifeos-v30-manage]');
+  if(btn){event.preventDefault();event.stopImmediatePropagation();openQuickActions('session',{sessionId:btn.dataset.lifeosV30Manage});return}
+  const move=event.target.closest('#lifeos-v30-move');
+  if(!move)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  const overlay=document.getElementById('quickActionsOverlay');
+  const id=overlay?.dataset.sessionId;
+  const date=document.getElementById('copyTargetDate')?.value;
+  const session=data.sessions.find(s=>s.id===id);
+  if(!session||!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){alert('Bitte wähle ein gültiges Datum.');return}
+  if(session.date===date){toast('Das Training liegt bereits auf diesem Tag.');return}
+  session.date=date;
+  selectedDate=date;
+  const d=dateObj(date);
+  monthOffset=(d.getFullYear()-new Date().getFullYear())*12+d.getMonth()-new Date().getMonth();
+  closeQuickActions();
+  save();
+  navTo('week');
+  toast('Training auf '+fmtDate(date)+' verschoben.');
+ },true);
+})();
+</script>
+
+<style id="lifeos-v31-style">
+#lifeos-v31-weekcopy{margin:16px 0;padding:16px;border:1px solid rgba(190,70,125,.35);border-radius:14px;background:rgba(190,70,125,.07);max-width:100%;box-sizing:border-box}
+#lifeos-v31-weekcopy h3{margin:0 0 8px;font-size:17px}
+#lifeos-v31-weekcopy p{font-size:13px;line-height:1.5}
+#lifeos-v31-weekcopy .v31-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:10px}
+#lifeos-v31-weekcopy label{display:flex;flex-direction:column;gap:5px;font-size:13px}
+#lifeos-v31-weekcopy input{width:100%;min-width:0;box-sizing:border-box;padding:10px;border-radius:8px;border:1px solid #b8a5af;color:#252025;background:#fff;font:inherit}
+#lifeos-v31-weekcopy .v31-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+#lifeos-v31-weekcopy .v31-actions button{padding:10px 15px;border:0;border-radius:9px;background:#ae3677;color:white;font:inherit;cursor:pointer}
+#lifeos-v31-weekcopy .v31-status{font-size:13px;overflow-wrap:anywhere}
+</style>
+<script id="lifeos-v31-script">
+(function(){
+ const root=document.getElementById('view-week');
+ if(!root)return;
+ const panel=document.createElement('section');
+ panel.id='lifeos-v31-weekcopy';
+ panel.innerHTML='<h3>Trainingswoche kopieren</h3><p>Kopiere alle Trainingseinheiten einer Woche auf eine andere Woche. Die Wochentage und Uhrzeiten bleiben erhalten. Abgeschlossene Trainings werden als neue, geplante Einheiten angelegt; abgehakte Sätze werden zurückgesetzt.</p><div class="v31-fields"><label>Ein Tag der Quellwoche<input type="date" id="v31-from"></label><label>Ein Tag der Zielwoche<input type="date" id="v31-to"></label></div><div class="v31-actions"><button type="button" id="v31-copy">Woche kopieren</button><span class="v31-status" id="v31-status" aria-live="polite"></span></div>';
+ const anchor=document.getElementById('weekList');
+ if(anchor)anchor.after(panel);else root.append(panel);
+ const from=document.getElementById('v31-from'),to=document.getElementById('v31-to'),status=document.getElementById('v31-status');
+ function monday(str){const d=new Date(str+'T12:00:00');if(Number.isNaN(d.getTime()))return null;d.setDate(d.getDate()-(d.getDay()+6)%7);return d}
+ function plus(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return iso(x)}
+ function resetRecords(node){
+  if(!node||typeof node!=='object')return;
+  if(Array.isArray(node)){node.forEach(resetRecords);return}
+  if(Object.prototype.hasOwnProperty.call(node,'done'))node.done=false;
+  if(Object.prototype.hasOwnProperty.call(node,'completed'))node.completed=false;
+  if(Object.prototype.hasOwnProperty.call(node,'checked'))node.checked=false;
+  Object.values(node).forEach(v=>{if(v&&typeof v==='object')resetRecords(v)});
+ }
+ const today=todayISO();from.value=today;to.value=plus(monday(today),7);
+ document.getElementById('v31-copy').addEventListener('click',()=>{
+  const start=monday(from.value),target=monday(to.value);
+  if(!start||!target){status.textContent='Bitte zwei gültige Daten auswählen.';return}
+  const a=iso(start),b=plus(start,7),delta=Math.round((target-start)/86400000);
+  if(delta===0){status.textContent='Bitte eine andere Zielwoche auswählen.';return}
+  const source=data.sessions.filter(s=>s.date>=a&&s.date<b);
+  if(!source.length){status.textContent='In dieser Quellwoche gibt es keine Trainingseinheiten.';return}
+  const targetDates=new Set(source.map(s=>plus(dateObj(s.date),delta)));
+  const overlap=data.sessions.filter(s=>targetDates.has(s.date)).length;
+  const message=source.length+' Trainingseinheit(en) von '+fmtDate(a)+' bis '+fmtDate(plus(start,6))+' kopieren?'+(overlap?' In der Zielwoche existieren bereits '+overlap+' Einheit(en). Die Kopien kommen zusätzlich hinzu.':'');
+  if(!confirm(message))return;
+  const copies=source.map(s=>{
+   const c=JSON.parse(JSON.stringify(s));
+   c.id=uid();c.date=plus(dateObj(s.date),delta);c.status='planned';
+   delete c.lifeosSeriesId;delete c.lifeosSeriesIndex;delete c.lifeosSeriesStart;
+   resetRecords(c.exerciseDetails);
+   return c;
+  });
+  data.sessions.push(...copies);
+  if(!save()){data.sessions.splice(data.sessions.length-copies.length,copies.length);status.textContent='Speichern fehlgeschlagen. Keine weiteren Änderungen vornehmen, bevor du die Daten sicherst.';return}
+  selectedDate=copies[0].date;
+  monthOffset=(target.getFullYear()-new Date().getFullYear())*12+target.getMonth()-new Date().getMonth();
+  renderWeek();
+  status.textContent=copies.length+' Trainingseinheit(en) erfolgreich kopiert.';
+  toast('Trainingswoche kopiert.');
+ });
+})();
+</script>
+
+<style id="lifeos-v32-style">
+#lifeos-v32-recurring{margin:16px 0;padding:16px;border:1px solid #d9abc7;border-radius:14px;background:#fff7fb;color:#34232d;max-width:100%;box-sizing:border-box}
+#lifeos-v32-recurring h3{margin:0 0 8px;font-size:17px}
+#lifeos-v32-recurring p{font-size:13px;line-height:1.5}
+#lifeos-v32-recurring .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:10px}
+#lifeos-v32-recurring label{display:flex;flex-direction:column;gap:5px;font-size:13px}
+#lifeos-v32-recurring input{min-width:0;width:100%;padding:10px;border:1px solid #bda4b2;border-radius:8px;background:white;color:#242024}
+#lifeos-v32-recurring button{margin-top:12px;background:#ae3677;border:0;border-radius:9px;color:white;padding:10px 15px;font:inherit}
+#lifeos-v32-recurring .status{display:block;margin-top:8px;font-size:13px}
+</style>
+<script id="lifeos-v32-script">
+(function(){
+ const root=document.getElementById('view-week');
+ if(!root)return;
+ const box=document.createElement('section');box.id='lifeos-v32-recurring';
+ box.innerHTML='<h3>Wiederkehrenden Wochenplan erstellen</h3><p>Nutze die Trainings einer bestehenden Woche als Muster. LifeOS plant dieselben Wochentage für die nächsten Wochen automatisch ein. Die Originaleinheiten bleiben unverändert.</p><div class="fields"><label>Vorlagenwoche (beliebiger Tag)<input id="v32-source" type="date"></label><label>Erste neue Woche (beliebiger Tag)<input id="v32-target" type="date"></label><label>Anzahl Wochen (1–12)<input id="v32-count" type="number" min="1" max="12" value="4"></label></div><button id="v32-create" type="button">Wochenplan erstellen</button><span class="status" id="v32-status" aria-live="polite"></span>';
+ const v31=document.getElementById('lifeos-v31-weekcopy');
+ if(v31)v31.after(box);else root.append(box);
+ const source=document.getElementById('v32-source'),target=document.getElementById('v32-target'),count=document.getElementById('v32-count'),status=document.getElementById('v32-status');
+ function monday(s){if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return null;const d=new Date(s+'T12:00:00');if(Number.isNaN(d.getTime()))return null;d.setDate(d.getDate()-(d.getDay()+6)%7);return d}
+ function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return iso(x)}
+ source.value=todayISO();target.value=addDays(monday(todayISO()),7);
+ document.getElementById('v32-create').addEventListener('click',()=>{
+  const start=monday(source.value),end=monday(target.value),weeks=Number(count.value);
+  if(!start||!end||!Number.isInteger(weeks)||weeks<1||weeks>12){status.textContent='Bitte gültige Daten und 1 bis 12 Wochen wählen.';return}
+  const a=iso(start),b=addDays(start,7),templates=data.sessions.filter(s=>s.date>=a&&s.date<b);
+  if(!templates.length){status.textContent='In der Vorlagenwoche sind keine Trainingseinheiten vorhanden.';return}
+  if(end<=start){status.textContent='Die erste neue Woche muss nach der Vorlagenwoche liegen.';return}
+  const total=templates.length*weeks;
+  if(total>120){status.textContent='Maximal 120 neue Einheiten pro Vorgang. Bitte weniger Wochen wählen.';return}
+  const existing=data.sessions.filter(s=>s.date>=iso(end)&&s.date<addDays(end,weeks*7)).length;
+  if(!confirm(total+' neue Trainingseinheiten für '+weeks+' Wochen anlegen?'+(existing?' Im Zielzeitraum existieren bereits '+existing+' Einheiten; sie bleiben erhalten.':'')))return;
+  const group=uid(),copies=[];
+  for(let w=0;w<weeks;w++)for(const s of templates){
+   const offset=Math.round((new Date(s.date+'T12:00:00')-start)/86400000);
+   const c=JSON.parse(JSON.stringify(s));
+   c.id=uid();c.date=addDays(end,w*7+offset);c.status='planned';
+   c.lifeosSeriesId=group;c.lifeosSeriesMode='weekly-plan';c.lifeosSeriesIndex=w;
+   if(c.exerciseDetails&&typeof c.exerciseDetails==='object')for(const details of Object.values(c.exerciseDetails)){
+    if(details&&typeof details==='object'&&Array.isArray(details.setRecords))details.setRecords=details.setRecords.map(r=>({...r,done:false}));
+   }
+   copies.push(c);
+  }
+  data.sessions.push(...copies);
+  if(!save()){data.sessions.splice(data.sessions.length-copies.length,copies.length);status.textContent='Speichern fehlgeschlagen. Bitte Speicherplatz prüfen.';return}
+  status.textContent=total+' Trainingseinheiten geplant.';
+  toast('Wiederkehrender Wochenplan erstellt.');
+ });
+})();
+</script>
+
+<style id="lifeos-v33-style">
+#lifeos-v33-series{margin:16px 0;padding:16px;border:1px solid #d9abc7;border-radius:14px;background:#fff7fb;color:#34232d;box-sizing:border-box;max-width:100%}
+#lifeos-v33-series h3{margin:0 0 8px;font-size:17px}
+#lifeos-v33-series p{font-size:13px;line-height:1.45}
+#lifeos-v33-series .v33-item{border-top:1px solid #e6cad9;padding:12px 0}
+#lifeos-v33-series .v33-item strong{display:block;overflow-wrap:anywhere}
+#lifeos-v33-series .v33-item small{display:block;margin-top:4px}
+#lifeos-v33-series .v33-buttons{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+#lifeos-v33-series button{border:1px solid #ba6b95;border-radius:8px;background:#fff;color:#6b254b;padding:8px 10px;font:inherit;font-size:12px;cursor:pointer}
+#lifeos-v33-series button.danger{background:#a12f57;color:white;border-color:#a12f57}
+</style>
+<script id="lifeos-v33-script">
+(function(){
+ const root=document.getElementById('view-week');if(!root)return;
+ const panel=document.createElement('section');panel.id='lifeos-v33-series';
+ const previous=document.getElementById('lifeos-v32-recurring');
+ if(previous)previous.after(panel);else root.append(panel);
+ function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+ function groups(){
+  const map=new Map();
+  for(const s of data.sessions){
+   if(!s.lifeosSeriesId)continue;
+   if(!map.has(s.lifeosSeriesId))map.set(s.lifeosSeriesId,[]);
+   map.get(s.lifeosSeriesId).push(s);
+  }
+  return [...map.entries()].map(([id,items])=>({id,items:items.sort((a,b)=>a.date.localeCompare(b.date))})).sort((a,b)=>a.items[0].date.localeCompare(b.items[0].date));
+ }
+ function draw(){
+  const all=groups();
+  panel.innerHTML='<h3>Trainingsserien verwalten</h3><p>Hier kannst du wiederkehrende Trainingsserien ansehen, künftige Termine entfernen oder eine Serie auflösen. Bereits absolvierte Trainings bleiben bei „Künftige Termine beenden“ erhalten.</p>'+
+   (all.length?all.map(({id,items})=>{
+    const future=items.filter(s=>s.date>=todayISO()&&s.status!=='completed');
+    const label=items[0].title||'Trainingsserie';
+    return '<div class="v33-item"><strong>'+escapeHtml(label)+'</strong><small>'+items.length+' Termine · '+escapeHtml(items[0].date)+' bis '+escapeHtml(items[items.length-1].date)+' · '+future.length+' zukünftige, nicht abgeschlossene Termine</small><div class="v33-buttons"><button type="button" data-v33="rename" data-id="'+escapeHtml(id)+'">Alle zukünftigen umbenennen</button><button type="button" data-v33="stop" data-id="'+escapeHtml(id)+'">Künftige Termine beenden</button><button type="button" data-v33="detach" data-id="'+escapeHtml(id)+'">Serie auflösen</button><button type="button" class="danger" data-v33="delete" data-id="'+escapeHtml(id)+'">Ganze Serie löschen</button></div></div>'
+   }).join(''):'<p>Aktuell sind keine wiederkehrenden Trainingsserien vorhanden.</p>');
+ }
+ const oldRender=renderAll;
+ renderAll=function(){oldRender();draw()};
+ panel.addEventListener('click',e=>{
+  const btn=e.target.closest('button[data-v33]');if(!btn)return;
+  const id=btn.dataset.id,action=btn.dataset.v33;
+  const items=data.sessions.filter(s=>s.lifeosSeriesId===id);
+  if(!items.length){draw();return}
+  const future=items.filter(s=>s.date>=todayISO()&&s.status!=='completed');
+  if(action==='rename'){
+   if(!future.length){toast('Keine zukünftigen, offenen Termine vorhanden.');return}
+   const name=prompt('Neuer Name für alle zukünftigen, nicht abgeschlossenen Termine:',future[0].title||'Training');
+   if(!name?.trim())return;
+   const previous=future.map(s=>s.title);
+   future.forEach(s=>s.title=name.trim());
+   if(!save()){future.forEach((s,i)=>s.title=previous[i]);return}
+   toast('Zukünftige Termine umbenannt.');return;
+  }
+  if(action==='stop'){
+   if(!future.length){toast('Keine zukünftigen, offenen Termine vorhanden.');return}
+   if(!confirm(future.length+' zukünftige, nicht abgeschlossene Termine entfernen? Frühere und abgeschlossene Trainings bleiben erhalten.'))return;
+   const ids=new Set(future.map(s=>s.id));
+   data.sessions=data.sessions.filter(s=>!ids.has(s.id));
+   if(!save()){data.sessions.push(...future);return}
+   toast('Künftige Serientermine beendet.');return;
+  }
+  if(action==='detach'){
+   if(!confirm('Alle '+items.length+' Termine von der Serie lösen? Die Trainings bleiben bestehen, sind danach aber unabhängig.'))return;
+   const backup=items.map(s=>[s,s.lifeosSeriesId,s.lifeosSeriesMode,s.lifeosSeriesIndex]);
+   items.forEach(s=>{delete s.lifeosSeriesId;delete s.lifeosSeriesMode;delete s.lifeosSeriesIndex});
+   if(!save()){backup.forEach(([s,id,mode,index])=>{s.lifeosSeriesId=id;s.lifeosSeriesMode=mode;s.lifeosSeriesIndex=index});return}
+   toast('Serie aufgelöst.');return;
+  }
+  if(action==='delete'){
+   if(!confirm('ACHTUNG: Alle '+items.length+' Termine dieser Serie unwiderruflich löschen, auch bereits abgeschlossene?'))return;
+   const ids=new Set(items.map(s=>s.id));
+   data.sessions=data.sessions.filter(s=>!ids.has(s.id));
+   if(!save()){data.sessions.push(...items);return}
+   toast('Serie gelöscht.');
+  }
+ });
+ draw();
+})();
+</script>
+
+<style id="lifeos-v34-style">
+#view-plans .lifeos-plan-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;align-items:start}
+#view-plans .lifeos-plan-sections>section{margin:0;min-width:0}
+#view-plans .lifeos-plan-sections>section h3{line-height:1.35}
+#view-plans .lifeos-plan-intro{margin-bottom:16px}
+#view-plans .lifeos-plan-back{margin-bottom:16px}
+@media(max-width:700px){#view-plans .lifeos-plan-sections{grid-template-columns:minmax(0,1fr)}}
+</style>
+<script id="lifeos-v34-script">
+(function(){
+ const nav=document.getElementById('nav');
+ const weekNav=nav?.querySelector('[data-view="week"]');
+ if(!nav||!weekNav)return;
+ const button=document.createElement('button');
+ button.type='button';button.dataset.view='plans';
+ button.innerHTML='<span class="ico">▤</span>Trainingspläne & Vorlagen';
+ weekNav.after(button);
+ const section=document.createElement('section');
+ section.className='view';section.id='view-plans';
+ section.innerHTML='<div class="section-title"><div><h2>Trainingspläne & Vorlagen</h2><p>Plane mehrere Wochen, kopiere Trainingswochen und verwalte wiederkehrende Serien – getrennt vom Monatskalender.</p></div></div><button type="button" class="btn secondary lifeos-plan-back" data-go="week">← Zurück zum Monatsplan</button><div class="notice lifeos-plan-intro">Tipp: Erstelle zuerst deine Trainingseinheiten im Monatsplan. Hier kannst du eine vorhandene Woche als Vorlage verwenden.</div><div class="lifeos-plan-sections" id="lifeos-v34-sections"></div>';
+ document.getElementById('view-week').after(section);
+ const target=document.getElementById('lifeos-v34-sections');
+ ['lifeos-v31-weekcopy','lifeos-v32-recurring','lifeos-v33-series'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)target.appendChild(el);
+ });
+ // In v33, the series list is updated by renderAll; relocating it preserves its listeners.
+})();
+</script>
 </body></html>
