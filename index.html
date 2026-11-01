@@ -2289,4 +2289,102 @@ input::placeholder,textarea::placeholder{color:var(--muted)}
  #view-dashboard .columns{gap:12px}
 }
 </style>
+
+<style id="forest-calm-v39-training-details">
+/* Forest Calm: training detail view, editable exercise settings, set records. */
+#sessionDetailOverlay,
+#sessionDetailOverlay .detail-dialog{
+ background:var(--bg)!important;color:var(--ink)!important;
+}
+#sessionDetailOverlay .detail-dialog{max-width:960px!important}
+#sessionDetailOverlay .panel-head{
+ background:var(--bg)!important;border-color:var(--line)!important;
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+#sessionDetailOverlay .panel-head h3,
+#sessionDetailOverlay .exercise-detail h4{color:var(--ink)!important}
+#sessionDetailOverlay .eyebrow,
+#sessionDetailOverlay .sub,
+#sessionDetailOverlay .exercise-detail p,
+#sessionDetailOverlay .detail-meta small{color:var(--muted)!important}
+#sessionDetailOverlay .detail-meta{gap:9px}
+#sessionDetailOverlay .detail-meta>div,
+#sessionDetailOverlay .exercise-detail,
+#sessionDetailOverlay .lifeos-add-panel,
+#sessionDetailOverlay .lifeos-template-toolbar{
+ background:var(--panel)!important;color:var(--ink)!important;
+ border:1px solid var(--line)!important;border-radius:15px!important;
+ box-shadow:var(--shadow)!important;
+}
+#sessionDetailOverlay .detail-meta>div{padding:12px;min-width:0;overflow-wrap:anywhere}
+#sessionDetailOverlay .detail-meta b{color:var(--ink)!important}
+#sessionDetailOverlay .exercise-detail{padding:15px;margin-top:12px;max-width:100%;min-width:0}
+#sessionDetailOverlay .exercise-detail h4{font-size:17px;line-height:1.35;margin:0 0 8px}
+#sessionDetailOverlay .exercise-detail .form-grid{gap:10px}
+#sessionDetailOverlay .exercise-detail .field{min-width:0}
+#sessionDetailOverlay .exercise-detail .field label{color:var(--muted);font-weight:650;font-size:12px}
+#sessionDetailOverlay .exercise-detail input[type="number"],
+#sessionDetailOverlay .exercise-detail input[type="text"],
+#sessionDetailOverlay .lifeos-add-panel input,
+#sessionDetailOverlay .lifeos-add-panel select{
+ min-height:44px;min-width:0;max-width:100%;width:100%!important;
+ background:var(--fc-soft)!important;color:var(--ink)!important;
+ border:1px solid var(--line)!important;border-radius:10px!important;
+ font-size:16px!important;box-sizing:border-box;
+}
+#sessionDetailOverlay .exercise-detail input:focus-visible,
+#sessionDetailOverlay .lifeos-add-panel input:focus-visible{
+ outline:2px solid var(--green);outline-offset:2px;
+}
+#sessionDetailOverlay .exercise-detail input[type="checkbox"]{
+ accent-color:var(--green);width:23px;height:23px;min-height:23px;
+}
+#sessionDetailOverlay .exercise-detail table.table{max-width:100%;min-width:0!important;width:100%;color:var(--ink)}
+#sessionDetailOverlay .exercise-detail table.table th{color:var(--muted);background:var(--fc-soft)}
+#sessionDetailOverlay .exercise-detail table.table td{color:var(--ink);border-color:var(--line)}
+#sessionDetailOverlay .exercise-detail table.table tr{border-color:var(--line)}
+#sessionDetailOverlay .lifeos-set-actions button{
+ background:var(--fc-soft)!important;color:var(--ink)!important;
+ border:1px solid var(--line)!important;border-radius:10px;
+}
+#sessionDetailOverlay .lifeos-set-actions button:last-child{
+ color:var(--ink)!important;border-color:var(--line)!important;
+}
+#sessionDetailOverlay .lifeos-picker-row{
+ background:var(--fc-soft)!important;color:var(--ink)!important;border-color:var(--line)!important;
+}
+#sessionDetailOverlay .lifeos-picker-info{color:var(--ink)!important}
+#sessionDetailOverlay .lifeos-picker-info small{color:var(--muted)!important}
+#sessionDetailOverlay .lifeos-picker-add,
+#sessionDetailOverlay .btn:not(.secondary):not(.ghost):not(.danger){
+ background:var(--fc-button)!important;color:var(--fc-button-text)!important;border-color:transparent!important;
+}
+#sessionDetailOverlay .btn.secondary{
+ background:var(--fc-soft)!important;color:var(--ink)!important;border:1px solid var(--line)!important;
+}
+#sessionDetailOverlay .form-actions{display:flex;flex-wrap:wrap;gap:9px}
+#sessionDetailOverlay .form-actions .btn{min-height:44px}
+#sessionDetailOverlay #lifeosAutosaveStatus{color:var(--green)!important}
+@media(max-width:680px){
+ #sessionDetailOverlay .detail-dialog{padding:12px!important}
+ #sessionDetailOverlay .panel-head{padding:9px 0 11px!important}
+ #sessionDetailOverlay .panel-head h3{font-size:18px}
+ #sessionDetailOverlay .detail-meta{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #sessionDetailOverlay .detail-meta>div{padding:10px}
+ #sessionDetailOverlay .exercise-detail{padding:12px;margin-top:10px}
+ #sessionDetailOverlay .exercise-detail .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #sessionDetailOverlay .exercise-detail table.table tr{
+  background:var(--fc-soft)!important;border:1px solid var(--line)!important;
+  border-radius:12px;padding:10px;gap:8px;
+ }
+ #sessionDetailOverlay .exercise-detail table.table td:nth-child(3)::before,
+ #sessionDetailOverlay .exercise-detail table.table td:nth-child(4)::before{
+  color:var(--muted)!important;
+ }
+ #sessionDetailOverlay .form-actions .btn{flex:1 1 150px}
+}
+@media(prefers-reduced-motion:reduce){
+ #sessionDetailOverlay *{scroll-behavior:auto!important;transition:none!important}
+}
+</style>
 </body></html>
