@@ -811,4 +811,170 @@ document.addEventListener('click',function(e){
  const oldRender=renderProgress;renderProgress=function(){oldRender();refresh();};
  refresh();
 })();
-</script></body></html>
+</script><style id="lifeos-v11-style">
+.lifeos-compare{margin-top:17px;border-top:1px solid #41495b;padding-top:16px}.lifeos-compare h4{margin:0 0 9px;color:#fff;font-size:17px}.lifeos-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.lifeos-compare-grid>div{background:#202838;border:1px solid #414a5b;border-radius:12px;padding:12px;min-width:0}.lifeos-compare-grid small{color:#b9c2d0;display:block}.lifeos-compare-grid strong{color:#fff;display:block;font-size:16px;margin:5px 0}.lifeos-compare-grid span{color:#ff90c5;font-weight:750;font-size:13px}.lifeos-pr{margin:12px 0;padding:12px;border:1px solid #874b6c;background:#392537;border-radius:12px;color:#ffe5f1}.lifeos-pr b{color:#ff8fc3}.lifeos-compare-note{font-size:12px;color:#b8c1ce;margin-top:11px}.lifeos-compare-grid select{margin-top:8px;max-width:100%}@media(max-width:450px){.lifeos-compare-grid{grid-template-columns:1fr}}
+</style>
+<script id="lifeos-v11-script">
+// Version 11: persönliche Bestleistungen und frei wählbarer Vergleich zweier Einheiten.
+(function(){
+ const host=document.getElementById('lifeosPerformancePanel');if(!host)return;
+ const box=document.createElement('section');box.className='lifeos-compare';box.innerHTML='<h4>🏆 Bestleistungen & Trainingsvergleich</h4><div id="lifeosPR"></div><div class="lifeos-compare-grid"><div><label for="lifeosCompareA"><small>Ältere Trainingseinheit</small></label><select id="lifeosCompareA"></select></div><div><label for="lifeosCompareB"><small>Neuere Trainingseinheit</small></label><select id="lifeosCompareB"></select></div></div><div id="lifeosCompareResult" aria-live="polite"></div><p class="lifeos-compare-note">Verglichen werden nur abgehakte Sätze mit tatsächlich eingetragenen Werten. Gewicht und Wiederholungen sind getrennte Bestleistungen und müssen nicht aus demselben Satz stammen.</p>';
+ host.append(box);
+ const exSelect=document.getElementById('lifeosPerformanceExercise'),a=box.querySelector('#lifeosCompareA'),b=box.querySelector('#lifeosCompareB'),out=box.querySelector('#lifeosCompareResult'),pr=box.querySelector('#lifeosPR');
+ const fmt=x=>Number(x).toLocaleString('de-DE',{maximumFractionDigits:1});
+ const val=x=>x===''||x===null||x===undefined?null:(Number.isFinite(Number(x))&&Number(x)>=0?Number(x):null);
+ function records(){const chosen=exSelect?.value;if(!chosen)return [];
+  const items=[];
+  for(const s of data.sessions||[]){if(!s.date||s.date>new Date().toISOString().slice(0,10))continue;
+   (s.exerciseIds||[]).forEach((id,i)=>{if(id!==chosen)return;const key=s.exerciseEntryIds?.[i]||id;const detail=s.exerciseDetails?.[key]||s.exerciseDetails?.[id]||{};
+    const sets=(detail.setRecords||[]).filter(r=>r&&r.done===true);
+    if(!sets.length)return;
+    const weights=sets.map(r=>val(r.weight)).filter(n=>n!==null),reps=sets.map(r=>val(r.reps)).filter(n=>n!==null);
+    items.push({key:String(s.id)+'-'+i,date:s.date,name:s.title||s.type||'Training',sets:sets.length,weight:weights.length?Math.max(...weights):null,reps:reps.length?Math.max(...reps):null,volume:sets.reduce((sum,r)=>{const w=val(r.weight),n=val(r.reps);return sum+(w!==null&&n!==null?w*n:0)},0),hasVolume:sets.some(r=>val(r.weight)!==null&&val(r.reps)!==null)});
+   });
+  }
+  return items.sort((x,y)=>x.date.localeCompare(y.date)||x.key.localeCompare(y.key));
+ }
+ function options(sel,items,preferred){sel.replaceChildren();items.forEach(item=>{const option=document.createElement('option');option.value=item.key;option.textContent=item.date+' · '+item.name;sel.append(option)});if(items.some(x=>x.key===preferred))sel.value=preferred;}
+ function compare(items){const left=items.find(x=>x.key===a.value),right=items.find(x=>x.key===b.value);if(!left||!right){out.textContent='Für den Vergleich sind zwei absolvierte Übungseinträge nötig.';return;}
+  const lines=[['Erledigte Sätze',left.sets,right.sets,''],['Max. Gewicht',left.weight,right.weight,' kg'],['Max. Wiederholungen',left.reps,right.reps,''],['Trainingsvolumen',left.hasVolume?left.volume:null,right.hasVolume?right.volume:null,' kg × Wdh.']];
+  const table=document.createElement('div');table.className='lifeos-compare-grid';
+  for(const [label,x,y,unit] of lines){const cell=document.createElement('div');const labelEl=document.createElement('small');labelEl.textContent=label;const values=document.createElement('strong');values.textContent=(x===null?'—':fmt(x))+' → '+(y===null?'—':fmt(y))+unit;const diff=document.createElement('span');diff.textContent=x===null||y===null?'Kein vollständiger Vergleich':(y>x?'▲ +':y<x?'▼ −':'= ')+fmt(Math.abs(y-x))+unit;cell.append(labelEl,values,diff);table.append(cell)}out.replaceChildren(table);
+ }
+ function refresh(){const items=records();if(!items.length){pr.textContent='Noch keine abgehakten Sätze für diese Übung.';a.replaceChildren();b.replaceChildren();out.replaceChildren();return;}
+  const bestW=items.filter(x=>x.weight!==null).sort((x,y)=>y.weight-x.weight)[0],bestR=items.filter(x=>x.reps!==null).sort((x,y)=>y.reps-x.reps)[0],bestV=items.filter(x=>x.hasVolume).sort((x,y)=>y.volume-x.volume)[0];
+  pr.replaceChildren();const head=document.createElement('b');head.textContent='Deine persönlichen Bestleistungen';pr.append(head);
+  const p=document.createElement('div');p.textContent='Gewicht: '+(bestW?fmt(bestW.weight)+' kg ('+bestW.date+')':'—')+' · Wiederholungen: '+(bestR?fmt(bestR.reps)+' ('+bestR.date+')':'—')+' · Volumen: '+(bestV?fmt(bestV.volume)+' kg × Wdh. ('+bestV.date+')':'—');pr.append(p);
+  const oldA=a.value,oldB=b.value;options(a,items,oldA||items[Math.max(0,items.length-2)].key);options(b,items,oldB||items[items.length-1].key);compare(items);
+ }
+ exSelect?.addEventListener('change',refresh);a.addEventListener('change',()=>compare(records()));b.addEventListener('change',()=>compare(records()));
+ const previous=renderProgress;renderProgress=function(){previous();refresh()};refresh();
+})();
+</script>
+<style id="lifeos-v12-style">
+.lifeos-last-session{margin:12px 0;padding:12px 14px;border:1px solid #76516a;border-radius:13px;background:rgba(204,82,142,.10);color:inherit}
+.lifeos-last-session-title{font-weight:750;font-size:14px;margin-bottom:7px}
+.lifeos-last-session-rows{display:flex;flex-wrap:wrap;gap:7px}
+.lifeos-last-session-chip{border-radius:9px;padding:7px 9px;background:rgba(130,130,145,.14);font-size:13px}
+.lifeos-last-session-empty{font-size:13px;opacity:.8}
+.lifeos-last-session small{font-size:12px;opacity:.85}
+</style>
+<script id="lifeos-v12-script">
+// Version 12: Letztes abgeschlossenes Training direkt an jeder Übung anzeigen.
+(function(){
+ const previousShow=showSessionDetails;
+ const numeric=v=>v===''||v===null||v===undefined||!Number.isFinite(Number(v))?null:Number(v);
+ function renderHistory(id){
+  const session=(data.sessions||[]).find(s=>String(s.id)===String(id));
+  const root=document.getElementById('sessionDetailContent');
+  if(!session||!root)return;
+  const cards=[...root.querySelectorAll('.exercise-detail[data-exercise-id]')];
+  cards.forEach((card,index)=>{
+   const exerciseId=(session.exerciseIds||[])[index];
+   if(!exerciseId)return;
+   const history=[];
+   for(const other of data.sessions||[]){
+    if(String(other.id)===String(session.id)||!other.date||!session.date||other.date>session.date)continue;
+    (other.exerciseIds||[]).forEach((eid,i)=>{
+     if(String(eid)!==String(exerciseId))return;
+     const key=other.exerciseEntryIds?.[i]||eid;
+     const detail=other.exerciseDetails?.[key]||other.exerciseDetails?.[eid];
+     const sets=(detail?.setRecords||[]).filter(r=>r?.done===true);
+     if(sets.length)history.push({date:other.date,sets,sessionId:String(other.id),index:i});
+    });
+   }
+   history.sort((a,b)=>b.date.localeCompare(a.date)||b.sessionId.localeCompare(a.sessionId)||b.index-a.index);
+   const last=history[0];
+   const panel=document.createElement('section');panel.className='lifeos-last-session';
+   const title=document.createElement('div');title.className='lifeos-last-session-title';
+   title.textContent=last?'📋 Letztes Training · '+new Date(last.date+'T12:00:00').toLocaleDateString('de-DE'):'📋 Letztes Training';
+   panel.append(title);
+   if(!last){const empty=document.createElement('div');empty.className='lifeos-last-session-empty';empty.textContent='Für diese Übung gibt es noch keine früheren abgehakten Sätze.';panel.append(empty)}
+   else{
+    const rows=document.createElement('div');rows.className='lifeos-last-session-rows';
+    last.sets.forEach((set,i)=>{
+     const chip=document.createElement('div');chip.className='lifeos-last-session-chip';
+     const weight=numeric(set.weight),reps=numeric(set.reps);
+     chip.textContent='Satz '+(i+1)+': '+(weight===null?'–':weight.toLocaleString('de-DE')+' kg')+' × '+(reps===null?'–':reps.toLocaleString('de-DE'))+' Wdh.';
+     rows.append(chip);
+    });panel.append(rows);
+    const note=document.createElement('small');note.textContent='Nur tatsächlich abgehakte Sätze · Nur zur Ansicht';panel.append(note);
+   }
+   const old=card.querySelector('.lifeos-last-session');if(old)old.remove();
+   const heading=card.querySelector('h3,h4,.exercise-detail-title');
+   if(heading)heading.insertAdjacentElement('afterend',panel);else card.prepend(panel);
+  });
+ }
+ showSessionDetails=function(id){previousShow(id);renderHistory(id)};
+})();
+</script>
+
+<style id="lifeos-v13-style">
+.lifeos-copy-last{margin:8px 0 13px;display:flex;flex-direction:column;gap:6px}
+.lifeos-copy-last button{align-self:flex-start;border:1px solid #dc79a9;border-radius:11px;background:#e94791;color:white;padding:11px 14px;min-height:44px;font-weight:750;cursor:pointer}
+.lifeos-copy-last button:disabled{opacity:.55;cursor:default}
+.lifeos-copy-last small{font-size:12px;opacity:.8;line-height:1.4}
+</style>
+<script id="lifeos-v13-script">
+// V13: Vorherige tatsächliche Trainingswerte nur in leere, offene Satzfelder kopieren.
+(function(){
+ const prior=showSessionDetails;
+ const valid=v=>v!==''&&v!==null&&v!==undefined&&Number.isFinite(Number(v))&&Number(v)>=0;
+ function latest(session,exerciseId){
+  const candidates=[];
+  for(const other of data.sessions||[]){
+   if(String(other.id)===String(session.id)||!other.date||!session.date||other.date>session.date)continue;
+   (other.exerciseIds||[]).forEach((eid,i)=>{
+    if(String(eid)!==String(exerciseId))return;
+    const key=other.exerciseEntryIds?.[i]||eid;
+    const detail=other.exerciseDetails?.[key]||other.exerciseDetails?.[eid];
+    const records=detail?.setRecords||[];
+    if(records.some(r=>r?.done===true))candidates.push({date:other.date,id:String(other.id),index:i,records});
+   });
+  }
+  candidates.sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)||b.index-a.index);
+  return candidates[0]||null;
+ }
+ showSessionDetails=function(id){
+  prior(id);
+  const session=(data.sessions||[]).find(s=>String(s.id)===String(id));
+  const root=document.getElementById('sessionDetailContent');
+  if(!session||!root)return;
+  [...root.querySelectorAll('.exercise-detail[data-exercise-id]')].forEach((card,i)=>{
+   const exId=session.exerciseIds?.[i];if(!exId)return;
+   const last=latest(session,exId);
+   const wrap=document.createElement('div');wrap.className='lifeos-copy-last';
+   const button=document.createElement('button');button.type='button';button.dataset.lifeosCopyLast='1';
+   button.textContent='↙ Letzte Trainingswerte in freie Felder übernehmen';button.disabled=!last;
+   const help=document.createElement('small');help.textContent=last?'Übernimmt nur Werte aus abgehakten Sätzen in noch leere Felder. Bereits eingetragene Werte und Häkchen bleiben unverändert.':'Noch keine früheren absolvierten Sätze vorhanden.';
+   wrap.append(button,help);
+   const panel=card.querySelector('.lifeos-last-session');
+   if(panel)panel.insertAdjacentElement('afterend',wrap);
+   else card.querySelector('h4')?.insertAdjacentElement('afterend',wrap);
+  });
+ };
+ document.addEventListener('click',function(event){
+  const button=event.target.closest('[data-lifeos-copy-last]');if(!button)return;
+  const card=button.closest('.exercise-detail[data-exercise-id]');
+  const id=document.getElementById('sessionDetailOverlay')?.dataset.activeSessionId;
+  const session=(data.sessions||[]).find(s=>String(s.id)===String(id));
+  if(!card||!session)return;
+  const cards=[...document.querySelectorAll('#sessionDetailContent .exercise-detail[data-exercise-id]')];
+  const index=cards.indexOf(card);const exerciseId=session.exerciseIds?.[index];
+  const previous=latest(session,exerciseId);if(!previous)return;
+  let changes=0;
+  previous.records.forEach((record,i)=>{
+   if(!record?.done)return;
+   const done=card.querySelector('[data-set-done="'+i+'"]');
+   if(!done||done.checked)return;
+   for(const [attr,value] of [['data-set-reps',record.reps],['data-set-weight',record.weight]]){
+    const input=card.querySelector('['+attr+'="'+i+'"]');
+    if(input&&input.value===''&&valid(value)){input.value=String(value);changes++}
+   }
+  });
+  if(changes){lifeosPersistDetailInputs(false);toast(changes+' Werte aus dem letzten Training übernommen.');}
+  else toast('Keine freien Felder zum Übernehmen vorhanden.');
+ });
+})();
+</script>
+</body></html>
