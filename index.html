@@ -2102,4 +2102,191 @@ document.addEventListener('click',function(e){
  renderAll=function(){previousRenderAll();draw()};
  draw();
 })();
-</script></body></html>
+</script>
+<style id="forest-calm-v37">
+:root,[data-lifeos-theme="light"]{
+ --bg:#F3F7F2;--panel:#FFFFFF;--ink:#20362C;--muted:#62776A;--line:#D8E4D9;
+ --green:#315D48;--green2:#E4EFE7;--blue:#E6EFEA;--purple:#EAEFE8;--amber:#F5EEDC;
+ --shadow:0 4px 18px rgba(20,45,30,.055);
+ --fc-surface:#fff;--fc-soft:#E4EFE7;--fc-button:#315D48;--fc-button-text:#fff;
+}
+[data-lifeos-theme="dark"]{
+ color-scheme:dark;
+ --bg:#14231E;--panel:#20362C;--ink:#F2F6F1;--muted:#B6C8BB;--line:#385044;
+ --green:#A9D7BC;--green2:#294438;--blue:#294438;--purple:#294438;--amber:#3B4331;
+ --shadow:0 5px 18px rgba(0,0,0,.16);
+ --fc-surface:#20362C;--fc-soft:#294438;--fc-button:#A9D7BC;--fc-button-text:#14231E;
+}
+body{background:var(--bg);color:var(--ink);transition:background .15s,color .15s}
+.sidebar{background:var(--panel);border-color:var(--line)}
+.brand small,.nav-label,.stat-top,.stat small,.sub,.eyebrow{color:var(--muted)}
+.nav button{color:var(--ink)}.nav button.active{background:var(--green2);color:var(--green)}
+.nav button:hover:not(.active){background:var(--green2)}
+.side-note{background:var(--green2);color:var(--muted)}.side-note b{color:var(--ink)}
+.mobile-menu,.panel,.stat,.detail-dialog,.quick-actions-dialog{background:var(--panel);color:var(--ink);border-color:var(--line)}
+.hero{background:var(--green2);border-color:var(--line);color:var(--ink)}
+.hero p{color:var(--muted)}
+.btn:not(.secondary):not(.ghost){background:var(--fc-button);color:var(--fc-button-text);border-color:var(--fc-button)}
+.btn.secondary,.btn.ghost{background:var(--fc-soft);color:var(--ink);border-color:var(--line)}
+input,select,textarea{background:var(--fc-surface);color:var(--ink);border-color:var(--line)}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+.notice,.empty,.tint-green,.tint-blue,.tint-purple,.tint-amber{background:var(--green2);color:var(--ink)}
+#view-dashboard .stats{gap:10px;margin-bottom:16px}
+#view-dashboard .stat{padding:13px;min-height:0;border-radius:15px}
+#view-dashboard .stat strong{margin-top:7px;font-size:clamp(20px,3vw,26px)}
+#view-dashboard .stat-icon{background:var(--green2);color:var(--green)}
+#view-dashboard .hero{padding:17px 18px;margin-bottom:16px;border-radius:16px}
+#view-dashboard .hero h2{font-size:clamp(19px,4vw,23px)}
+#view-dashboard .panel{border-radius:16px}
+#view-dashboard .day{min-height:0}
+#view-dashboard .week{min-width:0}
+#view-dashboard .columns{gap:12px}
+#view-dashboard .panel,#view-dashboard .stat{box-shadow:var(--shadow)}
+#forest-calm-appearance{max-width:720px;margin-bottom:18px}
+#forest-calm-appearance select{width:100%;padding:11px;border-radius:10px}
+#forest-calm-appearance p{color:var(--muted);font-size:13px}
+[data-lifeos-theme="dark"] .lifeos-library-card,
+[data-lifeos-theme="dark"] #view-exercises .filters,
+[data-lifeos-theme="dark"] .exercise-detail-card,
+[data-lifeos-theme="dark"] .exercise-info-block,
+[data-lifeos-theme="dark"] .session-exercise-option,
+[data-lifeos-theme="dark"] .selected-exercises,
+[data-lifeos-theme="dark"] .lifeos-plan-intro,
+[data-lifeos-theme="dark"] #lifeos-v31-weekcopy,
+[data-lifeos-theme="dark"] #lifeos-v32-recurring,
+[data-lifeos-theme="dark"] #lifeos-v33-series,
+[data-lifeos-theme="dark"] #lifeos-v35-templates{
+ background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important;
+}
+[data-lifeos-theme="dark"] .lifeos-library-card h3,
+[data-lifeos-theme="dark"] .exercise-detail-card h3,
+[data-lifeos-theme="dark"] .lifeos-card-body h3{color:var(--ink)!important}
+[data-lifeos-theme="dark"] .lifeos-card-body p,
+[data-lifeos-theme="dark"] .lifeos-card-foot,
+[data-lifeos-theme="dark"] .lifeos-library-count{color:var(--muted)!important}
+[data-lifeos-theme="dark"] .exercise-tabs{background:var(--green2)!important}
+[data-lifeos-theme="dark"] .exercise-tabs button[aria-selected=true]{background:#315D48!important;color:#fff!important}
+[data-lifeos-theme="dark"] .lifeos-library-card:hover{border-color:#A9D7BC!important}
+[data-lifeos-theme="dark"] #lifeos-v31-weekcopy input,
+[data-lifeos-theme="dark"] #lifeos-v32-recurring input{background:var(--green2);color:var(--ink);border-color:var(--line)}
+[data-lifeos-theme="dark"] #lifeos-v31-weekcopy button,
+[data-lifeos-theme="dark"] #lifeos-v32-recurring button{background:#A9D7BC;color:#14231E}
+@media(max-width:680px){
+ #view-dashboard .hero{padding:14px}
+ #view-dashboard .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #view-dashboard .stat{padding:11px}
+ #view-dashboard .stat-top{font-size:12px}
+ #view-dashboard .stat strong{font-size:21px;margin-top:5px}
+ #view-dashboard .stat small{font-size:11px}
+ #view-dashboard .panel{padding:12px}
+ #view-dashboard .day{padding:5px 1px}
+}
+</style>
+<script id="forest-calm-v37-script">
+(function(){
+ const STORAGE='lifeos-forest-calm-appearance';
+ const modes=['light','dark','system'];
+ function preferred(){
+  try{const x=localStorage.getItem(STORAGE);return modes.includes(x)?x:'system'}catch(e){return 'system'}
+ }
+ let selected=preferred();
+ const media=window.matchMedia?.('(prefers-color-scheme: dark)');
+ function apply(){
+  const actual=selected==='system'?(media?.matches?'dark':'light'):selected;
+  document.documentElement.setAttribute('data-lifeos-theme',actual);
+  document.documentElement.style.colorScheme=actual;
+  const sel=document.getElementById('forest-calm-mode');if(sel)sel.value=selected;
+ }
+ apply();
+ if(media?.addEventListener)media.addEventListener('change',()=>{if(selected==='system')apply()});
+ const settings=document.getElementById('view-settings');
+ if(!settings)return;
+ const panel=document.createElement('div');panel.className='panel';panel.id='forest-calm-appearance';
+ panel.innerHTML='<div class="panel-head"><h3>Darstellung · Forest Calm</h3></div><div class="field"><label for="forest-calm-mode">Erscheinungsbild</label><select id="forest-calm-mode"><option value="system">Automatisch (Systemeinstellung)</option><option value="light">Hell – Forest Calm Light</option><option value="dark">Dunkel – Forest Calm Dark</option></select></div><p>Die Auswahl gilt für dieses Gerät und bleibt nach dem Schließen der App gespeichert. Deine Trainingsdaten werden nicht verändert.</p>';
+ const title=settings.querySelector('.section-title');
+ if(title)title.after(panel);else settings.prepend(panel);
+ panel.querySelector('select').addEventListener('change',e=>{
+  selected=e.target.value;try{localStorage.setItem(STORAGE,selected)}catch(err){}apply();
+ });
+ apply();
+})();
+</script>
+
+<style id="forest-calm-v38-calendar">
+/* Forest Calm phase 2: consistent calendar, training cards, dashboard preview. */
+#view-week{color:var(--ink)}
+#view-week .section-title h2,#view-week .panel-head h3,
+#view-week .lifeos-day-toolbar h3{color:var(--ink)}
+#view-week .section-title p,#view-week .sub,
+#view-week .lifeos-day-toolbar p,#view-week .month-weekday{color:var(--muted)}
+#view-week>.panel{background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:16px}
+#view-week .month-grid,#view-dashboard .month-grid{gap:4px;min-width:0}
+#view-week .month-day,#view-dashboard .month-day{
+ min-width:0;min-height:62px;padding:6px 4px;border:1px solid var(--line);
+ border-radius:9px;background:var(--fc-soft);color:var(--ink);
+ text-align:center;box-shadow:none;overflow:hidden;
+}
+#view-week .month-day.outside,#view-dashboard .month-day.outside{opacity:.40}
+#view-week .month-day.marked,#view-dashboard .month-day.marked{
+ background:var(--green2);border-color:var(--green);
+}
+#view-week .month-day.selected,#view-dashboard .month-day.selected{
+ background:var(--green2);border:2px solid var(--green);box-shadow:inset 0 0 0 1px var(--green);
+}
+#view-week .month-day.today:not(.selected),#view-dashboard .month-day.today:not(.selected){
+ border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green);
+}
+#view-week .month-day .date-number,#view-dashboard .month-day .date-number{font-size:12px}
+#view-week .month-day .pill,#view-dashboard .month-day .pill{
+ background:var(--panel);color:var(--ink);font-size:10px;
+ max-width:100%;overflow-wrap:anywhere;
+}
+#view-week .month-day .dot,#view-dashboard .month-day .dot{
+ background:var(--green);width:5px;height:5px;margin:4px auto 0;
+}
+#view-week .btn:not(.secondary):not(.ghost):not(.danger),
+#view-week .lifeos-day-toolbar button{
+ background:var(--fc-button);color:var(--fc-button-text);border:1px solid transparent;
+}
+#view-week .btn.secondary{background:var(--fc-soft);color:var(--ink);border:1px solid var(--line)}
+#view-week .session-card{
+ background:var(--fc-soft);color:var(--ink);border:1px solid var(--line);
+ border-radius:12px;box-shadow:none;max-width:100%;min-width:0;
+}
+#view-week .session-card:hover,#view-week .session-card:focus-visible{
+ border-color:var(--green);box-shadow:0 0 0 2px var(--line);
+}
+#view-week .session-card .item-icon{background:var(--panel);color:var(--green)}
+#view-week .session-card small{color:var(--muted)}
+#view-week .session-card .pill{background:var(--panel);color:var(--ink)}
+#view-week .empty{background:var(--fc-soft);color:var(--muted);border-color:var(--line)}
+#view-week .lifeos-day-toolbar{border-top:1px solid var(--line);margin:14px 0 10px;padding-top:12px}
+#view-week .lifeos-template-toolbar{background:var(--fc-soft);border-color:var(--line);color:var(--ink)}
+#view-week .lifeos-template-toolbar label{color:var(--ink)}
+#view-week .lifeos-template-toolbar .sub{color:var(--muted)}
+#view-week .lifeos-template-toolbar select{background:var(--panel);color:var(--ink);border-color:var(--line)}
+#view-dashboard .month-day{min-height:43px;padding:4px 2px}
+#view-dashboard .month-day .pill{display:none}
+#view-dashboard .month-day .date-number{font-size:11px}
+#view-dashboard .month-weekday{font-size:11px}
+#view-dashboard .panel-head .btn.ghost{color:var(--green)}
+#view-week .session-card [data-copy-move],
+#view-week .session-card button{max-width:100%}
+@media(max-width:680px){
+ #view-week .section-title{margin-bottom:12px}
+ #view-week .section-title h2{font-size:23px}
+ #view-week>.panel{padding:12px}
+ #view-week .panel-head{margin-bottom:10px}
+ #view-week .month-grid,#view-dashboard .month-grid{gap:3px}
+ #view-week .month-day{min-height:43px;padding:4px 1px;border-radius:7px}
+ #view-dashboard .month-day{min-height:38px;padding:3px 1px;border-radius:7px}
+ #view-week .month-day .date-number,#view-dashboard .month-day .date-number{font-size:11px}
+ #view-week .month-day .pill,#view-dashboard .month-day .pill{display:none}
+ #view-week .toolbar{gap:5px}
+ #view-week .toolbar .btn{font-size:12px;padding:8px 9px;min-height:38px}
+ #view-week .session-card{padding:10px;gap:7px}
+ #view-week .lifeos-day-toolbar button{min-height:42px}
+ #view-dashboard .columns{gap:12px}
+}
+</style>
+</body></html>
