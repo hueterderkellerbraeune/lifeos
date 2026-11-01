@@ -191,11 +191,60 @@
 #sessionDetailOverlay .detail-meta>div{background:#fff}
 #sessionDetailOverlay .detail-close{font-size:14px;white-space:nowrap}
 @media(max-width:680px){#sessionDetailOverlay .detail-dialog{padding:12px}#sessionDetailOverlay .detail-meta{grid-template-columns:1fr 1fr}}
-</style><style id="lifeos-training-step2">.lifeos-add-panel{background:#f9fcfa!important;margin-top:18px}.lifeos-picker-results{max-height:300px;overflow:auto;display:grid;gap:7px}.lifeos-picker-row{display:flex;gap:8px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:11px;padding:6px}.lifeos-picker-info{border:0;background:transparent;text-align:left;flex:1;min-width:0;padding:8px;color:var(--ink)}.lifeos-picker-info b,.lifeos-picker-info small{display:block}.lifeos-picker-info small{color:var(--muted);font-size:12px}.lifeos-picker-add{background:#e94791;color:#fff;border:0;border-radius:9px;min-width:43px;min-height:43px;font-size:25px}</style><style>.lifeos-template-toolbar{margin-top:18px;padding:15px;background:#f7faf8;border:1px solid var(--line);border-radius:14px}.lifeos-template-toolbar label{display:block;font-weight:750;margin-bottom:8px}.lifeos-template-toolbar select{min-width:180px;flex:1;padding:10px;border-radius:10px;border:1px solid var(--line)}</style></head>
+</style><style id="lifeos-training-step2">.lifeos-add-panel{background:#f9fcfa!important;margin-top:18px}.lifeos-picker-results{max-height:300px;overflow:auto;display:grid;gap:7px}.lifeos-picker-row{display:flex;gap:8px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:11px;padding:6px}.lifeos-picker-info{border:0;background:transparent;text-align:left;flex:1;min-width:0;padding:8px;color:var(--ink)}.lifeos-picker-info b,.lifeos-picker-info small{display:block}.lifeos-picker-info small{color:var(--muted);font-size:12px}.lifeos-picker-add{background:#e94791;color:#fff;border:0;border-radius:9px;min-width:43px;min-height:43px;font-size:25px}</style><style>.lifeos-template-toolbar{margin-top:18px;padding:15px;background:#f7faf8;border:1px solid var(--line);border-radius:14px}.lifeos-template-toolbar label{display:block;font-weight:750;margin-bottom:8px}.lifeos-template-toolbar select{min-width:180px;flex:1;padding:10px;border-radius:10px;border:1px solid var(--line)}</style><style id="lifeos-month-plan-redesign">
+#view-week{color:#edf0f7}#view-week .section-title h2{color:#fff;font-size:clamp(28px,4vw,38px)}#view-week .section-title p{color:#abb6c8}
+#view-week>.panel{background:#111723;border:1px solid #303747;box-shadow:0 16px 40px #0002;border-radius:22px}
+#view-week .panel-head h3{color:#fff}#view-week .sub{color:#aeb9c9}
+#view-week .month-grid{gap:6px}#view-week .month-weekday{color:#b7bed0}
+#view-week .month-day{min-height:90px;border-radius:13px;background:#1b2230;border:1px solid #343d4e;color:#eef1f7;padding:9px;transition:background .15s,border-color .15s}
+#view-week .month-day.outside{opacity:.36}#view-week .month-day.marked{background:#292235;border-color:#71435e}
+#view-week .month-day.selected{background:#40263d;border:2px solid #f05b9d;box-shadow:0 0 0 2px #f05b9d22}
+#view-week .month-day.today:not(.selected){border-color:#e94791;box-shadow:inset 0 0 0 1px #e94791}
+#view-week .month-day .dot{background:#f05b9d;width:7px;height:7px}
+#view-week .month-day .pill{background:#62304e;color:#ffc4df;font-size:11px}
+#view-week .btn:not(.secondary):not(.ghost):not(.danger){background:#e94791;color:white}
+#view-week .btn.secondary{background:#272f3d;color:#f4f6fa;border-color:#424c5c}
+#view-week .session-card{background:#1b2230;border-color:#3b4354;color:#f4f5fa}
+#view-week .session-card:hover{border-color:#f05b9d}#view-week .session-card .item-icon{background:#35283c}
+#view-week .session-card small{color:#b5bdcc}#view-week .session-card .pill{background:#382d44;color:#ffb9d9}
+#view-week .empty{background:#1b2230;color:#b7c0d0;border-color:#3d4556}
+#view-week .lifeos-day-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:18px 0 12px;padding-top:14px;border-top:1px solid #343d4e}
+#view-week .lifeos-day-toolbar h3{margin:0;color:#fff;font-size:18px}#view-week .lifeos-day-toolbar p{margin:4px 0 0;color:#b5bfcd;font-size:12px}
+#view-week .lifeos-day-toolbar button{background:#e94791;color:#fff;border:0;border-radius:11px;padding:10px 14px;font-weight:750}
+@media(max-width:680px){#view-week .month-grid{gap:4px}#view-week .month-day{min-height:59px;padding:5px 3px;border-radius:9px;text-align:center}#view-week .month-day .date-number{font-size:12px}#view-week .month-day .pill{display:none}#view-week .month-day .dot{margin:6px auto 0}#view-week .toolbar{gap:6px}#view-week .toolbar .btn{padding:9px 10px;font-size:12px}#view-week .panel{padding:12px}}
+</style><style id="lifeos-mobile-log-v7">
+/* Mobile Satzprotokolle ohne horizontales Scrollen */
+#sessionDetailOverlay .exercise-detail{border-radius:18px;box-shadow:0 3px 14px rgba(20,35,27,.04)}
+#sessionDetailOverlay .exercise-detail h4{font-size:17px;margin-bottom:8px}
+#sessionDetailOverlay .exercise-detail input[type="number"]{font-size:16px;min-height:44px;max-width:100%;width:100%!important}
+#sessionDetailOverlay .exercise-detail input[type="checkbox"]{width:23px;height:23px;accent-color:#e94791}
+.lifeos-set-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.lifeos-set-actions button{flex:1;min-height:44px;border:1px solid #d8e4db;background:#f5f9f6;border-radius:11px;color:#244c37;font-weight:750;padding:9px}
+.lifeos-set-actions button:last-child{background:#fceaf2;color:#a72562;border-color:#f5c7db}
+@media(max-width:680px){
+#sessionDetailOverlay .exercise-detail{padding:12px;margin-top:13px}
+#sessionDetailOverlay .exercise-detail .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 9px}
+#sessionDetailOverlay .exercise-detail .field label{font-size:12px}
+#sessionDetailOverlay .exercise-detail div:has(>table.table){overflow:visible!important}
+#sessionDetailOverlay .exercise-detail table.table{display:block;min-width:0!important;width:100%}
+#sessionDetailOverlay .exercise-detail table.table thead{display:none}
+#sessionDetailOverlay .exercise-detail table.table tbody{display:grid;gap:9px}
+#sessionDetailOverlay .exercise-detail table.table tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;background:#f8faf9;border:1px solid #dce6df;border-radius:13px;padding:12px}
+#sessionDetailOverlay .exercise-detail table.table td{display:flex;flex-direction:column;gap:6px;border:0;padding:0;min-width:0}
+#sessionDetailOverlay .exercise-detail table.table td:first-child{grid-column:1/-1;font-size:15px}
+#sessionDetailOverlay .exercise-detail table.table td:nth-child(2){grid-column:1/-1;flex-direction:row;align-items:center;gap:12px}
+#sessionDetailOverlay .exercise-detail table.table td:nth-child(2)::before{content:'Erledigt';font-size:13px;font-weight:700}
+#sessionDetailOverlay .exercise-detail table.table td:nth-child(3)::before{content:'Wiederholungen';font-size:12px;font-weight:700;color:#56665d}
+#sessionDetailOverlay .exercise-detail table.table td:nth-child(4)::before{content:'Gewicht (kg)';font-size:12px;font-weight:700;color:#56665d}
+#sessionDetailOverlay .exercise-detail table.table input{width:100%!important;min-width:0}
+#sessionDetailOverlay .form-actions{flex-wrap:wrap}
+#sessionDetailOverlay .form-actions button{min-height:44px}
+}
+</style></head>
 <body><div class="app"><aside class="sidebar" id="sidebar"><div class="brand"><div class="logo">✳</div><div><strong>LifeOS</strong><small>Mehr Struktur. Mehr du.</small></div></div><div><div class="nav-label">ÜBERSICHT</div><nav class="nav" id="nav"><button class="active" data-view="dashboard"><span class="ico">⌂</span>Dashboard</button><button data-view="week"><span class="ico">▦</span>Monatsplan</button><button data-view="exercises"><span class="ico">✚</span>Übungsbibliothek</button><button data-view="sessions"><span class="ico">☑</span>Trainingsprotokoll</button><button data-view="cycle"><span class="ico">♡</span>Zyklus & Befinden</button><button data-view="progress"><span class="ico">▥</span>Fortschritt</button></nav></div><div><div class="nav-label">DEIN LEBEN</div><nav class="nav"><button data-view="nutrition"><span class="ico">♧</span>Ernährung <span class="pill">Später</span></button><button data-view="tasks"><span class="ico">☷</span>Alltag & Aufgaben <span class="pill">Später</span></button><button data-view="habits"><span class="ico">↻</span>Gewohnheiten <span class="pill">Später</span></button><button data-view="sleep"><span class="ico">☾</span>Schlaf & Erholung <span class="pill">Später</span></button><button data-view="finance"><span class="ico">€</span>Finanzen <span class="pill">Später</span></button></nav></div><div style="margin-top:auto"><div class="nav-label">SYSTEM</div><nav class="nav"><button data-view="settings"><span class="ico">⚙</span>Einstellungen & Daten</button></nav><div class="side-note"><b>Kleine Schritte. Große Ziele.</b>Dein persönlicher Fortschritt beginnt mit dem nächsten Schritt.</div></div></aside><div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 <main class="main"><header class="topbar"><button class="mobile-menu" id="menuBtn" aria-label="Menü öffnen">☰</button><div><div class="eyebrow" id="topDate">DEIN PERSÖNLICHER ÜBERBLICK</div><h1 id="pageTitle">Dashboard</h1></div><div class="avatar" title="Dein Profil">L</div></header>
 <section class="view active" id="view-dashboard"><div class="hero"><div><div class="eyebrow">DEIN WEG, DEIN TEMPO</div><h2>Hallo! Schön, dass du da bist. 🌿</h2><p>Jeder kleine Schritt zählt. Plane deinen Monat, halte deine Fortschritte fest und bleib auf Kurs – ohne alles auf einmal machen zu müssen.</p><div style="margin-top:17px"><button class="btn" data-go="week">Monatsplan öffnen →</button></div></div><div class="hero-art">🌱</div></div><div class="stats"><div class="stat"><div class="stat-top"><span>Training diese Woche</span><span class="stat-icon tint-green">🏋️</span></div><strong id="statWorkouts">0</strong><small>abgeschlossene Einheiten</small></div><div class="stat"><div class="stat-top"><span>Geplant</span><span class="stat-icon tint-blue">🗓️</span></div><strong id="statPlanned">0</strong><small>künftige Einheiten</small></div><div class="stat"><div class="stat-top"><span>Trainingszeit</span><span class="stat-icon tint-purple">◷</span></div><strong id="statMinutes">0 min</strong><small>diese Woche</small></div><div class="stat"><div class="stat-top"><span>Letztes Gewicht</span><span class="stat-icon tint-amber">⚖️</span></div><strong id="statWeight">—</strong><small>kg · zuletzt eingetragen</small></div></div><div class="columns"><div class="panel"><div class="panel-head"><div><h3>Dein Monat</h3><div class="sub" id="weekLabel">Trainings im Überblick</div></div><button class="btn ghost" data-go="week">Alle ansehen →</button></div><div class="month-grid" id="miniWeek"></div><div class="list" id="upcomingList"></div></div><div class="panel"><div class="panel-head"><div><h3>Dein Fokus</h3><div class="sub">Ein guter Anfang</div></div><span class="stat-icon tint-green">✦</span></div><div class="progress-row"><div class="progress-label"><span>Wochenziel</span><b id="goalText">0 / 3 Einheiten</b></div><div class="bar"><span id="goalBar" style="width:0%"></span></div></div><div class="notice">💡 Plane realistisch und passe die Belastung an dein Wohlbefinden an. Ruhetage gehören zum Training dazu.</div><button class="btn secondary" data-go="exercises" style="width:100%">Übungen entdecken</button><div style="height:9px"></div><button class="btn" data-action="new-session" style="width:100%">＋ Training planen</button></div></div><div class="panel"><div class="panel-head"><div><h3>Zuletzt protokolliert</h3><div class="sub">Deine letzten Trainingseinheiten</div></div><button class="btn ghost" data-go="sessions">Protokoll öffnen →</button></div><div class="list" id="recentList"></div></div></section>
-<section class="view" id="view-week"><div class="section-title"><div><h2>Monatsplan</h2><p>Plane deine Trainingseinheiten und behalte den ganzen Monat im Blick.</p></div><div class="toolbar"><button class="btn secondary" id="prevWeek">← Zurück</button><button class="btn secondary" id="thisWeek">Dieser Monat</button><button class="btn secondary" id="nextWeek">Weiter →</button><button class="btn" data-action="new-session">＋ Training planen</button></div></div><div class="panel"><div class="panel-head"><h3 id="fullWeekLabel">Dieser Monat</h3><span class="sub">Monatsübersicht · Montag – Sonntag</span></div><div class="month-grid" id="fullWeek"></div><div class="panel-head" style="margin-top:18px"><h3 id="selectedDateLabel">Trainings am ausgewählten Tag</h3><span class="sub">Tippe im Kalender auf einen Tag.</span></div><div class="list" id="weekList"></div></div><div id="sessionFormWrap"></div></section>
+<section class="view" id="view-week"><div class="section-title"><div><h2>Monatsplan</h2><p>Plane deine Trainingseinheiten und behalte den ganzen Monat im Blick.</p></div><div class="toolbar"><button class="btn secondary" id="prevWeek">← Zurück</button><button class="btn secondary" id="thisWeek">Dieser Monat</button><button class="btn secondary" id="nextWeek">Weiter →</button><button class="btn" data-action="new-session">＋ Training planen</button></div></div><div class="panel"><div class="panel-head"><h3 id="fullWeekLabel">Dieser Monat</h3><span class="sub">Monatsübersicht · Montag – Sonntag</span></div><div class="month-grid" id="fullWeek" aria-label="Trainingskalender; Trainingstage sind rosa markiert"></div><div class="lifeos-day-toolbar"><div><h3 id="selectedDateLabel">Trainings am ausgewählten Tag</h3><p>Tippe auf ein Training, um die vollständige Ansicht zu öffnen.</p></div><button type="button" data-action="new-session">＋ Training hinzufügen</button></div><div class="list" id="weekList"></div></div><div id="sessionFormWrap"></div></section>
 <section class="view" id="view-exercises"><div class="section-title"><div><h2>Übungsbibliothek</h2><p>Verwalte Übungen für Krafttraining, Ausdauer und Mobilität.</p></div><button class="btn" data-action="new-exercise">＋ Übung hinzufügen</button></div><div id="exerciseFormWrap"></div><div class="panel"><div class="filters"><input id="exerciseSearch" placeholder="Übung suchen …" aria-label="Übung suchen"><select id="exerciseCategory"><option value="all">Alle Kategorien</option><option>Krafttraining</option><option>Ausdauer</option><option>Mobilität</option></select><select id="exerciseEquipment"><option value="all">Alle Geräte</option><option>Maschine</option><option>Kurzhanteln</option><option>Langhantel</option><option>Körpergewicht</option><option>Cardio-Gerät</option><option>Matte</option><option>Kein Gerät</option></select></div><div id="exerciseList"></div></div></section>
 <section class="view" id="view-sessions"><div class="section-title"><div><h2>Trainingsprotokoll</h2><p>Halte fest, was du tatsächlich gemacht hast.</p></div><button class="btn" data-action="new-session">＋ Training planen</button></div><div id="logFormWrap"></div><div class="panel"><div class="panel-head"><h3>Deine Trainingseinheiten</h3><span class="sub" id="sessionCount">0 Einheiten</span></div><div id="sessionList"></div></div></section>
 <section class="view" id="view-cycle"><div class="section-title"><div><h2>Zyklus & Befinden</h2><p>Dokumentiere Blutungen, Beschwerden und Energie – und nutze deine Beobachtungen für Training und Regeneration.</p></div></div><div class="notice">Wichtig: Zyklusphasen und Eisprung werden hier nicht medizinisch bestätigt. Unter oder nach hormoneller Verhütung können Blutungen auftreten, ohne dass daraus ein natürlicher Zyklus oder Eisprung abgeleitet werden kann. Nutze die Einträge als persönliches Protokoll, nicht als Diagnose.</div><div class="columns"><div class="panel"><div class="panel-head"><h3>Zyklus-Einstellungen</h3></div><form id="cycleSettingsForm"><div class="field"><label for="cycleMode">Welche Situation trifft aktuell zu?</label><select id="cycleMode" name="mode"><option value="unknown">Noch unklar / möchte ich nicht festlegen</option><option value="natural">Ich beobachte einen natürlichen Zyklus ohne hormonelle Verhütung</option><option value="hormonal">Ich nutze oder habe kürzlich hormonelle Verhütung genutzt</option><option value="irregular">Meine Blutungen/Zyklen sind unregelmäßig</option></select></div><div class="field"><label for="cycleLength">Übliche Zykluslänge in Tagen (optional)</label><input id="cycleLength" name="cycleLength" type="number" min="15" max="60" placeholder="z. B. 28"></div><button class="btn" type="submit">Einstellungen speichern</button></form><p class="sub" style="margin-top:12px">Eine Phasenschätzung wird nur angezeigt, wenn du ausdrücklich „natürlichen Zyklus“ auswählst und ein Blutungsbeginn dokumentiert ist. Auch dann ist sie nur eine grobe Kalender-Schätzung.</p></div><div class="panel"><div class="panel-head"><h3>Letzte Blutung</h3></div><div id="cycleSummary" class="empty">Noch keine Blutung dokumentiert.</div><div id="cyclePhaseSummary" style="margin-top:12px"></div></div></div><div class="columns"><div class="panel"><div class="panel-head"><h3>Blutung dokumentieren</h3></div><form id="periodForm"><div class="field"><label for="periodStart">Beginn *</label><input id="periodStart" name="start" type="date" required></div><div class="field"><label for="periodEnd">Ende (wenn bekannt)</label><input id="periodEnd" name="end" type="date"></div><div class="field"><label for="periodFlow">Blutungsstärke</label><select name="flow"><option value="">Nicht angegeben</option><option>Schwach</option><option>Mittel</option><option>Stark</option><option>Sehr stark</option><option>Schmierblutung</option></select></div><div class="field"><label for="periodNotes">Notizen (optional)</label><textarea name="notes" rows="2" maxlength="500" placeholder="z. B. ungewöhnlich starke Blutung"></textarea></div><button class="btn" type="submit">Blutung speichern</button></form></div><div class="panel"><div class="panel-head"><h3>Tägliches Befinden</h3></div><form id="cycleLogForm"><div class="field"><label>Datum *</label><input name="date" type="date" required></div><div class="field"><label>Schmerzen (0 = keine, 10 = sehr stark)</label><input name="pain" type="number" min="0" max="10" value="0" required></div><div class="field"><label>Energie (0 = sehr niedrig, 10 = sehr hoch)</label><input name="energy" type="number" min="0" max="10" value="5" required></div><div class="field"><label>Schlaf / Erholung (0–10)</label><input name="recovery" type="number" min="0" max="10" value="5" required></div><div class="field"><label>Weitere Beschwerden</label><input name="symptoms" maxlength="300" placeholder="z. B. Rücken, Beine, Kopfschmerz"></div><div class="field"><label>Trainingsempfehlung für mich heute</label><select name="training"><option value="normal">Wie geplant, wenn ich mich gut fühle</option><option value="lighter">Belastung reduzieren</option><option value="mobility">Leichte Bewegung / Mobilität</option><option value="rest">Ruhetag / Erholung</option></select></div><div class="field"><label>Notizen</label><textarea name="notes" rows="2" maxlength="500" placeholder="Wie fühle ich mich heute?"></textarea></div><button class="btn" type="submit">Tagesbefinden speichern</button></form></div></div><div class="panel" style="margin-bottom:18px"><div class="panel-head"><h3>Dein Verlauf</h3><span class="sub">Deine gespeicherten Einträge</span></div><div id="cycleHistory"></div></div><div class="panel"><div class="panel-head"><h3>Training im Zusammenhang betrachten</h3></div><p class="sub">Vergleiche deine eigenen Notizen zu Energie, Beschwerden und Training. Es gibt keine feste Trainingsregel für eine Zyklusphase – richte die Belastung vor allem nach deinem Befinden und deiner Regeneration aus.</p><div id="cycleTrainingContext"></div></div></section>
@@ -558,5 +607,189 @@ document.addEventListener('click',function(e){
  lifeosTemplateToolbar=function(){oldToolbar();const toolbar=document.getElementById('lifeosTemplateToolbar')?.querySelector('.toolbar');if(!toolbar)return;const button=document.createElement('button');button.className='btn danger';button.type='button';button.id='lifeosDeleteTemplate';button.textContent='Vorlage löschen';toolbar.append(button)};
  document.addEventListener('click',ev=>{if(ev.target.id!=='lifeosDeleteTemplate')return;const id=document.getElementById('lifeosTemplateSelect')?.value;const list=lifeosTemplateList(),t=list.find(x=>x.id===id);if(!t)return toast('Bitte zuerst eine Vorlage auswählen.');if(!confirm(`Vorlage „${t.title}“ löschen? Bereits eingetragene Trainings bleiben erhalten.`))return;data.lifeosTemplates=list.filter(x=>x.id!==id);save();lifeosTemplateToolbar();toast('Vorlage gelöscht.');});
  lifeosTemplateToolbar();
+})();
+</script>
+<style id="lifeos-month-v6">
+#view-week .lifeos-month-help{font-size:12px;color:#aeb8c9;margin:0 0 13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#view-week .lifeos-month-help .key{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ed5199}
+#view-week .month-day{position:relative;transition:background .15s,border-color .15s;touch-action:pan-y}
+#view-week .month-day.marked{background:#30263b;border-color:#ed5199;color:#fff}
+#view-week .month-day.selected{background:#4b2745;border:2px solid #ff65ad;color:#fff;box-shadow:0 0 0 2px #ed519944}
+#view-week .month-day.today:not(.selected){outline:2px solid #ef8dbe;outline-offset:-3px}
+#view-week .month-day .pill{background:#f05ba2;color:white;font-weight:800}
+#view-week .month-day .dot{background:#f05ba2}
+#view-week .lifeos-selected-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+#view-week .lifeos-selected-actions .btn{background:#e94791;color:white}
+#view-week .lifeos-selected-actions .sub{margin-left:auto}
+#view-week .lifeos-month-help,#view-week .lifeos-selected-actions{max-width:100%}
+@media(max-width:680px){#view-week .month-day .pill{font-size:9px;padding:2px 4px}#view-week .lifeos-selected-actions .sub{margin-left:0;width:100%}}
+</style>
+<script id="lifeos-month-v6-script">
+(function(){
+ const calendar=document.getElementById('fullWeek');
+ const list=document.getElementById('weekList');
+ if(!calendar||!list)return;
+ const help=document.createElement('div');help.className='lifeos-month-help';help.innerHTML='<span class="key"></span> Rosa = Training geplant <span>·</span> Tag antippen, um die Einheiten anzuzeigen <span>·</span> Nach links/rechts wischen, um den Monat zu wechseln';
+ calendar.before(help);
+ const actions=document.createElement('div');actions.className='lifeos-selected-actions';
+ actions.innerHTML='<button type="button" class="btn" id="lifeosAddOnSelected">＋ Training für diesen Tag</button><span class="sub" id="lifeosSelectedDayHint"></span>';
+ list.before(actions);
+ const oldRenderWeek=renderWeek;
+ renderWeek=function(){oldRenderWeek();const hint=document.getElementById('lifeosSelectedDayHint');if(hint){const d=dateObj(selectedDate);hint.textContent=new Intl.DateTimeFormat('de-DE',{weekday:'long',day:'numeric',month:'long'}).format(d)}};
+ document.getElementById('lifeosAddOnSelected').addEventListener('click',()=>{
+  const trigger=document.querySelector('#view-week [data-action="new-session"]');
+  if(trigger){trigger.click();requestAnimationFrame(()=>{const form=document.querySelector('#sessionFormWrap form');if(!form)return;const date=form.querySelector('[name="date"],#sessionDate,input[type="date"]');if(date){date.value=selectedDate;date.dispatchEvent(new Event('change',{bubbles:true}))}})}
+ });
+ let startX=0,startY=0,started=false;
+ calendar.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;startX=e.touches[0].clientX;startY=e.touches[0].clientY;started=true},{passive:true});
+ calendar.addEventListener('touchend',e=>{if(!started||!e.changedTouches.length)return;started=false;const dx=e.changedTouches[0].clientX-startX,dy=e.changedTouches[0].clientY-startY;if(Math.abs(dx)<65||Math.abs(dx)<Math.abs(dy)*1.5)return;const btn=document.getElementById(dx<0?'nextWeek':'prevWeek');btn?.click()},{passive:true});
+ renderWeek();
+})();
+</script>
+<script id="lifeos-mobile-log-v7-script">
+(function(){
+  const original=showSessionDetails;
+  showSessionDetails=function(id){
+    original(id);
+    const root=document.getElementById('sessionDetailContent');
+    if(!root)return;
+    root.querySelectorAll('.exercise-detail[data-exercise-id]').forEach(card=>{
+      const table=card.querySelector('table.table');
+      if(!table||card.querySelector('.lifeos-set-actions'))return;
+      const bar=document.createElement('div');bar.className='lifeos-set-actions';
+      bar.innerHTML='<button type="button" data-lifeos-set-change="1" aria-label="Satz hinzufügen">＋ Satz hinzufügen</button><button type="button" data-lifeos-set-change="-1" aria-label="Letzten Satz entfernen">− Letzten Satz entfernen</button>';
+      table.parentElement.insertAdjacentElement('afterend',bar);
+    });
+  };
+  document.addEventListener('click',function(event){
+    const button=event.target.closest('[data-lifeos-set-change]');
+    if(!button)return;
+    const card=button.closest('.exercise-detail[data-exercise-id]');
+    const field=card?.querySelector('[data-target-sets]');
+    if(!field)return;
+    const delta=Number(button.dataset.lifeosSetChange);
+    const next=Math.max(1,Math.min(20,(Number(field.value)||3)+delta));
+    if(next===Number(field.value))return;
+    // Erst alle aktuell eingegebenen Werte sichern, dann die Satzanzahl ändern.
+    lifeosPersistDetailInputs(false);
+    field.value=next;
+    lifeosPersistDetailInputs(false);
+    const overlay=document.getElementById('sessionDetailOverlay');
+    const id=overlay?.dataset.activeSessionId;
+    if(id)showSessionDetails(id);
+  });
+})();
+</script><style id="lifeos-training-v8-style">
+.lifeos-exercise-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 14px;padding:10px;border:1px solid #e2e8e4;border-radius:12px;background:#f6faf7}
+.lifeos-exercise-tools button{border:1px solid #d9e5dd;border-radius:10px;padding:10px 12px;min-height:44px;background:#fff;color:#23513a;font-weight:750}
+.lifeos-exercise-tools button:disabled{opacity:.4;cursor:not-allowed}
+.lifeos-exercise-tools .lifeos-fill-planned{background:#e94791;border-color:#e94791;color:white;flex:1}
+.lifeos-exercise-tools .lifeos-position{font-size:12px;color:#62766a;margin-right:auto}
+@media(max-width:540px){.lifeos-exercise-tools{gap:6px}.lifeos-exercise-tools button{padding:10px}.lifeos-exercise-tools .lifeos-fill-planned{flex-basis:100%;order:2}}
+</style><script id="lifeos-training-v8-script">
+// Trainingseinheiten: Übungsreihenfolge und Sollwerte übernehmen.
+(function(){
+ const previousShow=showSessionDetails;
+ showSessionDetails=function(id){
+  previousShow(id);
+  const root=document.getElementById('sessionDetailContent');
+  if(!root)return;
+  const cards=[...root.querySelectorAll('.exercise-detail[data-exercise-id]')];
+  cards.forEach((card,index)=>{
+   const heading=card.querySelector('h4');if(!heading)return;
+   const tools=document.createElement('div');tools.className='lifeos-exercise-tools';
+   tools.innerHTML=`<span class="lifeos-position">Übung ${index+1} von ${cards.length}</span><button type="button" data-lifeos-move="-1" ${index===0?'disabled':''} aria-label="Übung nach oben verschieben">↑ Hoch</button><button type="button" data-lifeos-move="1" ${index===cards.length-1?'disabled':''} aria-label="Übung nach unten verschieben">↓ Runter</button><button type="button" class="lifeos-fill-planned" data-lifeos-fill-planned="1">Sollwerte in leere Sätze übernehmen</button>`;
+   heading.insertAdjacentElement('afterend',tools);
+  });
+ };
+ document.addEventListener('click',function(event){
+  const move=event.target.closest('[data-lifeos-move]');
+  if(move){
+   const card=move.closest('.exercise-detail[data-exercise-id]');
+   const overlay=document.getElementById('sessionDetailOverlay');
+   const s=data.sessions.find(x=>x.id===overlay?.dataset.activeSessionId);
+   if(!card||!s)return;
+   lifeosPersistDetailInputs(false);
+   lifeosEnsureEntries(s);
+   const i=s.exerciseEntryIds.indexOf(card.dataset.exerciseId),j=i+Number(move.dataset.lifeosMove);
+   if(i<0||j<0||j>=s.exerciseIds.length)return;
+   [s.exerciseIds[i],s.exerciseIds[j]]=[s.exerciseIds[j],s.exerciseIds[i]];
+   [s.exerciseEntryIds[i],s.exerciseEntryIds[j]]=[s.exerciseEntryIds[j],s.exerciseEntryIds[i]];
+   try{localStorage.setItem(KEY,JSON.stringify(data));showSessionDetails(s.id);toast('Übungsreihenfolge gespeichert.')}catch(err){
+    [s.exerciseIds[i],s.exerciseIds[j]]=[s.exerciseIds[j],s.exerciseIds[i]];
+    [s.exerciseEntryIds[i],s.exerciseEntryIds[j]]=[s.exerciseEntryIds[j],s.exerciseEntryIds[i]];
+    toast('Speichern fehlgeschlagen.');console.error(err);
+   }
+   return;
+  }
+  const fill=event.target.closest('[data-lifeos-fill-planned]');
+  if(!fill)return;
+  const card=fill.closest('.exercise-detail[data-exercise-id]');if(!card)return;
+  const reps=card.querySelector('[data-target-reps]')?.value||'';
+  const weight=card.querySelector('[data-target-weight]')?.value||'';
+  let changed=0;
+  card.querySelectorAll('[data-set-reps]').forEach(input=>{if(input.value===''){input.value=reps;changed++}});
+  card.querySelectorAll('[data-set-weight]').forEach(input=>{if(input.value===''&&weight!==''){input.value=weight;changed++}});
+  lifeosPersistDetailInputs(false);
+  toast(changed?'Sollwerte in freie Felder übernommen.':'Keine leeren Felder vorhanden.');
+ });
+})();
+</script><style id="lifeos-training-v9-style">
+.lifeos-set-progress{margin:12px 0;padding:13px;border:1px solid #e4d8e3;background:#fff8fc;border-radius:13px}
+.lifeos-set-progress-head{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:13px;font-weight:750;color:#623650}
+.lifeos-set-progress-track{height:9px;background:#f0e4ec;border-radius:99px;overflow:hidden;margin:9px 0}
+.lifeos-set-progress-fill{height:100%;width:0;background:#e94791;border-radius:99px;transition:width .18s}
+.lifeos-set-progress button{border:1px solid #e94791;color:#ba276c;background:white;border-radius:9px;padding:9px 12px;min-height:42px;font-weight:750}
+.lifeos-set-progress button:disabled{opacity:.5;cursor:default}
+#sessionDetailContent tr.lifeos-set-complete{background:#fceaf3}
+#sessionDetailContent tr.lifeos-set-complete td:first-child strong{color:#bd286e}
+#sessionDetailContent [data-set-done]{width:23px;height:23px;accent-color:#e94791;cursor:pointer}
+.lifeos-session-progress-summary{border:1px solid #e6d5e0;background:#fff6fb;padding:12px;border-radius:12px;color:#733b5a;font-weight:750;margin:12px 0}
+</style><script id="lifeos-training-v9-script">
+// Fortschritt aus den bereits gespeicherten Satz-Häkchen berechnen, ohne das Datenmodell zu ändern.
+(function(){
+ const previous=showSessionDetails;
+ showSessionDetails=function(id){previous(id);lifeosRefreshSetProgress(true)};
+ function lifeosRefreshSetProgress(build){
+  const root=document.getElementById('sessionDetailContent');
+  if(!root||!document.getElementById('sessionDetailOverlay')?.classList.contains('open'))return;
+  let total=0,done=0;
+  root.querySelectorAll('.exercise-detail[data-exercise-id]').forEach(card=>{
+   const boxes=[...card.querySelectorAll('input[data-set-done]')];
+   if(!boxes.length)return;
+   const checked=boxes.filter(b=>b.checked).length;
+   total+=boxes.length;done+=checked;
+   boxes.forEach(b=>b.closest('tr')?.classList.toggle('lifeos-set-complete',b.checked));
+   let panel=card.querySelector('.lifeos-set-progress');
+   if(!panel){
+    panel=document.createElement('div');panel.className='lifeos-set-progress';
+    panel.innerHTML='<div class="lifeos-set-progress-head"><span class="lifeos-set-progress-label"></span><span class="lifeos-set-progress-percent"></span></div><div class="lifeos-set-progress-track"><div class="lifeos-set-progress-fill"></div></div><button type="button" data-lifeos-next-set>✓ Nächsten Satz abhaken</button>';
+    const table=card.querySelector('table.table');
+    if(table)table.parentElement.insertAdjacentElement('beforebegin',panel);
+   }
+   panel.querySelector('.lifeos-set-progress-label').textContent=checked+' von '+boxes.length+' Sätzen erledigt';
+   panel.querySelector('.lifeos-set-progress-percent').textContent=Math.round(checked/boxes.length*100)+' %';
+   panel.querySelector('.lifeos-set-progress-fill').style.width=(checked/boxes.length*100)+'%';
+   const next=panel.querySelector('[data-lifeos-next-set]');
+   next.disabled=checked===boxes.length;
+   next.textContent=checked===boxes.length?'✓ Alle Sätze erledigt':'✓ Nächsten Satz abhaken';
+  });
+  let summary=root.querySelector('.lifeos-session-progress-summary');
+  if(total){
+   if(!summary){summary=document.createElement('div');summary.className='lifeos-session-progress-summary';const heading=root.querySelector('.panel-head');if(heading)heading.insertAdjacentElement('afterend',summary);else root.prepend(summary)}
+   summary.textContent='Trainingsfortschritt: '+done+' von '+total+' Sätzen erledigt ('+Math.round(done/total*100)+' %)';
+  }else summary?.remove();
+ }
+ document.addEventListener('change',e=>{if(e.target.matches('#sessionDetailContent input[data-set-done]'))lifeosRefreshSetProgress(false)});
+ document.addEventListener('click',e=>{
+  const button=e.target.closest('[data-lifeos-next-set]');if(!button)return;
+  const card=button.closest('.exercise-detail[data-exercise-id]');
+  const box=[...(card?.querySelectorAll('input[data-set-done]')||[])].find(b=>!b.checked);
+  if(!box)return;
+  box.checked=true;
+  box.dispatchEvent(new Event('change',{bubbles:true}));
+  // Nutzt die bestehende automatische Speicherung.
+  lifeosPersistDetailInputs(false);
+ });
 })();
 </script></body></html>
