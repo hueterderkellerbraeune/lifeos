@@ -977,4 +977,341 @@ document.addEventListener('click',function(e){
  });
 })();
 </script>
+<style id="lifeos-rest-v14-style">
+.lifeos-rest-timer{margin:12px 0;padding:13px;border:1px solid #e6adc9;border-radius:14px;background:#fff4f9;display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.lifeos-rest-clock{font-size:25px;font-weight:800;font-variant-numeric:tabular-nums;color:#ad2469;min-width:75px}
+.lifeos-rest-timer button{min-height:40px;padding:8px 12px;border:1px solid #d995b6;background:white;color:#8e215b;border-radius:10px;font-weight:650}
+.lifeos-rest-timer button[data-rest-start]{background:#b62e77;color:white;border-color:#b62e77}
+.lifeos-rest-timer .lifeos-rest-status{flex-basis:100%;font-size:12px;color:#765466}
+@media(max-width:480px){.lifeos-rest-timer button{flex:1 1 auto}}
+</style>
+<script id="lifeos-rest-v14-script">
+(()=>{
+ 'use strict';
+ const timers=new WeakMap();let active=null;
+ function fmt(seconds){seconds=Math.max(0,Math.ceil(seconds));return String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0')}
+ function duration(card){const n=Number(card.querySelector('[data-rest-seconds]')?.value);return Number.isFinite(n)?Math.max(0,Math.min(3600,n)):60}
+ function display(panel,remaining,status){panel.querySelector('.lifeos-rest-clock').textContent=fmt(remaining);panel.querySelector('.lifeos-rest-status').textContent=status;panel.querySelector('[data-rest-start]').textContent=active?.panel===panel?'Pause':'Start'}
+ function stop(){if(!active)return;clearInterval(active.interval);active=null}
+ function tick(){if(!active)return;const t=active;const remaining=Math.max(0,Math.ceil((t.end-Date.now())/1000));display(t.panel,remaining,remaining?'Pause läuft …':'Pause beendet');if(!remaining){stop();t.panel.querySelector('[data-rest-start]').textContent='Start';t.panel.querySelector('.lifeos-rest-status').textContent='Pause beendet ✓';}}
+ function mount(){stop();const root=document.getElementById('sessionDetailContent');if(!root)return;root.querySelectorAll('.exercise-detail[data-exercise-id]').forEach(card=>{
+  if(card.querySelector('.lifeos-rest-timer'))return;
+  const panel=document.createElement('div');panel.className='lifeos-rest-timer';panel.innerHTML='<span aria-label="Verbleibende Pause" class="lifeos-rest-clock" role="timer">01:00</span><button type="button" data-rest-start>Start</button><button type="button" data-rest-reset>Zurücksetzen</button><span class="lifeos-rest-status" aria-live="polite">Pausenzeit aus den Übungsvorgaben</span>';
+  const field=card.querySelector('[data-rest-seconds]')?.closest('.field');if(field)field.insertAdjacentElement('afterend',panel);else card.append(panel);
+  display(panel,duration(card),'Bereit · Pausenzeit aus den Übungsvorgaben');
+ });}
+ const previous=showSessionDetails;showSessionDetails=function(id){previous(id);mount()};
+ document.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-rest-start],[data-rest-reset]');if(!btn)return;
+  const panel=btn.closest('.lifeos-rest-timer');const card=panel?.closest('.exercise-detail');if(!panel||!card)return;
+  if(btn.hasAttribute('data-rest-reset')){if(active?.panel===panel)stop();timers.set(panel,duration(card));display(panel,duration(card),'Zurückgesetzt');return}
+  if(active?.panel===panel){const left=Math.max(0,Math.ceil((active.end-Date.now())/1000));stop();timers.set(panel,left);display(panel,left,'Pausiert');return}
+  if(active){const old=active;timers.set(old.panel,Math.max(0,Math.ceil((old.end-Date.now())/1000)));stop();display(old.panel,timers.get(old.panel),'Pausiert (andere Übung gestartet)')}
+  const remaining=timers.has(panel)?timers.get(panel):duration(card);if(!remaining){display(panel,0,'Pausenzeit ist 0 Sekunden');return}
+  active={panel,end:Date.now()+remaining*1000,interval:null};active.interval=setInterval(tick,250);tick();
+ });
+ document.addEventListener('change',e=>{if(!e.target.matches('#sessionDetailContent [data-rest-seconds]'))return;const card=e.target.closest('.exercise-detail');const panel=card?.querySelector('.lifeos-rest-timer');if(!panel)return;if(active?.panel===panel)stop();timers.delete(panel);display(panel,duration(card),'Pausenzeit aktualisiert')});
+ const close=typeof closeSessionDetails==='function'?closeSessionDetails:null;
+ if(close)closeSessionDetails=function(...args){stop();return close.apply(this,args)};
+})();
+</script>
+
+<style id="lifeos-auto-rest-v15-style">
+.lifeos-auto-rest-option{display:flex;align-items:center;gap:9px;flex-basis:100%;font-size:13px;color:#7f2857;font-weight:650}
+.lifeos-auto-rest-option input{width:19px;height:19px;accent-color:#b62e77}
+.lifeos-rest-timer.lifeos-rest-finished{border-color:#b62e77;background:#ffe2f0}
+</style>
+<script id="lifeos-auto-rest-v15-script">
+(()=>{
+ 'use strict';
+ const PREF='lifeos-auto-rest-enabled-v15';
+ let enabled=false;
+ try{enabled=localStorage.getItem(PREF)==='true'}catch(e){}
+ function enhance(){
+  document.querySelectorAll('#sessionDetailContent .exercise-detail .lifeos-rest-timer').forEach(panel=>{
+   if(panel.querySelector('[data-auto-rest]'))return;
+   const label=document.createElement('label');label.className='lifeos-auto-rest-option';
+   const check=document.createElement('input');check.type='checkbox';check.setAttribute('data-auto-rest','');check.checked=enabled;
+   label.append(check,document.createTextNode('Pause automatisch nach abgehaktem Satz starten'));
+   panel.append(label);
+  });
+ }
+ const previous=showSessionDetails;
+ showSessionDetails=function(...args){const result=previous.apply(this,args);enhance();return result};
+ document.addEventListener('change',e=>{
+  if(e.target.matches('[data-auto-rest]')){
+   enabled=e.target.checked;
+   try{localStorage.setItem(PREF,String(enabled))}catch(err){}
+   document.querySelectorAll('[data-auto-rest]').forEach(c=>c.checked=enabled);
+   return;
+  }
+  if(!enabled||!e.target.matches('#sessionDetailContent input[data-set-done]')||!e.target.checked)return;
+  const card=e.target.closest('.exercise-detail');const panel=card?.querySelector('.lifeos-rest-timer');
+  if(!panel)return;
+  const duration=Number(card.querySelector('[data-rest-seconds]')?.value);
+  if(Number.isFinite(duration)&&duration<=0)return;
+  // Reuse the existing v14 timer controls, including their stop/reset behavior.
+  panel.querySelector('[data-rest-reset]')?.click();
+  panel.querySelector('[data-rest-start]')?.click();
+  const status=panel.querySelector('.lifeos-rest-status');if(status)status.textContent='Automatisch gestartet · Satz erledigt ✓';
+ });
+ // Handle dynamic exercise cards added without reopening the session.
+ const root=document.getElementById('sessionDetailContent');
+ if(root&&typeof MutationObserver!=='undefined'){
+  let scheduled=false;
+  new MutationObserver(()=>{if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;enhance()})}).observe(root,{childList:true,subtree:true});
+ }
+})();
+</script>
+
+<style id="lifeos-overview-v16-style">
+.lifeos-workout-overview{border:1px solid #e8a9c9;background:#fff4f9;border-radius:16px;padding:14px;margin:12px 0 18px;color:#78234e}
+.lifeos-workout-overview h3{font-size:17px;margin:0 0 8px}
+.lifeos-overview-bar{height:10px;background:#efd2e1;border-radius:99px;overflow:hidden;margin:9px 0}
+.lifeos-overview-fill{height:100%;background:#bc3078;border-radius:99px;transition:width .2s}
+.lifeos-overview-stats{display:flex;gap:8px;flex-wrap:wrap;font-size:13px}
+.lifeos-overview-stats span{background:white;border-radius:9px;padding:6px 9px}
+.lifeos-exercise-state{display:inline-flex;margin:7px 0;padding:5px 10px;border-radius:99px;font-size:12px;font-weight:700;background:#f2e5ec;color:#6c4358}
+.lifeos-exercise-state[data-state="done"]{background:#dff5e8;color:#18623d}
+.lifeos-exercise-state[data-state="partial"]{background:#ffe7f1;color:#a21d63}
+.lifeos-workout-overview .lifeos-overview-hint{font-size:12px;margin:8px 0 0;color:#79576a}
+</style>
+<script id="lifeos-overview-v16-script">
+(()=>{
+ 'use strict';
+ const root=document.getElementById('sessionDetailContent');
+ if(!root)return;
+ function update(){
+  const cards=[...root.querySelectorAll('.exercise-detail[data-exercise-id]')];
+  let completed=0,total=0,doneExercises=0,partialExercises=0;
+  cards.forEach(card=>{
+   const checks=[...card.querySelectorAll('input[data-set-done]')];
+   const done=checks.filter(c=>c.checked).length;
+   total+=checks.length;completed+=done;
+   const isDone=checks.length>0&&done===checks.length;
+   if(isDone)doneExercises++;else if(done)partialExercises++;
+   let badge=card.querySelector('.lifeos-exercise-state');
+   if(!badge){badge=document.createElement('span');badge.className='lifeos-exercise-state';badge.setAttribute('role','status');const heading=card.querySelector('h4,h3');if(heading)heading.insertAdjacentElement('afterend',badge);else card.prepend(badge)}
+   badge.dataset.state=isDone?'done':done?'partial':'open';
+   badge.textContent=isDone?'✓ Übung abgeschlossen':done?`${done} von ${checks.length} Sätzen erledigt`:'Noch offen';
+  });
+  let panel=root.querySelector('.lifeos-workout-overview');
+  if(!cards.length){panel?.remove();return}
+  if(!panel){panel=document.createElement('section');panel.className='lifeos-workout-overview';panel.setAttribute('aria-label','Trainingsübersicht');root.prepend(panel)}
+  const pct=total?Math.round(completed/total*100):0;
+  panel.innerHTML=`<h3>Dein Trainingsfortschritt</h3><div class="lifeos-overview-stats"><span><strong>${completed}/${total}</strong> Sätze erledigt</span><span><strong>${doneExercises}/${cards.length}</strong> Übungen abgeschlossen</span><span><strong>${partialExercises}</strong> in Arbeit</span></div><div class="lifeos-overview-bar" role="progressbar" aria-label="Erledigte Sätze" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><div class="lifeos-overview-fill" style="width:${pct}%"></div></div><div><strong>${pct}%</strong> abgeschlossen</div><p class="lifeos-overview-hint">Die Übersicht zählt nur abgehakte Sätze. Offene Sätze bleiben in deiner Planung erhalten.</p>`;
+ }
+ const original=showSessionDetails;
+ showSessionDetails=function(...args){const result=original.apply(this,args);update();return result};
+ document.addEventListener('change',event=>{if(event.target.matches('#sessionDetailContent [data-set-done],#sessionDetailContent [data-target-sets]'))setTimeout(update,0)});
+ document.addEventListener('click',event=>{if(event.target.closest('#sessionDetailContent [data-next-set],#sessionDetailContent [data-add-set],#sessionDetailContent [data-remove-set],#sessionDetailContent [data-lifeos-add-exercise],#sessionDetailContent [data-remove-exercise],#sessionDetailContent [data-exercise-up],#sessionDetailContent [data-exercise-down]'))setTimeout(update,0)});
+})();
+</script>
+
+<style id="lifeos-jump-v17-style">
+.lifeos-jump-list{display:grid;gap:8px;margin-top:12px}
+.lifeos-jump-button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:12px 14px;border:1px solid #e8b8cf;border-radius:12px;background:#fff;color:#662846;text-align:left;font:inherit;cursor:pointer;min-height:48px}
+.lifeos-jump-button:focus-visible{outline:3px solid #a91f68;outline-offset:2px}
+.lifeos-jump-button[data-state="done"]{background:#f1faf4;border-color:#b8dec8;color:#23583b}
+.lifeos-jump-button[data-state="partial"]{background:#fff2f8}
+.lifeos-jump-name{font-weight:700;overflow-wrap:anywhere}
+.lifeos-jump-status{font-size:12px;white-space:nowrap}
+.lifeos-jump-target{outline:3px solid #d4488d;outline-offset:4px;transition:outline-color .3s}
+@media(max-width:420px){.lifeos-jump-button{align-items:flex-start;flex-direction:column;gap:4px}}
+</style>
+<script id="lifeos-jump-v17-script">
+(()=>{
+ 'use strict';
+ const root=document.getElementById('sessionDetailContent');
+ if(!root)return;
+ let highlighted=null,highlightTimer=null;
+ function renderNavigation(){
+  const panel=root.querySelector('.lifeos-workout-overview');
+  if(!panel)return;
+  const cards=[...root.querySelectorAll('.exercise-detail[data-exercise-id]')];
+  let list=panel.querySelector('.lifeos-jump-list');
+  if(!cards.length){list?.remove();return}
+  if(!list){
+   const label=document.createElement('h4');label.className='lifeos-jump-heading';label.textContent='Direkt zur Übung';label.style.margin='14px 0 8px';
+   list=document.createElement('div');list.className='lifeos-jump-list';list.setAttribute('aria-label','Übung auswählen');
+   panel.append(label,list);
+  }
+  list.replaceChildren();
+  cards.forEach((card,index)=>{
+   const checks=[...card.querySelectorAll('input[data-set-done]')];
+   const done=checks.filter(c=>c.checked).length;
+   const state=checks.length&&done===checks.length?'done':done?'partial':'open';
+   const heading=card.querySelector('h4,h3,.exercise-detail-title');
+   const title=(heading?.textContent||`Übung ${index+1}`).trim().replace(/\s+/g,' ');
+   const button=document.createElement('button');button.type='button';button.className='lifeos-jump-button';button.dataset.jumpIndex=String(index);button.dataset.state=state;
+   const name=document.createElement('span');name.className='lifeos-jump-name';name.textContent=title;
+   const status=document.createElement('span');status.className='lifeos-jump-status';status.textContent=state==='done'?'✓ Fertig':state==='partial'?`${done}/${checks.length} Sätze`:'Noch offen';
+   button.append(name,status);button.setAttribute('aria-label',`${title}: ${status.textContent}. Zur Übung springen`);list.append(button);
+  });
+ }
+ const original=showSessionDetails;
+ showSessionDetails=function(...args){const result=original.apply(this,args);renderNavigation();return result};
+ root.addEventListener('click',event=>{
+  const button=event.target.closest('.lifeos-jump-button');
+  if(!button||!root.contains(button))return;
+  const index=Number(button.dataset.jumpIndex);
+  const card=[...root.querySelectorAll('.exercise-detail[data-exercise-id]')][index];
+  if(!card)return;
+  if(highlighted)highlighted.classList.remove('lifeos-jump-target');
+  if(highlightTimer)clearTimeout(highlightTimer);
+  highlighted=card;card.classList.add('lifeos-jump-target');
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+  highlightTimer=setTimeout(()=>{card.classList.remove('lifeos-jump-target');if(highlighted===card)highlighted=null},1800);
+ });
+ document.addEventListener('change',event=>{if(event.target.matches('#sessionDetailContent [data-set-done],#sessionDetailContent [data-target-sets]'))setTimeout(renderNavigation,30)});
+ document.addEventListener('click',event=>{if(event.target.closest('#sessionDetailContent [data-next-set],#sessionDetailContent [data-add-set],#sessionDetailContent [data-remove-set],#sessionDetailContent [data-lifeos-add-exercise],#sessionDetailContent [data-remove-exercise],#sessionDetailContent [data-exercise-up],#sessionDetailContent [data-exercise-down]'))setTimeout(renderNavigation,30)});
+})();
+</script>
+
+<style id="lifeos-next-exercise-v18-style">
+.lifeos-next-exercise{width:100%;min-height:48px;border:0;border-radius:12px;background:#ae286e;color:#fff;font:inherit;font-weight:700;padding:12px 16px;margin:12px 0 4px;cursor:pointer}
+.lifeos-next-exercise:disabled{background:#e7c9d8;color:#694f5e;cursor:default}
+.lifeos-next-exercise:focus-visible{outline:3px solid #60203f;outline-offset:3px}
+.lifeos-next-exercise-note{font-size:12px;color:#79576a;margin:5px 0 0}
+</style>
+<script id="lifeos-next-exercise-v18-script">
+(()=>{
+ 'use strict';
+ const root=document.getElementById('sessionDetailContent');if(!root)return;
+ let flashTimer=null,flashCard=null;
+ const cards=()=>[...root.querySelectorAll('.exercise-detail[data-exercise-id]')];
+ function isOpen(card){const checks=[...card.querySelectorAll('input[data-set-done]')];return checks.length===0||checks.some(c=>!c.checked)}
+ function update(){
+  const panel=root.querySelector('.lifeos-workout-overview');if(!panel)return;
+  let btn=panel.querySelector('.lifeos-next-exercise');
+  if(!btn){btn=document.createElement('button');btn.type='button';btn.className='lifeos-next-exercise';btn.textContent='Weiter zur nächsten offenen Übung';const note=document.createElement('p');note.className='lifeos-next-exercise-note';note.textContent='Springt zur nächsten Übung mit offenen Sätzen, ohne Werte zu verändern.';const list=panel.querySelector('.lifeos-jump-list');if(list)list.before(btn,note);else panel.append(btn,note)}
+  const pending=cards().filter(isOpen);
+  btn.disabled=!pending.length;
+  btn.textContent=pending.length?'Weiter zur nächsten offenen Übung':'✓ Alle Übungen abgeschlossen';
+ }
+ root.addEventListener('click',event=>{
+  const btn=event.target.closest('.lifeos-next-exercise');if(!btn||!root.contains(btn))return;
+  const pending=cards().filter(isOpen);if(!pending.length)return;
+  const viewport=document.getElementById('sessionDetailOverlay');
+  const top=viewport?.getBoundingClientRect().top??0;
+  const next=pending.find(card=>card.getBoundingClientRect().top>top+110)||pending[0];
+  if(flashCard)flashCard.classList.remove('lifeos-jump-target');if(flashTimer)clearTimeout(flashTimer);
+  flashCard=next;next.classList.add('lifeos-jump-target');next.scrollIntoView({behavior:'smooth',block:'start'});
+  flashTimer=setTimeout(()=>{next.classList.remove('lifeos-jump-target');if(flashCard===next)flashCard=null},1800);
+ });
+ const original=showSessionDetails;
+ showSessionDetails=function(...args){const result=original.apply(this,args);update();return result};
+ root.addEventListener('change',event=>{if(event.target.matches('[data-set-done],[data-target-sets]'))setTimeout(update,40)});
+ root.addEventListener('click',event=>{if(event.target.closest('[data-lifeos-next-set],[data-next-set],[data-add-set],[data-remove-set],[data-lifeos-add-exercise],[data-remove-exercise]'))setTimeout(update,40)});
+})();
+</script>
+
+<style id="lifeos-focus-v19-style">
+.lifeos-focus-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px;margin:12px 0;border:1px solid #e7b9cf;border-radius:14px;background:#fff4f9}
+.lifeos-focus-toolbar button{min-height:44px;border:1px solid #c6789f;background:white;color:#76294e;border-radius:10px;padding:9px 12px;font:inherit;font-weight:650;cursor:pointer}
+.lifeos-focus-toolbar button.lifeos-focus-toggle[aria-pressed="true"]{background:#a9236a;color:white}
+.lifeos-focus-toolbar button:disabled{opacity:.45;cursor:default}
+.lifeos-focus-label{flex-basis:100%;font-size:13px;color:#71475d}
+#sessionDetailContent.lifeos-focus-active .exercise-detail[data-exercise-id]:not(.lifeos-focus-selected){display:none!important}
+#sessionDetailContent.lifeos-focus-active .lifeos-workout-overview{display:none!important}
+@media(max-width:390px){.lifeos-focus-toolbar button{flex:1}}
+</style>
+<script id="lifeos-focus-v19-script">
+(()=>{
+ 'use strict';
+ const root=document.getElementById('sessionDetailContent');if(!root)return;
+ let focus=false,index=0;
+ const cards=()=>[...root.querySelectorAll('.exercise-detail[data-exercise-id]')];
+ function update(){
+  const items=cards();
+  let bar=root.querySelector('.lifeos-focus-toolbar');
+  if(!items.length){bar?.remove();root.classList.remove('lifeos-focus-active');return}
+  if(!bar){
+   bar=document.createElement('div');bar.className='lifeos-focus-toolbar';
+   bar.innerHTML='<button type="button" class="lifeos-focus-toggle" aria-pressed="false">Fokusmodus einschalten</button><button type="button" class="lifeos-focus-prev">← Vorherige</button><button type="button" class="lifeos-focus-next">Nächste →</button><span class="lifeos-focus-label" aria-live="polite"></span>';
+   const overview=root.querySelector('.lifeos-workout-overview');
+   if(overview)overview.before(bar);else items[0].before(bar);
+  }
+  index=Math.min(Math.max(index,0),items.length-1);
+  root.classList.toggle('lifeos-focus-active',focus);
+  items.forEach((card,i)=>card.classList.toggle('lifeos-focus-selected',focus&&i===index));
+  const toggle=bar.querySelector('.lifeos-focus-toggle');toggle.setAttribute('aria-pressed',String(focus));toggle.textContent=focus?'Alle Übungen anzeigen':'Fokusmodus einschalten';
+  bar.querySelector('.lifeos-focus-prev').disabled=!focus||index===0;
+  bar.querySelector('.lifeos-focus-next').disabled=!focus||index===items.length-1;
+  const title=items[index]?.querySelector('h3,h4,.exercise-detail-title')?.textContent?.trim()||`Übung ${index+1}`;
+  bar.querySelector('.lifeos-focus-label').textContent=focus?`Übung ${index+1} von ${items.length}: ${title}`:`${items.length} Übungen · Im Fokusmodus wird jeweils nur eine Übung angezeigt.`;
+ }
+ root.addEventListener('click',event=>{
+  const button=event.target.closest('.lifeos-focus-toggle,.lifeos-focus-prev,.lifeos-focus-next,.lifeos-jump-button');if(!button||!root.contains(button))return;
+  if(button.classList.contains('lifeos-jump-button')){if(focus){index=Number(button.dataset.jumpIndex)||0;update()}return}
+  if(button.classList.contains('lifeos-focus-toggle'))focus=!focus;
+  else if(button.classList.contains('lifeos-focus-prev'))index--;
+  else if(button.classList.contains('lifeos-focus-next'))index++;
+  update();if(focus)root.querySelector('.lifeos-focus-toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});
+ });
+ const original=showSessionDetails;
+ showSessionDetails=function(...args){focus=false;index=0;const result=original.apply(this,args);update();return result};
+ root.addEventListener('change',event=>{if(event.target.matches('[data-target-sets],[data-set-done]'))setTimeout(update,60)});
+ root.addEventListener('click',event=>{if(event.target.closest('[data-add-set],[data-remove-set],[data-lifeos-add-exercise],[data-remove-exercise],[data-exercise-up],[data-exercise-down]'))setTimeout(update,60)});
+})();
+</script>
+<style id="lifeos-focus-v20-style">
+.lifeos-auto-next-setting{display:flex;align-items:center;gap:9px;flex-basis:100%;font-size:13px;color:#6d2850;padding:7px 3px;cursor:pointer}
+.lifeos-auto-next-setting input{width:19px;height:19px;accent-color:#b92b75}
+.lifeos-auto-next-note{font-size:12px;color:#82556b;margin:2px 0 8px}
+</style>
+<script id="lifeos-focus-v20-script">
+(()=>{
+ 'use strict';
+ const root=document.getElementById('sessionDetailContent');if(!root)return;
+ const preferenceKey='lifeos-focus-auto-next-v20';
+ let enabled=false;
+ try{enabled=localStorage.getItem(preferenceKey)==='true'}catch(e){}
+ const cards=()=>[...root.querySelectorAll('.exercise-detail[data-exercise-id]')];
+ function ensureSetting(){
+  const toolbar=root.querySelector('.lifeos-focus-toolbar');if(!toolbar)return;
+  let label=toolbar.querySelector('.lifeos-auto-next-setting');
+  if(!label){
+   label=document.createElement('label');label.className='lifeos-auto-next-setting';
+   label.innerHTML='<input type="checkbox" class="lifeos-auto-next-check"> Nach letzter erledigter Serie automatisch zur nächsten offenen Übung';
+   toolbar.append(label);
+  }
+  label.querySelector('input').checked=enabled;
+ }
+ root.addEventListener('change',e=>{
+  if(e.target.matches('.lifeos-auto-next-check')){
+   enabled=e.target.checked;
+   try{localStorage.setItem(preferenceKey,String(enabled))}catch(err){}
+   return;
+  }
+  if(!enabled||!root.classList.contains('lifeos-focus-active')||!e.target.matches('input[data-set-done]')||!e.target.checked)return;
+  const card=e.target.closest('.exercise-detail[data-exercise-id]');
+  if(!card||!card.classList.contains('lifeos-focus-selected'))return;
+  const checks=[...card.querySelectorAll('input[data-set-done]')];
+  if(!checks.length||!checks.every(box=>box.checked))return;
+  // Let the existing autosave and focus-view refresh complete first.
+  setTimeout(()=>{
+   if(!enabled||!root.classList.contains('lifeos-focus-active'))return;
+   const all=cards(),current=all.indexOf(card);
+   if(current<0)return;
+   const next=all.findIndex((candidate,i)=>i>current&&[...candidate.querySelectorAll('input[data-set-done]')].some(box=>!box.checked));
+   const earlier=next<0?all.findIndex((candidate,i)=>i!==current&&[...candidate.querySelectorAll('input[data-set-done]')].some(box=>!box.checked)):-1;
+   const destination=next>=0?next:earlier;
+   if(destination<0)return;
+   // Existing focus navigation owns the active index; use its buttons rather than modifying internal state.
+   const toolbar=root.querySelector('.lifeos-focus-toolbar');
+   const steps=destination-current;
+   const selector=steps>0?'.lifeos-focus-next':'.lifeos-focus-prev';
+   for(let i=0;i<Math.abs(steps);i++){
+    const button=toolbar?.querySelector(selector);
+    if(!button||button.disabled)break;
+    button.click();
+   }
+  },130);
+ });
+ const previous=showSessionDetails;
+ showSessionDetails=function(...args){const result=previous.apply(this,args);ensureSetting();return result};
+ root.addEventListener('click',e=>{if(e.target.closest('.lifeos-focus-toggle'))setTimeout(ensureSetting,0)});
+})();
+</script>
 </body></html>
