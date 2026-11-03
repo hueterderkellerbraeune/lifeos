@@ -2849,13 +2849,14 @@ async function push(){
     if(generation!==epoch)return;
     rowId=result.data.id;lastUploaded=payload;
     say('✓ Mit Supabase synchronisiert');
-  }catch(e){dirty=true;say('⚠️ Cloud-Speichern fehlgeschlagen · lokal gesichert');console.error('LifeOS cloud',e)}
+  }catch(e){dirty=true;const detail=String(e?.message||e?.details||'Unbekannter Fehler');say('⚠️ Cloud-Speichern fehlgeschlagen: '+detail+' · lokal gesichert');console.error('LifeOS cloud',e)}
   finally{sending=false;if(generation===epoch&&snapshot()!==payload){dirty=true;schedule()}}
 }
 window.addEventListener('lifeos-local-change',()=>{if(ready)schedule()});
 window.addEventListener('online',()=>{if(userId){if(ready&&dirty)schedule();else connect()}});
 button.addEventListener('click',async()=>{
-  if(dirty||sending){say('☁️ Zuerst lokale Änderungen hochladen …');schedule();return}
+  if(sending){say('☁️ Upload läuft bereits …');return}
+  if(dirty){if(loading){say('☁️ Cloud-Daten werden noch geladen …');return}if(!ready){say('⚠️ Cloud-Verbindung noch nicht bereit · bitte Seite neu laden');return}clearTimeout(timer);await push();return}
   if(!userId){say('☁️ Bitte zuerst anmelden');return}
   if(!confirm('Cloud-Daten erneut laden? Noch nicht synchronisierte lokale Änderungen könnten verloren gehen.'))return;
   ready=false;userId=null;await connect();
