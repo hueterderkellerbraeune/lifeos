@@ -2419,4 +2419,288 @@ html,body{max-width:100%;overflow-x:clip}
  #view-dashboard .stat{min-width:0;overflow:hidden}
 }
 </style>
+<style id="forest-calm-v41-unified-mobile">
+/* Forest Calm: global semantic components; no changes to stored user data. */
+html,body{width:100%;max-width:100%;overflow-x:clip}
+.app,.main,.view,.panel,.columns,.list,.item,.section-title,.form-grid,.filters,.table-wrap{min-width:0;max-width:100%}
+.view{color:var(--ink)}
+.view .panel,.view .stat,.view .item,.view .exercise-detail,.view .detail-meta>div{background:var(--panel);color:var(--ink);border-color:var(--line)}
+.view .panel h3,.view .section-title h2,.view .item-body b,.view .stat strong,.view .field label{color:var(--ink)}
+.view .sub,.view .section-title p,.view .item-body small,.view .stat small,.view .stat-top,.view .field .hint{color:var(--muted)}
+.view .item-icon,.view .stat-icon{background:var(--green2);color:var(--green)}
+.view .pill{background:var(--green2);color:var(--green)}
+.view .pill.planned{background:var(--green2);color:var(--green)}
+.view .pill.done{background:var(--green2);color:var(--green)}
+.view .btn:not(.secondary):not(.ghost):not(.danger){background:var(--fc-button);color:var(--fc-button-text);border-color:transparent}
+.view .btn.secondary{background:var(--fc-soft);color:var(--ink);border:1px solid var(--line)}
+.view .btn.ghost{background:transparent;color:var(--green)}
+.view .btn.danger{background:var(--fc-soft);color:var(--ink);border:1px solid var(--line)}
+.view .field input,.view .field select,.view .field textarea,.view .filters input,.view .filters select{
+ background:var(--fc-surface);color:var(--ink);border:1px solid var(--line);max-width:100%;min-width:0;
+}
+.view .field input:focus-visible,.view .field select:focus-visible,.view .field textarea:focus-visible{
+ outline:2px solid var(--green);outline-offset:2px;box-shadow:none;
+}
+.view .notice,.view .empty{background:var(--green2);color:var(--ink);border-color:var(--line)}
+.view .table th,.view .table td{border-color:var(--line);color:var(--ink)}
+.view .table th{color:var(--muted)}
+.view .bar{background:var(--line)}
+.view .chart-bar,.view .bar span{background:var(--green)}
+.hero{background:var(--green2)!important;color:var(--ink);border-color:var(--line)}
+.hero p{color:var(--muted)!important}
+.avatar{background:var(--green2);color:var(--green)}
+.sidebar{background:var(--panel);border-color:var(--line)}
+.nav button{color:var(--ink)}
+.nav button.active{background:var(--green2);color:var(--green)}
+.nav button:hover:not(.active){background:var(--green2)}
+.side-note{background:var(--green2);color:var(--muted)}
+.side-note b{color:var(--ink)}
+/* Session rows: allow long names, chips and actions without horizontal overflow. */
+.session-card{max-width:100%;min-width:0;flex-wrap:wrap;overflow-wrap:anywhere;gap:10px}
+.session-card .item-body{flex:1 1 160px;min-width:0;overflow-wrap:anywhere}
+.session-card .item-body b,.session-card .item-body small{overflow-wrap:anywhere}
+.session-card>.pill{flex:0 0 auto;max-width:100%}
+.session-card>.btn{flex:0 0 auto;white-space:normal;max-width:100%}
+#view-dashboard .session-card{background:var(--panel);border-color:var(--line)}
+#view-dashboard .list{min-width:0;width:100%}
+/* Other views: unify existing dark and light surfaces without altering behaviour. */
+[data-lifeos-theme="dark"] .view .panel,[data-lifeos-theme="dark"] .view .stat,[data-lifeos-theme="dark"] .view .item,
+[data-lifeos-theme="dark"] .form-panel,[data-lifeos-theme="dark"] .detail-dialog,
+[data-lifeos-theme="dark"] .quick-actions-dialog{background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important}
+[data-lifeos-theme="dark"] .view input,[data-lifeos-theme="dark"] .view textarea,[data-lifeos-theme="dark"] .view select{
+ background:var(--fc-surface)!important;color:var(--ink)!important;border-color:var(--line)!important;
+}
+[data-lifeos-theme="dark"] .view .notice,[data-lifeos-theme="dark"] .view .empty{
+ background:var(--green2)!important;color:var(--ink)!important;border-color:var(--line)!important;
+}
+[data-lifeos-theme="dark"] .view .sub,[data-lifeos-theme="dark"] .view .item-body small{color:var(--muted)!important}
+[data-lifeos-theme="dark"] .view .section-title h2,[data-lifeos-theme="dark"] .view .panel h3{color:var(--ink)!important}
+@media(max-width:680px){
+ .main{padding:14px 12px!important}
+ .view>.section-title{flex-wrap:wrap;align-items:flex-start;gap:10px}
+ .view>.section-title .btn{max-width:100%}
+ .view .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .view .form-grid .span2{grid-column:1/-1}
+ .view .panel{min-width:0;max-width:100%}
+ .view .filters{flex-wrap:wrap}
+ .view .filters>*{min-width:0;max-width:100%;flex:1 1 130px}
+ .session-card{display:grid!important;grid-template-columns:44px minmax(0,1fr) auto;gap:8px!important;padding:11px!important;align-items:center}
+ .session-card>.item-icon{grid-column:1;grid-row:1;align-self:start;width:42px;height:42px}
+ .session-card>.item-body{grid-column:2/4;grid-row:1;min-width:0;width:100%}
+ .session-card>.pill{grid-column:1/3;grid-row:2;justify-self:start;align-self:center}
+ .session-card>.btn[data-complete]{grid-column:3;grid-row:2;justify-self:end;min-height:40px;max-width:100%;font-size:12px;padding:8px 10px}
+ .session-card>.btn[data-delete-session]{grid-column:3;grid-row:3;justify-self:end;min-width:40px;min-height:40px}
+ .session-card:not(:has(> .btn[data-complete]))>.btn[data-delete-session]{grid-row:2}
+ #view-dashboard .session-card{grid-template-columns:42px minmax(0,1fr) auto}
+ #view-dashboard .session-card>.item-body b{font-size:14px;line-height:1.3}
+ #view-dashboard .session-card>.item-body small{font-size:12px}
+ #view-dashboard .session-card>.btn[data-complete]{white-space:normal}
+}
+@media(max-width:360px){
+ .session-card{grid-template-columns:40px minmax(0,1fr) auto}
+ .session-card>.pill{font-size:11px}
+ .session-card>.btn[data-complete]{padding:7px 8px;font-size:11px}
+}
+</style>
+
+<style id="forest-calm-v42-unified">
+/* v42: override legacy pink/navy library theme and hard-coded panels with shared tokens. */
+#view-exercises,#view-progress,#view-plans,#view-sessions{color:var(--ink)!important}
+#view-exercises .section-title h2,#view-progress .section-title h2,#view-plans .section-title h2,#view-sessions .section-title h2{color:var(--ink)!important}
+#view-exercises .section-title p,#view-progress .section-title p,#view-plans .section-title p,#view-sessions .section-title p{color:var(--muted)!important}
+#view-exercises .panel,#view-progress .panel,#view-plans .panel,#view-sessions .panel{
+ background:var(--panel)!important;color:var(--ink)!important;border:1px solid var(--line)!important;
+ box-shadow:var(--shadow)!important;border-radius:16px!important;max-width:100%;min-width:0;
+}
+#view-exercises .filters,#view-exercises .exercise-filters{
+ background:var(--fc-soft)!important;color:var(--ink)!important;border:1px solid var(--line)!important;
+ border-radius:13px!important;
+}
+#view-exercises .filters input,#view-exercises .filters select,
+#view-plans input,#view-plans select,#view-plans textarea,
+#view-progress input,#view-progress select,#view-progress textarea{
+ background:var(--fc-surface)!important;color:var(--ink)!important;border:1px solid var(--line)!important;
+ border-radius:10px!important;min-height:43px;
+}
+#view-exercises .filters input::placeholder{color:var(--muted)!important}
+#view-exercises .lifeos-library-count,#view-exercises .lifeos-card-body p,
+#view-exercises .lifeos-card-foot>span,#view-exercises .lifeos-card-foot,
+#view-exercises .lifeos-card-body small{color:var(--muted)!important}
+#view-exercises .lifeos-library-card{
+ background:var(--panel)!important;border:1px solid var(--line)!important;color:var(--ink)!important;
+ box-shadow:var(--shadow)!important;border-radius:15px!important;
+}
+#view-exercises .lifeos-library-card:hover,#view-exercises .lifeos-library-card:focus-visible{
+ border-color:var(--green)!important;box-shadow:0 0 0 2px var(--line)!important;
+}
+#view-exercises .lifeos-card-visual{
+ background:var(--fc-soft)!important;border-color:var(--line)!important;
+}
+#view-exercises .lifeos-card-kicker{color:var(--green)!important}
+#view-exercises .lifeos-card-body h3{color:var(--ink)!important}
+#view-exercises .lifeos-card-foot{border-color:var(--line)!important}
+#view-exercises .lifeos-card-foot button{
+ background:var(--fc-soft)!important;color:var(--ink)!important;border:1px solid var(--line)!important;
+}
+#view-exercises .btn[data-action="new-exercise"]{
+ background:var(--fc-button)!important;color:var(--fc-button-text)!important;border-color:transparent!important;
+}
+#exerciseDetailOverlay .exercise-detail-dialog{
+ background:var(--bg)!important;color:var(--ink)!important;border:1px solid var(--line)!important;
+}
+#exerciseDetailOverlay .panel-head h2,#exerciseDetailOverlay .exercise-detail-card h3{color:var(--ink)!important}
+#exerciseDetailOverlay .eyebrow,#exerciseDetailOverlay .exercise-atlas-labels{color:var(--green)!important}
+#exerciseDetailOverlay .exercise-tabs{
+ background:var(--fc-soft)!important;border-color:var(--line)!important;
+}
+#exerciseDetailOverlay .exercise-tabs button{
+ background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important;
+}
+#exerciseDetailOverlay .exercise-tabs button[aria-selected="true"]{
+ background:var(--fc-button)!important;color:var(--fc-button-text)!important;border-color:var(--green)!important;
+}
+#exerciseDetailOverlay .exercise-detail-card,#exerciseDetailOverlay .exercise-info-block{
+ background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important;
+}
+#exerciseDetailOverlay .exercise-detail-meta span{
+ background:var(--fc-soft)!important;color:var(--green)!important;
+}
+#exerciseDetailOverlay .exercise-structured-row,#exerciseDetailOverlay .exercise-instructions li{
+ border-color:var(--line)!important;
+}
+#exerciseDetailOverlay .exercise-structured-row small,#exerciseDetailOverlay .exercise-note{color:var(--muted)!important}
+#exerciseDetailOverlay .exercise-figure-fallback>div{background:var(--fc-soft)!important}
+#exerciseDetailOverlay .exercise-training-action{
+ background:var(--fc-button)!important;color:var(--fc-button-text)!important;
+}
+#exerciseDetailOverlay .btn.secondary{
+ background:var(--fc-soft)!important;color:var(--ink)!important;border-color:var(--line)!important;
+}
+#exerciseDetailOverlay .exercise-caution{
+ background:var(--amber)!important;color:var(--ink)!important;border-color:var(--line)!important;
+}
+/* Progress statistics, charts, training history */
+#view-progress .stat,#view-progress .item,#view-progress .session-card,
+#view-sessions .session-card,#view-sessions .item,#view-plans .session-card{
+ background:var(--panel)!important;color:var(--ink)!important;border:1px solid var(--line)!important;
+ box-shadow:var(--shadow)!important;border-radius:13px!important;
+}
+#view-progress .stat strong,#view-progress .item b,#view-plans h3{color:var(--ink)!important}
+#view-progress .stat small,#view-progress .sub,#view-plans .sub,#view-sessions .sub{color:var(--muted)!important}
+#view-progress .chart-bar{background:var(--green)!important}
+#view-progress .bar,#view-plans .bar{background:var(--fc-soft)!important}
+#view-progress .bar span,#view-plans .bar span{background:var(--green)!important}
+#view-progress .chart{border-color:var(--line)!important}
+#view-progress .table th,#view-progress .table td,
+#view-plans .table th,#view-plans .table td{border-color:var(--line)!important;color:var(--ink)!important}
+#view-progress .table th,#view-plans .table th{color:var(--muted)!important}
+#view-progress .empty,#view-plans .empty{background:var(--fc-soft)!important;color:var(--muted)!important}
+#view-plans [id^="lifeos-v"],#view-plans [id*="template"],
+#view-plans .lifeos-library-card,#view-plans .lifeos-plan-intro{
+ background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important;
+}
+#view-plans [id^="lifeos-v"] button:not(.danger),
+#view-plans [id*="template"] button:not(.danger){
+ background:var(--fc-button)!important;color:var(--fc-button-text)!important;border-color:transparent!important;
+}
+#view-plans [id^="lifeos-v"] input,#view-plans [id^="lifeos-v"] select{
+ background:var(--fc-soft)!important;color:var(--ink)!important;border-color:var(--line)!important;
+}
+#view-plans .lifeos-card-body h3,#view-plans .lifeos-card-body p{color:var(--ink)!important}
+#view-plans .lifeos-card-foot{color:var(--muted)!important}
+/* Dashboard accessible quick theme toggle */
+#forest-calm-dashboard-toggle{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+ background:var(--panel);border:1px solid var(--line);border-radius:15px;
+ padding:12px 15px;margin-bottom:14px;box-shadow:var(--shadow);
+}
+#forest-calm-dashboard-toggle .fc-theme-text{display:flex;align-items:center;gap:9px;color:var(--ink);font-weight:700}
+#forest-calm-dashboard-toggle .fc-theme-hint{color:var(--muted);font-size:12px;font-weight:400}
+#forest-calm-dashboard-toggle .fc-switch{position:relative;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+#forest-calm-dashboard-toggle .fc-switch input{
+ position:absolute;opacity:0;width:48px;height:44px;inset:0;cursor:pointer;
+}
+#forest-calm-dashboard-toggle .fc-switch-track{
+ width:53px;height:30px;background:var(--line);border:1px solid var(--muted);
+ border-radius:999px;display:block;position:relative;transition:background .15s;
+}
+#forest-calm-dashboard-toggle .fc-switch-track:before{
+ content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;
+ border-radius:50%;background:var(--fc-button);transition:transform .15s;
+}
+#forest-calm-dashboard-toggle .fc-switch input:checked + .fc-switch-track{background:#315D48}
+#forest-calm-dashboard-toggle .fc-switch input:checked + .fc-switch-track:before{transform:translateX(23px);background:#A9D7BC}
+#forest-calm-dashboard-toggle .fc-switch input:focus-visible + .fc-switch-track{outline:3px solid var(--green);outline-offset:3px}
+#forest-calm-dashboard-toggle .fc-switch-caption{font-size:12px;color:var(--muted);min-width:40px}
+@media(max-width:680px){
+ #view-exercises .lifeos-library-grid{grid-template-columns:1fr!important;gap:10px!important}
+ #view-exercises .lifeos-library-card{max-width:100%;min-width:0}
+ #view-progress .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #view-progress .stat{padding:12px}
+ #view-plans,#view-progress,#view-exercises{min-width:0;max-width:100%}
+ #view-plans .section-title,#view-progress .section-title,#view-exercises .section-title{flex-wrap:wrap}
+}
+</style>
+<script id="forest-calm-v42-theme-toggle">
+(function(){
+ const dashboard=document.getElementById('view-dashboard');
+ const settingsSelect=document.getElementById('forest-calm-mode');
+ if(!dashboard || !settingsSelect || document.getElementById('forest-calm-dashboard-toggle'))return;
+ const wrapper=document.createElement('div');
+ wrapper.id='forest-calm-dashboard-toggle';
+ wrapper.innerHTML='<div class="fc-theme-text"><span aria-hidden="true">🌿</span><span>Forest Calm<br><span class="fc-theme-hint">Darstellung direkt wechseln</span></span></div><label class="fc-switch"><span aria-hidden="true">☀️</span><input type="checkbox" id="fc-dashboard-dark" role="switch" aria-label="Dunkelmodus einschalten"><span class="fc-switch-track"></span><span aria-hidden="true">🌙</span><span class="fc-switch-caption" id="fc-dashboard-theme-label">Hell</span></label>';
+ dashboard.insertBefore(wrapper,dashboard.firstChild);
+ const toggle=wrapper.querySelector('#fc-dashboard-dark');
+ const label=wrapper.querySelector('#fc-dashboard-theme-label');
+ function sync(){
+  const dark=document.documentElement.getAttribute('data-lifeos-theme')==='dark';
+  toggle.checked=dark;label.textContent=dark?'Dunkel':'Hell';
+ }
+ toggle.addEventListener('change',()=>{
+  settingsSelect.value=toggle.checked?'dark':'light';
+  settingsSelect.dispatchEvent(new Event('change',{bubbles:true}));
+  sync();
+ });
+ settingsSelect.addEventListener('change',sync);
+ const observer=new MutationObserver(sync);
+ observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-lifeos-theme']});
+ sync();
+})();
+</script>
+
+<style id="lifeos-v43-desktop-layout-repair">
+/* Desktop repair: explicit viewport-wide app grid, never shrink to intrinsic content width. */
+@media (min-width:1001px){
+ html,body{width:100%!important;min-width:0!important;max-width:none!important}
+ .app{display:grid!important;grid-template-columns:248px minmax(0,1fr)!important;
+   width:100%!important;max-width:none!important;min-width:0!important;
+   min-height:100vh!important;margin:0!important;align-items:stretch!important}
+ .app>.sidebar{grid-column:1!important;width:248px!important;min-width:248px!important;
+   max-width:248px!important;align-self:stretch!important}
+ .app>.main{grid-column:2!important;grid-row:1!important;
+   min-width:0!important;width:100%!important;max-width:1600px!important;
+   margin:0 auto!important;padding:30px clamp(20px,3vw,48px)!important;
+   justify-self:stretch!important}
+ .app>.sidebar-backdrop{display:none!important}
+ .main>.view{min-width:0!important;width:100%!important}
+ .main .stats{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ .main .columns{display:grid!important;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)!important}
+ .main .columns>.panel{min-width:0!important}
+ .main .month-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important;width:100%!important}
+ .main .month-day{min-width:0!important}
+}
+@media (min-width:681px) and (max-width:1000px){
+ .app{display:grid!important;grid-template-columns:210px minmax(0,1fr)!important;
+   width:100%!important;max-width:none!important;min-height:100vh!important}
+ .app>.sidebar{grid-column:1!important;width:210px!important;min-width:210px!important}
+ .app>.main{grid-column:2!important;grid-row:1!important;width:100%!important;
+   min-width:0!important;max-width:none!important;margin:0!important;padding:24px 18px!important}
+ .main .columns{grid-template-columns:minmax(0,1fr)!important}
+}
+@media (max-width:680px){
+ .app{display:block!important;width:100%!important}
+ .app>.main{display:block!important;width:100%!important;max-width:100%!important;
+   padding:14px 12px!important;margin:0!important}
+}
+</style>
 </body></html>
