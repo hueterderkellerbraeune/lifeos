@@ -2724,7 +2724,7 @@ html,body{width:100%;max-width:100%;overflow-x:clip}
  <div id="lifeos-auth-login"><form id="lifeos-auth-login-form"><label for="lifeos-auth-email">E-Mail-Adresse</label><input id="lifeos-auth-email" type="email" autocomplete="email" required><label for="lifeos-auth-password">Passwort</label><input id="lifeos-auth-password" type="password" autocomplete="current-password" required minlength="12"><button class="auth-main" type="submit">Anmelden</button></form><button type="button" class="auth-secondary" id="lifeos-auth-forgot">Passwort festlegen / zurücksetzen</button></div>
  <div id="lifeos-auth-recovery" hidden><form id="lifeos-auth-recovery-form"><label for="lifeos-auth-new-password">Neues Passwort (mindestens 12 Zeichen)</label><input id="lifeos-auth-new-password" type="password" autocomplete="new-password" minlength="12" required><label for="lifeos-auth-confirm-password">Passwort wiederholen</label><input id="lifeos-auth-confirm-password" type="password" autocomplete="new-password" minlength="12" required><button class="auth-main" type="submit">Passwort speichern</button></form></div>
  <div id="lifeos-auth-signed-in" hidden><p id="lifeos-auth-user"></p><button type="button" class="auth-main" id="lifeos-auth-signout">Abmelden</button></div>
- <div id="lifeos-auth-message" role="status" aria-live="polite"></div><p style="font-size:12px;margin-top:15px">Deine bisherigen Trainingsdaten bleiben vorerst nur in diesem Browser. Die Synchronisierung wird später separat aktiviert.</p>
+ <div id="lifeos-auth-message" role="status" aria-live="polite"></div><p style="font-size:12px;margin-top:15px">Trainingsdaten werden lokal gespeichert und bei aktiver Anmeldung mit Supabase abgeglichen.</p>
  </div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script id="lifeos-auth-v44-script">
@@ -2786,110 +2786,103 @@ html,body{width:100%;max-width:100%;overflow-x:clip}
 #lifeos-cloud-status button{border:1px solid #bdd8c7;background:white;color:#16643f;border-radius:8px;padding:5px 8px;font-size:12px;font-weight:700}
 </style>
 <div id="lifeos-cloud-status" role="status" aria-live="polite"><span id="lifeos-cloud-text">☁️ Synchronisierung wird vorbereitet …</span><button type="button" id="lifeos-cloud-refresh" title="Cloud-Daten erneut laden">↻ Laden</button></div>
-<script id="lifeos-cloud-v46-script">
+<script id="lifeos-cloud-v47-script">
 (()=>{
 'use strict';
 const status=document.getElementById('lifeos-cloud-text');
 const button=document.getElementById('lifeos-cloud-refresh');
-const localKey='lifeos-v1';
-let client=null,userId=null,rowId=null,ready=false,loading=false,sending=false,dirty=false,timer=null,lastUploaded='',epoch=0;
+const localKey='lifeos-v1', pendingKey='lifeos-cloud-pending-v47', baseKey='lifeos-cloud-base-v47';
+let client=null,userId=null,rowId=null,ready=false,loading=false,sending=false,dirty=false,timer=null,retry=null,epoch=0,base=null,blocked=false,attempt=0;
 const say=s=>{status.textContent=s};
 const snapshot=()=>localStorage.getItem(localKey)||'';
-const hasEntries=obj=>!!(obj&&(obj.sessions?.length||obj.measurements?.length||obj.cycle?.dailyLogs?.length||obj.cycle?.periodEntries?.length||obj.templates?.length));
-function withTimeout(promise,ms,phase){
- let timeout;
- return Promise.race([Promise.resolve(promise),new Promise((_,reject)=>{timeout=setTimeout(()=>reject(new Error(phase+' hat nach '+Math.round(ms/1000)+' Sekunden nicht geantwortet')),ms)})]).finally(()=>clearTimeout(timeout));
-}
-function applyRemote(remote){
- if(!remote||!Array.isArray(remote.sessions)||!Array.isArray(remote.exercises))throw Error('Ungültiges Cloud-Datenformat');
- localStorage.setItem(localKey,JSON.stringify(remote));
- data=load();renderAll();
-}
-function schedule(){
- if(!ready||!userId)return;
- dirty=true;
- if(loading||sending)return;
- clearTimeout(timer);
- timer=setTimeout(()=>{timer=null;void push()},900);
-}
+const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const hasEntries=o=>!!(o&&(o.sessions?.length||o.measurements?.length||o.cycle?.dailyLogs?.length||o.cycle?.periodEntries?.length||o.templates?.length));
+const pending=()=>localStorage.getItem(pendingKey)==='1';
+function markPending(){try{localStorage.setItem(pendingKey,'1')}catch(e){console.error(e)}}
+function clearPending(){try{localStorage.removeItem(pendingKey)}catch(e){console.error(e)}}
+function saveBase(value){base=value;try{localStorage.setItem(baseKey,JSON.stringify(value))}catch(e){console.error(e)}}
+function readBase(){try{return JSON.parse(localStorage.getItem(baseKey)||'null')}catch{return null}}
+function withTimeout(p,ms,label){let t;return Promise.race([Promise.resolve(p),new Promise((_,reject)=>{t=setTimeout(()=>reject(new Error(label+' hat nach '+Math.round(ms/1000)+' Sekunden nicht geantwortet')),ms)})]).finally(()=>clearTimeout(t))}
+function applyRemote(remote){if(!remote||!Array.isArray(remote.sessions)||!Array.isArray(remote.exercises))throw Error('Ungültiges Cloud-Datenformat');localStorage.setItem(localKey,JSON.stringify(remote));data=load();renderAll()}
+function cancelTimers(){clearTimeout(timer);clearTimeout(retry);timer=retry=null}
+function schedule(ms=900){if(!ready||!userId||blocked)return;dirty=true;markPending();if(loading||sending)return;clearTimeout(timer);timer=setTimeout(()=>{timer=null;void push()},ms)}
+function retryLater(){if(blocked||!userId)return;attempt++;const ms=Math.min(60000,2000*Math.pow(2,Math.min(attempt-1,5)));clearTimeout(retry);retry=setTimeout(()=>{retry=null;if(navigator.onLine!==false){if(ready)void push();else void connect(true)}},ms);say('⚠️ Cloud nicht erreichbar · lokal gespeichert · neuer Versuch in '+Math.round(ms/1000)+' s')}
+async function fetchRow(){const {data:rows,error}=await withTimeout(client.from('lifeos_data').select('id,data').eq('user_id',userId).order('id',{ascending:false}).limit(1),15000,'Cloud-Abfrage');if(error)throw error;return rows?.[0]||null}
+function pauseConflict(){blocked=true;ready=false;cancelTimers();say('⚠️ Datenkonflikt · Upload pausiert. Bitte keine Änderungen auf anderem Gerät vornehmen.');console.warn('LifeOS: Cloud-Version unterscheidet sich vom letzten bekannten Stand. Kein Upload.')}
 async function connect(force=false){
  if(!window.lifeosSupabaseClient){say('☁️ Supabase nicht erreichbar');return}
  client=window.lifeosSupabaseClient;
- let auth;
- try{({data:auth}=await withTimeout(client.auth.getSession(),12000,'Anmeldung'))}
- catch(e){say('⚠️ '+e.message);console.error('LifeOS Auth',e);return}
+ let auth;try{({data:auth}=await withTimeout(client.auth.getSession(),12000,'Anmeldung'))}catch(e){say('⚠️ Anmeldung: '+e.message);return}
  const next=auth?.session?.user?.id||null;
- if(!force&&next===userId&&(ready||loading))return;
- if(loading&&!force)return;
- const generation=++epoch;
- userId=next;rowId=null;ready=false;dirty=false;lastUploaded='';clearTimeout(timer);
- if(!userId){loading=false;say('☁️ Lokal gespeichert · bitte anmelden');return}
- loading=true;say('☁️ Cloud-Daten werden geladen …');
+ if(!force&&next===userId&&(ready||loading||blocked))return;
+ if(loading)return;
+ const gen=++epoch;userId=next;rowId=null;ready=false;blocked=false;cancelTimers();
+ if(!userId){say('☁️ Lokal gespeichert · bitte anmelden');return}
+ loading=true;say('☁️ Cloud-Daten werden geprüft …');
  try{
-  const {data:rows,error:e}=await withTimeout(client.from('lifeos_data').select('id,data').eq('user_id',userId).order('id',{ascending:false}).limit(1),15000,'Cloud-Abfrage');
-  if(e)throw e;
-  if(generation!==epoch)return;
-  if(rows?.length){
-   rowId=rows[0].id;
-   const remote=rows[0].data;
-   const local=JSON.parse(snapshot()||'null');
-   if(hasEntries(local)&&JSON.stringify(local)!==JSON.stringify(remote)){
-    const useCloud=confirm('Dieses Gerät enthält lokale LifeOS-Einträge, die von den Cloud-Daten abweichen.\n\nOK: Cloud-Daten laden (lokale Daten bleiben zuvor als Sicherung im Browser erhalten).\nAbbrechen: Lokale Daten behalten; Synchronisierung pausieren.');
-    if(!useCloud){say('⚠️ Unterschiedliche Daten · Abgleich pausiert');return}
-    localStorage.setItem('lifeos-cloud-local-backup-'+Date.now(),snapshot());
+  const row=await fetchRow();if(gen!==epoch)return;
+  const local=JSON.parse(snapshot()||'null');
+  const oldBase=readBase();
+  if(row){
+   rowId=row.id;
+   if(pending()&&oldBase!==null&&!equal(row.data,oldBase)){pauseConflict();return}
+   if(pending()&&oldBase===null&&hasEntries(local)&&!equal(local,row.data)){pauseConflict();return}
+   if(!pending()){
+    if(hasEntries(local)&&!equal(local,row.data)){
+     const ok=confirm('Lokale und Cloud-Daten unterscheiden sich.\n\nOK: Cloud-Daten übernehmen (lokale Sicherung wird erstellt).\nAbbrechen: Abgleich pausieren.');
+     if(!ok){pauseConflict();return}
+     localStorage.setItem('lifeos-cloud-local-backup-'+Date.now(),snapshot());
+    }
+    applyRemote(row.data);
    }
-   applyRemote(remote);lastUploaded=snapshot();ready=true;say('✓ Cloud-Daten geladen');
+   saveBase(row.data);ready=true;
+   if(pending()){dirty=true;say('☁️ Lokale Änderungen warten auf Upload …')}
+   else say('✓ Mit Supabase synchronisiert');
   }else{
-   ready=true;dirty=true;say('☁️ Erster Cloud-Abgleich …');
+   if(oldBase!==null&&pending()){pauseConflict();return}
+   saveBase(null);ready=true;
+   if(snapshot()){dirty=true;markPending();say('☁️ Erster Cloud-Abgleich …')}
+   else say('☁️ Noch keine lokalen Daten vorhanden');
   }
- }catch(e){say('⚠️ Cloud-Laden: '+(e.message||'Unbekannter Fehler'));console.error('LifeOS Cloud-Abfrage',e)}
- finally{
-  if(generation===epoch){loading=false;if(ready&&dirty)schedule()}
- }
+  attempt=0;
+ }catch(e){say('⚠️ Cloud-Laden: '+(e.message||'Unbekannter Fehler'));console.error('LifeOS Cloud-Laden',e);retryLater()}
+ finally{if(gen===epoch){loading=false;if(ready&&dirty)schedule()}}
 }
 async function push(){
- if(!ready||!userId||loading||sending)return;
- const generation=epoch;const payload=snapshot();
- if(!payload){say('⚠️ Keine lokalen Daten gefunden · kein Upload');return}
- if(!dirty&&payload===lastUploaded)return;
- sending=true;dirty=false;say('☁️ Änderungen werden gespeichert …');
+ if(!ready||!userId||loading||sending||blocked)return;
+ const gen=epoch,payload=snapshot();
+ if(!payload){say('☁️ Keine lokalen Daten zum Hochladen');return}
+ sending=true;dirty=false;markPending();say('☁️ Änderungen werden gespeichert …');
  try{
   const value=JSON.parse(payload);
+  const remote=await fetchRow();
+  if(gen!==epoch)return;
+  if((remote?.id||null)!==(rowId||null)||!equal(remote?.data||null,base)){pauseConflict();return}
   const query=rowId!=null
    ?client.from('lifeos_data').update({data:value}).eq('id',rowId).eq('user_id',userId).select('id').single()
    :client.from('lifeos_data').insert({user_id:userId,data:value}).select('id').single();
   const result=await withTimeout(query,15000,'Cloud-Speichern');
   if(result.error)throw result.error;
-  if(generation!==epoch)return;
-  rowId=result.data.id;lastUploaded=payload;
-  say('✓ Mit Supabase synchronisiert');
- }catch(e){
-  dirty=true;
-  const detail=String(e?.message||e?.details||'Unbekannter Fehler');
-  say('⚠️ Cloud-Speichern: '+detail+' · lokal gesichert');
-  console.error('LifeOS Cloud-Speichern',e);
- }finally{
-  sending=false;
-  if(generation===epoch&&snapshot()!==payload){dirty=true;schedule()}
- }
+  if(gen!==epoch)return;
+  rowId=result.data.id;saveBase(value);attempt=0;clearTimeout(retry);
+  if(snapshot()===payload){clearPending();say('✓ Mit Supabase synchronisiert')}
+  else{dirty=true;schedule()}
+ }catch(e){dirty=true;console.error('LifeOS Cloud-Speichern',e);retryLater()}
+ finally{sending=false;if(gen===epoch&&dirty&&!blocked&&!retry&&snapshot()!==payload)schedule()}
 }
-window.addEventListener('lifeos-local-change',()=>{if(ready)schedule()});
-window.addEventListener('online',()=>{if(userId){if(ready&&dirty)schedule();else void connect(true)}});
+window.addEventListener('lifeos-local-change',()=>{markPending();dirty=true;if(ready&&!blocked)schedule();else if(blocked)say('⚠️ Datenkonflikt · Änderungen nur lokal gespeichert')});
+window.addEventListener('online',()=>{clearTimeout(retry);retry=null;if(userId&&!blocked){if(ready&&dirty)void push();else void connect(true)}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&userId&&!blocked){if(ready&&pending())schedule(100);else if(!ready)void connect(true)}});
 button.addEventListener('click',async()=>{
- if(sending){say('☁️ Upload läuft bereits …');return}
- if(loading){say('☁️ Cloud-Abfrage läuft noch · bitte kurz warten');return}
- if(dirty&&ready){clearTimeout(timer);await push();return}
+ if(loading||sending){say('☁️ Abgleich läuft bereits …');return}
+ if(blocked){say('⚠️ Datenkonflikt: Bitte erst Daten sichern oder Konflikt klären. Kein Überschreiben.');return}
  if(!userId){say('☁️ Bitte zuerst anmelden');return}
+ if(ready&&pending()){clearTimeout(timer);await push();return}
  if(!ready){await connect(true);return}
- if(!confirm('Cloud-Daten erneut laden? Noch nicht synchronisierte lokale Änderungen könnten verloren gehen.'))return;
+ if(!confirm('Cloud-Daten erneut laden? Lokale Änderungen könnten überschrieben werden.'))return;
  await connect(true);
 });
-function init(){
- if(!window.lifeosSupabaseClient){setTimeout(init,400);return}
- client=window.lifeosSupabaseClient;
- client.auth.onAuthStateChange(()=>{setTimeout(()=>{void connect()},0)});
- void connect();
-}
+function init(){if(!window.lifeosSupabaseClient){setTimeout(init,400);return}client=window.lifeosSupabaseClient;client.auth.onAuthStateChange(()=>setTimeout(()=>void connect(),0));void connect()}
 init();
 })();
 </script>
