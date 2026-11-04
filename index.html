@@ -3006,4 +3006,37 @@ init();
  new MutationObserver(update).observe(cloudText,{childList:true,characterData:true,subtree:true});update();
 })();
 </script>
+
+<style id="lifeos-v54-progress-forest-green">
+/* Only the Fortschritt page: replace remaining pink/magenta legacy components. */
+#view-progress .lifeos-activity-v22,#view-progress .lifeos-plan-v23,#view-progress .lifeos-goal-v24,
+#view-progress .lmg25,#view-progress .ly27{background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important}
+#view-progress .lifeos-activity-v22 p,#view-progress .lifeos-plan-v23 p,#view-progress .lifeos-goal-v24 p,
+#view-progress .lmg25 p,#view-progress .ly27 p,#view-progress .lp23-muted,#view-progress .lp23-legend,
+#view-progress .lg24-muted,#view-progress .lmg25-meta,#view-progress .ly27-stat small,
+#view-progress .ly27-legend,#view-progress .ly28-hint{color:var(--muted)!important}
+#view-progress .lifeos-activity-switch button{background:var(--fc-soft)!important;border-color:var(--line)!important;color:var(--ink)!important}
+#view-progress .lifeos-activity-switch button[aria-pressed="true"]{background:var(--green)!important;border-color:var(--green)!important;color:#fff!important}
+#view-progress .lifeos-activity-track,#view-progress .lp23-progress,#view-progress .lg24-track,
+#view-progress .lmg25-track{background:var(--green2)!important}
+#view-progress .lifeos-activity-fill,#view-progress .lp23-progress>div,#view-progress .lg24-fill,
+#view-progress .lmg25-fill{background:var(--green)!important}
+#view-progress .lifeos-activity-switch button:focus-visible,#view-progress .ly27-day[data-ly28-date]:focus-visible,
+#view-progress #ly29Return:focus-visible{outline:3px solid var(--green)!important;outline-offset:2px}
+#view-progress .lifeos-plan-v23 select,#view-progress .lg24-controls select,#view-progress .ly27-controls select{border-color:var(--line)!important;background:var(--fc-surface)!important;color:var(--ink)!important}
+#view-progress .lp23-stats .lp23-stat,#view-progress .lg24-current,#view-progress .lmg25-card,
+#view-progress .lmg25-stats span,#view-progress .ly27-stat,#view-progress .ly27-month{
+ background:var(--fc-soft)!important;border-color:var(--line)!important;color:var(--ink)!important}
+#view-progress .lp23-week,#view-progress .lg24-week{border-color:var(--line)!important}
+#view-progress .lmg25-badge,#view-progress .lmg25-stats b,#view-progress .ly27-stat b{color:var(--green)!important}
+#view-progress .ly27-day{background:var(--green2)!important;color:var(--ink)!important}
+#view-progress .ly27-day.active{background:var(--green)!important;color:#fff!important}
+#view-progress .ly27-day.future{background:var(--fc-soft)!important;color:var(--muted)!important}
+#view-progress .ly27-day.blank{background:transparent!important}
+#view-progress .ly27-day.active[data-ly28-date]{border-color:var(--green)!important}
+#view-progress .ly27-weekday{color:var(--muted)!important}
+#view-progress .ly27-swatch{background:var(--green)!important}
+#view-progress .ly27-swatch.off{background:var(--green2)!important;border-color:var(--line)!important}
+#view-progress #ly29Return{background:var(--green2)!important;color:var(--green)!important;border-color:var(--green)!important}
+</style>
 </body></html>
