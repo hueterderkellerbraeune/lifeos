@@ -300,6 +300,23 @@
  .view.active .sessionForm > .form-actions .btn{flex:1;min-width:0;padding:11px 9px}
 }
 </style>
+<style id="lifeos-v53-sidebar-circles">
+/* Konto und Cloud: zwei kompakte Kreise am unteren Rand der Seitenleiste */
+#lifeos-v53-controls{display:flex;gap:12px;align-items:center;padding:14px 12px 4px;position:relative}
+#lifeos-v53-controls #lifeos-auth-launch,
+#lifeos-v53-cloud-toggle{position:static!important;inset:auto!important;right:auto!important;bottom:auto!important;width:46px;height:46px;min-width:46px;min-height:46px;border-radius:50%!important;padding:0!important;display:grid;place-items:center;font-size:21px;line-height:1;background:var(--green2);color:var(--green);border:1px solid #a6d6ba;box-shadow:none!important;z-index:auto!important}
+#lifeos-v53-controls #lifeos-auth-launch{font-size:0!important}
+#lifeos-v53-controls #lifeos-auth-launch::before{content:'♙';font-size:25px;line-height:1}
+#lifeos-v53-cloud-toggle{cursor:pointer}
+#lifeos-v53-cloud-toggle[data-state="warning"]{background:#fff3d9;color:#936000;border-color:#e7c989}
+#lifeos-v53-cloud-toggle[data-state="busy"]{background:#eaf1ff;color:#4267aa;border-color:#a8bde5}
+#lifeos-v53-cloud-toggle[data-state="ok"]{background:#e5f5ec;color:#16845b}
+#lifeos-v53-controls #lifeos-cloud-status{display:none!important;position:absolute!important;left:10px!important;right:auto!important;bottom:65px!important;top:auto!important;width:min(290px,calc(100vw - 36px));max-width:none!important;z-index:90!important;box-shadow:0 9px 28px #102c1d33!important;white-space:normal}
+#lifeos-v53-controls #lifeos-cloud-status.lifeos-v53-open{display:flex!important}
+#lifeos-v53-controls #lifeos-cloud-text{min-width:0;overflow-wrap:anywhere}
+#lifeos-v53-controls button:focus-visible{outline:3px solid #83b69b;outline-offset:3px}
+@media(max-width:680px){#lifeos-v53-controls{padding-bottom:10px}#lifeos-v53-controls #lifeos-cloud-status{left:8px!important;bottom:66px!important}}
+</style>
 </head>
 <body><div class="app"><aside class="sidebar" id="sidebar"><div class="brand"><div class="logo">✳</div><div><strong>LifeOS</strong><small>Mehr Struktur. Mehr du.</small></div></div><div><div class="nav-label">ÜBERSICHT</div><nav class="nav" id="nav"><button class="active" data-view="dashboard"><span class="ico">⌂</span>Dashboard</button><button data-view="week"><span class="ico">▦</span>Monatsplan</button><button data-view="exercises"><span class="ico">✚</span>Übungsbibliothek</button><button data-view="sessions"><span class="ico">☑</span>Trainingsprotokoll</button><button data-view="cycle"><span class="ico">♡</span>Zyklus & Befinden</button><button data-view="progress"><span class="ico">▥</span>Fortschritt</button></nav></div><div><div class="nav-label">DEIN LEBEN</div><nav class="nav"><button data-view="nutrition"><span class="ico">♧</span>Ernährung <span class="pill">Später</span></button><button data-view="tasks"><span class="ico">☷</span>Alltag & Aufgaben <span class="pill">Später</span></button><button data-view="habits"><span class="ico">↻</span>Gewohnheiten <span class="pill">Später</span></button><button data-view="sleep"><span class="ico">☾</span>Schlaf & Erholung <span class="pill">Später</span></button><button data-view="finance"><span class="ico">€</span>Finanzen <span class="pill">Später</span></button></nav></div><div style="margin-top:auto"><div class="nav-label">SYSTEM</div><nav class="nav"><button data-view="settings"><span class="ico">⚙</span>Einstellungen & Daten</button></nav><div class="side-note"><b>Kleine Schritte. Große Ziele.</b>Dein persönlicher Fortschritt beginnt mit dem nächsten Schritt.</div></div></aside><div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 <main class="main"><header class="topbar"><button class="mobile-menu" id="menuBtn" aria-label="Menü öffnen">☰</button><div><div class="eyebrow" id="topDate">DEIN PERSÖNLICHER ÜBERBLICK</div><h1 id="pageTitle">Dashboard</h1></div><div class="avatar" title="Dein Profil">L</div></header>
@@ -2955,6 +2972,38 @@ button.addEventListener('click',async()=>{
 });
 function init(){if(!window.lifeosSupabaseClient){setTimeout(init,400);return}client=window.lifeosSupabaseClient;client.auth.onAuthStateChange(()=>setTimeout(()=>void connect(),0));void connect()}
 init();
+})();
+</script>
+<script id="lifeos-v53-sidebar-circles-script">
+(()=>{
+ 'use strict';
+ const sidebar=document.getElementById('sidebar');
+ const account=document.getElementById('lifeos-auth-launch');
+ const cloud=document.getElementById('lifeos-cloud-status');
+ const cloudText=document.getElementById('lifeos-cloud-text');
+ if(!sidebar||!account||!cloud||!cloudText)return;
+ const system=sidebar.querySelector('[style*="margin-top:auto"]')||sidebar;
+ const holder=document.createElement('div');holder.id='lifeos-v53-controls';
+ holder.setAttribute('aria-label','Konto und Synchronisierung');
+ const toggle=document.createElement('button');toggle.type='button';toggle.id='lifeos-v53-cloud-toggle';
+ toggle.textContent='☁';toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-controls','lifeos-cloud-status');
+ account.setAttribute('aria-label','LifeOS Konto öffnen');account.title='LifeOS Konto';
+ holder.append(account,toggle,cloud);
+ const note=system.querySelector('.side-note');
+ if(note)system.insertBefore(holder,note);else system.appendChild(holder);
+ const update=()=>{
+  const t=cloudText.textContent||'';
+  const state=/konflikt|fehler|pausiert|offline|nicht verbunden|fehlgeschlagen|⚠/i.test(t)?'warning':/lädt|lade|synchronisier|vorbereit|hochlad|warte/i.test(t)?'busy':'ok';
+  toggle.dataset.state=state;
+  toggle.textContent=state==='warning'?'!':state==='busy'?'↻':'☁';
+  toggle.title='Cloud-Synchronisierung: '+t;
+  toggle.setAttribute('aria-label','Cloud-Synchronisierung: '+t+'. Details öffnen');
+ };
+ const close=()=>{cloud.classList.remove('lifeos-v53-open');toggle.setAttribute('aria-expanded','false')};
+ toggle.addEventListener('click',()=>{const open=!cloud.classList.contains('lifeos-v53-open');cloud.classList.toggle('lifeos-v53-open',open);toggle.setAttribute('aria-expanded',String(open))});
+ document.addEventListener('click',e=>{if(!holder.contains(e.target))close()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+ new MutationObserver(update).observe(cloudText,{childList:true,characterData:true,subtree:true});update();
 })();
 </script>
 </body></html>
