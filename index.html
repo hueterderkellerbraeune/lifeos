@@ -3039,4 +3039,22 @@ init();
 #view-progress .ly27-swatch.off{background:var(--green2)!important;border-color:var(--line)!important}
 #view-progress #ly29Return{background:var(--green2)!important;color:var(--green)!important;border-color:var(--green)!important}
 </style>
+
+<style id="lifeos-v55-mobile-sidebar-scroll">
+/* v55: Das geöffnete Seitenmenü auf Mobilgeräten unabhängig scrollen lassen. */
+@media (max-width:680px) {
+  .app > .sidebar {
+    height:100dvh !important;
+    max-height:100dvh !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    overscroll-behavior-y:contain;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
+    min-height:0 !important;
+    padding-bottom:calc(24px + env(safe-area-inset-bottom));
+  }
+  .app > .sidebar > * {flex-shrink:0;}
+}
+</style>
 </body></html>
