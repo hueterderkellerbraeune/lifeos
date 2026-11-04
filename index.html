@@ -283,6 +283,23 @@
 #lifeos-auth-dialog [hidden]{display:none!important}
 @media(max-width:680px){#lifeos-auth-launch{right:12px;bottom:12px;font-size:13px;padding:10px 13px}}
 </style>
+<style id="lifeos-v49-sticky-session-save">
+/* v49: Speicherleiste bleibt beim Planen/Bearbeiten eines Trainings erreichbar. */
+.view.active .sessionForm{padding-bottom:90px}
+.view.active .sessionForm > .form-actions{
+  position:fixed;bottom:0;left:0;right:0;z-index:35;
+  display:flex;align-items:center;justify-content:flex-end;gap:10px;
+  margin:0;padding:12px max(18px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));
+  background:var(--panel);border-top:1px solid var(--line);
+  box-shadow:0 -7px 24px rgba(20,35,27,.12)
+}
+.view.active .sessionForm > .form-actions .btn{min-height:46px}
+@media(max-width:680px){
+ .view.active .sessionForm{padding-bottom:105px}
+ .view.active .sessionForm > .form-actions{gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+ .view.active .sessionForm > .form-actions .btn{flex:1;min-width:0;padding:11px 9px}
+}
+</style>
 </head>
 <body><div class="app"><aside class="sidebar" id="sidebar"><div class="brand"><div class="logo">✳</div><div><strong>LifeOS</strong><small>Mehr Struktur. Mehr du.</small></div></div><div><div class="nav-label">ÜBERSICHT</div><nav class="nav" id="nav"><button class="active" data-view="dashboard"><span class="ico">⌂</span>Dashboard</button><button data-view="week"><span class="ico">▦</span>Monatsplan</button><button data-view="exercises"><span class="ico">✚</span>Übungsbibliothek</button><button data-view="sessions"><span class="ico">☑</span>Trainingsprotokoll</button><button data-view="cycle"><span class="ico">♡</span>Zyklus & Befinden</button><button data-view="progress"><span class="ico">▥</span>Fortschritt</button></nav></div><div><div class="nav-label">DEIN LEBEN</div><nav class="nav"><button data-view="nutrition"><span class="ico">♧</span>Ernährung <span class="pill">Später</span></button><button data-view="tasks"><span class="ico">☷</span>Alltag & Aufgaben <span class="pill">Später</span></button><button data-view="habits"><span class="ico">↻</span>Gewohnheiten <span class="pill">Später</span></button><button data-view="sleep"><span class="ico">☾</span>Schlaf & Erholung <span class="pill">Später</span></button><button data-view="finance"><span class="ico">€</span>Finanzen <span class="pill">Später</span></button></nav></div><div style="margin-top:auto"><div class="nav-label">SYSTEM</div><nav class="nav"><button data-view="settings"><span class="ico">⚙</span>Einstellungen & Daten</button></nav><div class="side-note"><b>Kleine Schritte. Große Ziele.</b>Dein persönlicher Fortschritt beginnt mit dem nächsten Schritt.</div></div></aside><div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 <main class="main"><header class="topbar"><button class="mobile-menu" id="menuBtn" aria-label="Menü öffnen">☰</button><div><div class="eyebrow" id="topDate">DEIN PERSÖNLICHER ÜBERBLICK</div><h1 id="pageTitle">Dashboard</h1></div><div class="avatar" title="Dein Profil">L</div></header>
