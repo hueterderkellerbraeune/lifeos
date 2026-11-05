@@ -566,7 +566,7 @@ function showExerciseForm(id=null){editExerciseId=id;const e=id?data.exercises.f
 function showSessionDetails(id){const s=data.sessions.find(x=>x.id===id);if(!s)return;const chosen=(s.exerciseIds||[]).map((id,i)=>({ex:data.exercises.find(e=>e.id===id),key:s.exerciseEntryIds?.[i]||id})).filter(x=>x.ex);const state=completed(s)?'Abgeschlossen':'Geplant';s.exerciseDetails=s.exerciseDetails||{};const exHtml=chosen.length?chosen.map(({ex,key},i)=>{const d=s.exerciseDetails[key]||{};const n=Math.max(1,Math.min(20,Number(d.targetSets)||3));const reps=Number(d.targetReps)||12;const records=Array.from({length:n},(_,j)=>(d.setRecords||[])[j]||{});return `<div class="exercise-detail" data-exercise-id="${esc(key)}"><h4>${i+1}. ${esc(ex.name)}</h4><p><b>Kategorie:</b> ${esc(ex.category||'Nicht angegeben')} · <b>Gerät:</b> ${esc(ex.equipment||'Nicht angegeben')}</p>${ex.muscles?`<p><b>Zielbereich:</b> ${esc(ex.muscles)}</p>`:''}${ex.notes?`<p><b>Ausführung / Notizen:</b> ${esc(ex.notes)}</p>`:''}<div class="form-grid" style="margin-top:12px"><div class="field"><label>Geplante Sätze</label><input type="number" min="1" max="20" value="${n}" data-target-sets></div><div class="field"><label>Wiederholungen je Satz</label><input type="number" min="1" max="500" value="${reps}" data-target-reps></div><div class="field"><label>Zielgewicht (kg)</label><input type="number" min="0" max="1000" step="0.5" value="${d.targetWeight??''}" placeholder="z. B. 30" data-target-weight></div><div class="field"><label>Pause zwischen Sätzen (Sek.)</label><input type="number" min="0" max="3600" value="${d.restSeconds??60}" data-rest-seconds></div></div><div style="overflow-x:auto"><table class="table" style="min-width:430px"><thead><tr><th>Satz</th><th>Erledigt</th><th>Wdh. tatsächlich</th><th>Gewicht (kg)</th></tr></thead><tbody>${records.map((r,j)=>`<tr><td><strong>${j+1}</strong></td><td><input type="checkbox" aria-label="Satz ${j+1} erledigt" data-set-done="${j}" ${r.done?'checked':''}></td><td><input type="number" min="0" max="500" value="${r.reps??''}" placeholder="${reps}" data-set-reps="${j}" style="width:88px;padding:7px;border:1px solid var(--line);border-radius:8px"></td><td><input type="number" min="0" max="1000" step="0.5" value="${r.weight??d.targetWeight??''}" placeholder="kg" data-set-weight="${j}" style="width:88px;padding:7px;border:1px solid var(--line);border-radius:8px"></td></tr>`).join('')}</tbody></table></div><p class="sub">Trage die tatsächlichen Werte ein und hake jeden Satz ab. Die Vorgaben und dein Protokoll werden für diese Einheit gespeichert.</p></div>`}).join(''):'<div class="empty"><span>🏋️</span>Für diese Einheit wurden noch keine Übungen ausgewählt.<br>Bearbeite die Trainingseinheit und ordne Übungen zu.</div>';$('#detailTitle').textContent=s.title||s.type||'Trainingseinheit';$('#sessionDetailContent').innerHTML=`<div class="detail-meta"><div><small>Datum und Uhrzeit</small><b>${fmtDate(s.date)}${s.time?' · '+esc(s.time):''}</b></div><div><small>Trainingsart</small><b>${esc(s.type||'Nicht angegeben')}</b></div><div><small>Status / Dauer</small><b>${state} · ${duration(s)} Min.</b></div>${Number(s.distance)>0?`<div><small>Distanz</small><b>${Number(s.distance).toLocaleString('de-DE')} km</b></div>`:''}<div><small>Übungen</small><b>${chosen.length}</b></div></div><div class="panel-head"><h3>Übungen & Satzprotokoll</h3><span class="sub">${chosen.length} ${chosen.length===1?'Übung':'Übungen'}</span></div><p class="sub">Lege pro Übung Sätze, Wiederholungen, Zielgewicht und Pausen fest. Dokumentiere darunter die tatsächlich ausgeführten Sätze.</p>${exHtml}${s.notes?`<div class="exercise-detail"><h4>Notizen zur Einheit</h4><p>${esc(s.notes)}</p></div>`:''}${lifeosPickerMarkup(s)}<div class="form-actions" style="margin-top:16px"><button class="btn secondary" id="closeSessionDetailsBottom">Schließen</button><button class="btn secondary" data-edit-session="${s.id}">Training bearbeiten</button><button class="btn" id="saveSessionDetails" data-save-session-details="${s.id}">Satzdaten speichern</button></div>`;$('#sessionDetailOverlay').classList.add('open');document.body.style.overflow='hidden';$('#closeSessionDetails').focus()}function openQuickActions(kind, payload){const overlay=$('#quickActionsOverlay'),content=$('#quickActionsContent');overlay.dataset.kind=kind;overlay.dataset.date=payload.date||'';overlay.dataset.sessionId=payload.sessionId||'';const allSessions=[...data.sessions].sort((a,b)=>(a.date+b.title).localeCompare(b.date+a.title));if(kind==='day'){const day=payload.date;const daySessions=data.sessions.filter(x=>x.date===day);$('#quickActionsTitle').textContent='Tag verwalten';$('#quickActionsDescription').textContent=fmtDate(day)+' · '+daySessions.length+' Training(s)';content.innerHTML=`<div class="field"><label for="copySourceSession">Vorhandenes Training kopieren</label><select id="copySourceSession"><option value="">Training auswählen …</option>${allSessions.map(x=>`<option value="${esc(x.id)}">${esc(x.title||x.type)} · ${fmtDate(x.date)}</option>`).join('')}</select></div><div class="field"><label for="copyTargetDate">Kopieren auf diesen Tag</label><input id="copyTargetDate" type="date" value="${esc(day)}"></div><div class="quick-actions-buttons"><button class="btn" id="confirmCopySession" ${allSessions.length?'':'disabled'}>Kopieren & hinzufügen</button>${daySessions.length?`<button class="btn danger" id="deleteDaySessions">Alle Trainings dieses Tages löschen</button>`:''}</div><p>Beim Kopieren bleiben Trainingsart, Übungen und Vorgaben erhalten. Das neue Training wird als geplant angelegt; erledigte Satzprotokolle werden nicht übernommen.</p>`;}else{const ss=data.sessions.find(x=>x.id===payload.sessionId);if(!ss)return;$('#quickActionsTitle').textContent=ss.title||ss.type||'Training';$('#quickActionsDescription').textContent='Training kopieren oder löschen';content.innerHTML=`<div class="field"><label for="copyTargetDate">Kopieren auf einen anderen Tag</label><input id="copyTargetDate" type="date" value="${esc(ss.date)}"></div><div class="quick-actions-buttons"><button class="btn" id="confirmCopySession">Kopieren & hinzufügen</button><button class="btn danger" id="deleteQuickSession">Training löschen</button></div><p>Die Kopie erhält die Übungen und Trainingsvorgaben, wird aber als neues geplantes Training angelegt. Das bisherige Training bleibt unverändert.</p>`;}overlay.classList.add('open')}function closeQuickActions(){$('#quickActionsOverlay').classList.remove('open')}function copySessionToDate(id,date){const original=data.sessions.find(x=>x.id===id);if(!original||!date){alert('Bitte wähle ein Training und ein Datum aus.');return}const copy=JSON.parse(JSON.stringify(original));copy.id=uid();copy.date=date;copy.status='planned';delete copy.completedAt;copy.createdAt=new Date().toISOString();if(copy.exerciseDetails){Object.values(copy.exerciseDetails).forEach(d=>{if(d&&Array.isArray(d.setRecords))d.setRecords=d.setRecords.map(r=>({...r,done:false,reps:'',weight:''}))})}data.sessions.push(copy);selectedDate=date;const chosen=dateObj(date),ms=monthStart(monthOffset);if(chosen.getMonth()!==ms.getMonth()||chosen.getFullYear()!==ms.getFullYear())monthOffset=(chosen.getFullYear()-new Date().getFullYear())*12+(chosen.getMonth()-new Date().getMonth());save();closeQuickActions();toast('Training kopiert und am '+fmtDate(date)+' hinzugefügt.')}function closeSessionDetails(){const wasOpen=$('#sessionDetailOverlay').classList.contains('open');$('#sessionDetailOverlay').classList.remove('open');document.body.style.overflow='';if(wasOpen){navTo('week');const day=$(`[data-select-date="${selectedDate}"]`);if(day)day.focus({preventScroll:true})}}
 function renderSelectedExerciseOrder(form,preferredOrder=null){if(!form)return;const list=form.querySelector('.selected-exercise-list');if(!list)return;const checked=[...form.querySelectorAll('input[name="exerciseIds"]:checked')].map(x=>x.value);const current=preferredOrder||[...list.querySelectorAll('[data-order-exercise]')].map(x=>x.dataset.orderExercise);const ordered=[...current.filter(id=>checked.includes(id)),...checked.filter(id=>!current.includes(id))];const byId=new Map(data.exercises.map(x=>[x.id,x]));list.innerHTML=ordered.map((id,i)=>{const ex=byId.get(id);if(!ex)return '';const occurrence=ordered.slice(0,i).filter(x=>x===id).length+1;const total=ordered.filter(x=>x===id).length;return `<li class="selected-exercise-row" draggable="true" data-order-exercise="${esc(id)}" data-order-index="${i}"><span class="exercise-drag-handle" aria-label="Ziehen zum Sortieren" title="Zum Sortieren ziehen">⠿</span><span class="exercise-order-number">${i+1}</span><span class="exercise-order-name">${esc(ex.name)}${total>1?` <small style="display:block;color:var(--muted);font-weight:500">${occurrence===1?'1. Durchführung':occurrence===total?'Wiederholung ('+occurrence+')':'Wiederholung ('+occurrence+')'}</small>`:''}</span><span class="exercise-order-controls"><button type="button" data-order-move="up" aria-label="Nach oben" ${i===0?'disabled':''}>↑</button><button type="button" data-order-move="down" aria-label="Nach unten" ${i===ordered.length-1?'disabled':''}>↓</button><button type="button" data-order-remove="true" aria-label="Diese Durchführung entfernen" title="Diese Durchführung entfernen">×</button></span></li>`}).join('');const box=form.querySelector('.selected-exercises');if(box)box.style.display=ordered.length?'grid':'none';const count=form.querySelector('.session-exercise-count');if(count)count.textContent=`${ordered.length} Durchführungen · Reihenfolge von oben nach unten`; }
 function moveSelectedExercise(form,id,delta){const list=form?.querySelector('.selected-exercise-list');if(!list)return;const ids=[...list.querySelectorAll('[data-order-exercise]')].map(x=>x.dataset.orderExercise);const i=ids.indexOf(id),j=i+delta;if(i<0||j<0||j>=ids.length)return;[ids[i],ids[j]]=[ids[j],ids[i]];renderSelectedExerciseOrder(form,ids)}
-function showSessionForm(id=null){const d=todayISO();const existing=id?data.sessions.find(x=>x.id===id):null;$('#sessionFormWrap').innerHTML=sessionFormHtml(d,existing);$('#logFormWrap').innerHTML=sessionFormHtml(d,existing);renderSelectedExerciseOrder($('#sessionFormWrap').querySelector('form'),existing?.exerciseIds||[]);renderSelectedExerciseOrder($('#logFormWrap').querySelector('form'),existing?.exerciseIds||[]);if(existing){$('#sessionFormWrap').querySelector('form').dataset.editSession=existing.id;$('#logFormWrap').querySelector('form').dataset.editSession=existing.id;}closeSessionDetails();$('#sessionFormWrap').scrollIntoView({behavior:'smooth',block:'start'})}function sessionFormHtml(d,s=null){return `<div class="panel form-panel"><div class="panel-head"><h3>${s?'Training bearbeiten':'Training planen / protokollieren'}</h3><button class="btn ghost" data-cancel-form="session">Schließen ×</button></div><form class="sessionForm"><div class="form-grid"><div class="field"><label>Titel *</label><input name="title" required maxlength="100" placeholder="z. B. Ganzkörpertraining" value="${esc(s?.title||'')}"></div><div class="field"><label>Trainingsart</label><select name="type"><option ${s?.type==='Krafttraining'?'selected':''}>Krafttraining</option><option ${s?.type==='Ausdauer'?'selected':''}>Ausdauer</option><option ${s?.type==='Mobilität'?'selected':''}>Mobilität</option></select></div><div class="field"><label>Datum *</label><input name="date" type="date" required value="${esc(s?.date||d)}"></div><div class="field"><label>Uhrzeit</label><input name="time" type="time" value="${esc(s?.time||'17:00')}"></div><div class="field"><label>Dauer (Minuten)</label><input name="duration" type="number" min="0" max="1440" placeholder="z. B. 45" value="${s?.duration??''}"></div><div class="field"><label>Distanz (km, optional)</label><input name="distance" type="number" min="0" step="0.1" placeholder="z. B. 3.5" value="${s?.distance??''}"></div><div class="field span2"><label>Übungen auswählen (optional)</label><input class="session-exercise-search" type="search" placeholder="🔎 Übungen suchen, z. B. Beinpresse, Rücken, Kurzhantel …" aria-label="Übungen für dieses Training suchen"><div class="sub" style="margin:2px 0 8px">Wähle eine Übung per Häkchen aus. Mit „＋ Hinzufügen“ kannst du dieselbe Übung mehrfach einplanen, zum Beispiel für Aufwärmen und Cooldown.</div><div class="session-exercise-picker">${data.exercises.slice().sort((a,b)=>a.name.localeCompare(b.name,'de')).map(e=>`<div class="session-exercise-option" data-exercise-search="${esc((e.name+' '+e.category+' '+(e.equipment||'')+' '+(e.muscles||'')+' '+(e.notes||'')).toLowerCase())}"><label class="session-exercise-option-main"><input type="checkbox" name="exerciseIds" value="${esc(e.id)}" ${(s?.exerciseIds||[]).includes(e.id)?'checked':''}><span class="session-exercise-copy"><strong>${esc(e.name)}</strong><small>${esc(e.category)} · ${esc(e.equipment||'Kein Gerät')}${e.muscles?' · '+esc(e.muscles):''}</small></span><span class="session-exercise-check">✓</span></label><button type="button" class="btn secondary small" data-add-exercise-occurrence="${esc(e.id)}" style="margin-left:6px;flex-shrink:0">＋ Hinzufügen</button></div>`).join('')||'<div class="empty">Noch keine Übungen im Lexikon. Füge zuerst Übungen hinzu.</div>'}</div><small class="sub session-exercise-count"></small><div class="selected-exercises"><h4>Reihenfolge der Durchführung</h4><div class="sub">Ziehe die Durchführungen an die gewünschte Position. Auf dem Handy kannst du die Pfeile benutzen oder einzelne Wiederholungen mit × entfernen.</div><ol class="selected-exercise-list"></ol></div></div><div class="field span2"><label>Notizen</label><textarea name="notes" rows="2" maxlength="1000" placeholder="Wie hast du dich gefühlt? Was möchtest du beachten?">${esc(s?.notes||'')}</textarea></div><div class="field span2"><label><input name="completed" type="checkbox" style="width:auto;margin-right:8px" ${s?.status==='completed'?'checked':''}>Einheit ist bereits abgeschlossen</label></div></div><div class="form-actions"><button type="button" class="btn secondary" data-cancel-form="session">Abbrechen</button><button class="btn" type="submit">${s?'Änderungen speichern':'Training speichern'}</button></div></form></div>`}
+function showSessionForm(id=null){const d=currentView==='week'?selectedDate:todayISO();const existing=id?data.sessions.find(x=>x.id===id):null;$('#sessionFormWrap').innerHTML=sessionFormHtml(d,existing);$('#logFormWrap').innerHTML=sessionFormHtml(d,existing);renderSelectedExerciseOrder($('#sessionFormWrap').querySelector('form'),existing?.exerciseIds||[]);renderSelectedExerciseOrder($('#logFormWrap').querySelector('form'),existing?.exerciseIds||[]);if(existing){$('#sessionFormWrap').querySelector('form').dataset.editSession=existing.id;$('#logFormWrap').querySelector('form').dataset.editSession=existing.id;}closeSessionDetails();$('#sessionFormWrap').scrollIntoView({behavior:'smooth',block:'start'})}function sessionFormHtml(d,s=null){return `<div class="panel form-panel"><div class="panel-head"><h3>${s?'Training bearbeiten':'Training planen / protokollieren'}</h3><button class="btn ghost" data-cancel-form="session">Schließen ×</button></div><form class="sessionForm"><div class="form-grid"><div class="field"><label>Titel *</label><input name="title" required maxlength="100" placeholder="z. B. Ganzkörpertraining" value="${esc(s?.title||'')}"></div><div class="field"><label>Trainingsart</label><select name="type"><option ${s?.type==='Krafttraining'?'selected':''}>Krafttraining</option><option ${s?.type==='Ausdauer'?'selected':''}>Ausdauer</option><option ${s?.type==='Mobilität'?'selected':''}>Mobilität</option></select></div><div class="field"><label>Datum *</label><input name="date" type="date" required value="${esc(s?.date||d)}"></div><div class="field"><label>Uhrzeit</label><input name="time" type="time" value="${esc(s?.time||'17:00')}"></div><div class="field"><label>Dauer (Minuten)</label><input name="duration" type="number" min="0" max="1440" placeholder="z. B. 45" value="${s?.duration??''}"></div><div class="field"><label>Distanz (km, optional)</label><input name="distance" type="number" min="0" step="0.1" placeholder="z. B. 3.5" value="${s?.distance??''}"></div><div class="field span2"><label>Übungen auswählen (optional)</label><input class="session-exercise-search" type="search" placeholder="🔎 Übungen suchen, z. B. Beinpresse, Rücken, Kurzhantel …" aria-label="Übungen für dieses Training suchen"><div class="sub" style="margin:2px 0 8px">Wähle eine Übung per Häkchen aus. Mit „＋ Hinzufügen“ kannst du dieselbe Übung mehrfach einplanen, zum Beispiel für Aufwärmen und Cooldown.</div><div class="session-exercise-picker">${data.exercises.slice().sort((a,b)=>a.name.localeCompare(b.name,'de')).map(e=>`<div class="session-exercise-option" data-exercise-search="${esc((e.name+' '+e.category+' '+(e.equipment||'')+' '+(e.muscles||'')+' '+(e.notes||'')).toLowerCase())}"><label class="session-exercise-option-main"><input type="checkbox" name="exerciseIds" value="${esc(e.id)}" ${(s?.exerciseIds||[]).includes(e.id)?'checked':''}><span class="session-exercise-copy"><strong>${esc(e.name)}</strong><small>${esc(e.category)} · ${esc(e.equipment||'Kein Gerät')}${e.muscles?' · '+esc(e.muscles):''}</small></span><span class="session-exercise-check">✓</span></label><button type="button" class="btn secondary small" data-add-exercise-occurrence="${esc(e.id)}" style="margin-left:6px;flex-shrink:0">＋ Hinzufügen</button></div>`).join('')||'<div class="empty">Noch keine Übungen im Lexikon. Füge zuerst Übungen hinzu.</div>'}</div><small class="sub session-exercise-count"></small><div class="selected-exercises"><h4>Reihenfolge der Durchführung</h4><div class="sub">Ziehe die Durchführungen an die gewünschte Position. Auf dem Handy kannst du die Pfeile benutzen oder einzelne Wiederholungen mit × entfernen.</div><ol class="selected-exercise-list"></ol></div></div><div class="field span2"><label>Notizen</label><textarea name="notes" rows="2" maxlength="1000" placeholder="Wie hast du dich gefühlt? Was möchtest du beachten?">${esc(s?.notes||'')}</textarea></div><div class="field span2"><label><input name="completed" type="checkbox" style="width:auto;margin-right:8px" ${s?.status==='completed'?'checked':''}>Einheit ist bereits abgeschlossen</label></div></div><div class="form-actions"><button type="button" class="btn secondary" data-cancel-form="session">Abbrechen</button><button class="btn" type="submit">${s?'Änderungen speichern':'Training speichern'}</button></div></form></div>`}
 function showMeasurementForm(){$('#measurementFormWrap').innerHTML=`<div class="panel form-panel"><div class="panel-head"><h3>Körperdaten eintragen</h3><button class="btn ghost" data-cancel-form="measurement">Schließen ×</button></div><form id="measurementForm"><div class="form-grid"><div class="field"><label>Datum *</label><input name="date" type="date" required value="${todayISO()}"></div><div class="field"><label>Gewicht (kg)</label><input name="weight" type="number" min="0" max="500" step="0.1" placeholder="z. B. 85,4"></div><div class="field"><label>Taillenumfang (cm)</label><input name="waist" type="number" min="0" max="300" step="0.1" placeholder="optional"></div><div class="field"><label>Notiz</label><input name="notes" maxlength="300" placeholder="optional"></div></div><div class="form-actions"><button type="button" class="btn secondary" data-cancel-form="measurement">Abbrechen</button><button class="btn" type="submit">Messung speichern</button></div></form></div>`;$('#measurementFormWrap').scrollIntoView({behavior:'smooth',block:'start'})}
 document.addEventListener('click',e=>{const card=e.target.closest('[data-session-card]');if(card&&!e.target.closest('button')){showSessionDetails(card.dataset.sessionCard);return}});document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-session-card]')){e.preventDefault();showSessionDetails(e.target.dataset.sessionCard)}});document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.view)navTo(b.dataset.view);if(b.dataset.go)navTo(b.dataset.go);if(b.dataset.action==='new-exercise')showExerciseForm();if(b.dataset.action==='new-session'){if(currentView==='dashboard')navTo('week');showSessionForm();}if(b.dataset.action==='new-measurement')showMeasurementForm();if(b.dataset.editExercise)showExerciseForm(b.dataset.editExercise);if(b.dataset.cancelForm){if(b.dataset.cancelForm==='exercise')$('#exerciseFormWrap').innerHTML='';if(b.dataset.cancelForm==='session'){$('#sessionFormWrap').innerHTML='';$('#logFormWrap').innerHTML=''}if(b.dataset.cancelForm==='measurement')$('#measurementFormWrap').innerHTML=''}if(b.dataset.deleteExercise){if(confirm('Diese Übung löschen? Sie wird aus der Bibliothek entfernt. Bereits gespeicherte Protokolle bleiben erhalten.')){data.exercises=data.exercises.filter(x=>x.id!==b.dataset.deleteExercise);save();toast('Übung gelöscht.')}}if(b.dataset.deleteSession){if(confirm('Diese Trainingseinheit wirklich löschen?')){data.sessions=data.sessions.filter(x=>x.id!==b.dataset.deleteSession);save();toast('Training gelöscht.')}}if(b.dataset.deleteMeasurement){if(confirm('Diese Messung löschen?')){data.measurements=data.measurements.filter(x=>x.id!==b.dataset.deleteMeasurement);save();toast('Messung gelöscht.')}}if(b.dataset.complete){const s=data.sessions.find(x=>x.id===b.dataset.complete);if(s){if(confirm('Training als abgeschlossen markieren? Du kannst die Dauer und Notizen danach im Detail prüfen.')){s.status='completed';s.completedAt=new Date().toISOString();if(!s.duration)s.duration=0;save();toast('Training abgeschlossen.')}}}if(b.dataset.detail){showSessionDetails(b.dataset.detail)}if(b.dataset.editSession){showSessionForm(b.dataset.editSession)}if(b.dataset.saveSessionDetails){lifeosPersistDetailInputs(true);}if(b.dataset.deleteCycleLog){if(confirm('Diesen Tagesbefindens-Eintrag löschen?')){data.cycle.dailyLogs=data.cycle.dailyLogs.filter(x=>x.id!==b.dataset.deleteCycleLog);save();toast('Eintrag gelöscht.')}}if(b.dataset.deletePeriod){if(confirm('Diese Blutung löschen?')){data.cycle.periodEntries=data.cycle.periodEntries.filter(x=>x.id!==b.dataset.deletePeriod);save();toast('Blutung gelöscht.')}}if(b.id==='closeSessionDetails'||b.id==='closeSessionDetailsBottom')closeSessionDetails();});
 $('#sessionDetailOverlay').addEventListener('click',e=>{if(e.target.id==='sessionDetailOverlay')closeSessionDetails()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSessionDetails();closeExerciseDetails()}});document.addEventListener('submit',e=>{try{if(e.target.id==='exerciseForm'){e.preventDefault();const obj={id:editExerciseId||uid(),name:$('#exName').value.trim(),category:$('#exCategory').value,equipment:$('#exEquipment').value,muscles:$('#exMuscles').value.trim(),notes:$('#exNotes').value.trim()};if(!obj.name)return;if(editExerciseId)data.exercises=data.exercises.map(x=>x.id===editExerciseId?obj:x);else data.exercises.push(obj);save();$('#exerciseFormWrap').innerHTML='';toast(editExerciseId?'Übung aktualisiert.':'Übung gespeichert.');editExerciseId=null}if(e.target.classList.contains('sessionForm')){e.preventDefault();const f=e.target,fd=new FormData(f),editId=f.dataset.editSession;const ids=[...f.querySelectorAll('.selected-exercise-list [data-order-exercise]')].map(o=>o.dataset.orderExercise);const values={title:String(fd.get('title')).trim(),type:String(fd.get('type')),date:String(fd.get('date')),time:String(fd.get('time')||''),duration:Number(fd.get('duration')||0),distance:Number(fd.get('distance')||0),notes:String(fd.get('notes')||'').trim(),exerciseIds:ids,status:fd.get('completed')?'completed':'planned'};if(!values.title||!values.date){alert('Bitte Titel und Datum ausfüllen.');return}let s;if(editId){s=data.sessions.find(x=>x.id===editId);if(!s)return;Object.assign(s,values)}else{s={id:uid(),...values,createdAt:new Date().toISOString()};data.sessions.push(s)}const saved=save();if(saved){$('#sessionFormWrap').innerHTML='';$('#logFormWrap').innerHTML='';toast(editId?'Training aktualisiert.':'Training gespeichert.')}else{if(!editId)data.sessions=data.sessions.filter(x=>x.id!==s.id)}}if(e.target.id==='measurementForm'){e.preventDefault();const f=new FormData(e.target);if(!f.get('weight')&&!f.get('waist')){alert('Bitte mindestens Gewicht oder Taillenumfang eintragen.');return}data.measurements.push({id:uid(),date:String(f.get('date')),weight:f.get('weight')?Number(f.get('weight')):'',waist:f.get('waist')?Number(f.get('waist')):'',notes:String(f.get('notes')||'').trim()});save();$('#measurementFormWrap').innerHTML='';toast('Körperdaten gespeichert.')}if(e.target.id==='cycleSettingsForm'){e.preventDefault();const f=new FormData(e.target);data.cycle=data.cycle||{settings:{},periodEntries:[],dailyLogs:[]};data.cycle.settings={mode:String(f.get('mode')||'unknown'),cycleLength:f.get('cycleLength')?Math.max(15,Math.min(60,Number(f.get('cycleLength')))):28};save();toast('Zyklus-Einstellungen gespeichert.')}if(e.target.id==='periodForm'){e.preventDefault();const f=new FormData(e.target);const start=String(f.get('start')),end=String(f.get('end')||'');if(end&&end<start){alert('Das Ende darf nicht vor dem Beginn liegen.');return}data.cycle=data.cycle||{settings:{mode:'unknown',cycleLength:28},periodEntries:[],dailyLogs:[]};data.cycle.periodEntries.push({id:uid(),start,end,flow:String(f.get('flow')||''),notes:String(f.get('notes')||'').trim()});if(save()){e.target.reset();e.target.elements.start.value=todayISO();toast('Blutung gespeichert.')}}if(e.target.id==='cycleLogForm'){e.preventDefault();const f=new FormData(e.target);data.cycle=data.cycle||{settings:{mode:'unknown',cycleLength:28},periodEntries:[],dailyLogs:[]};data.cycle.dailyLogs=data.cycle.dailyLogs||[];data.cycle.dailyLogs.push({id:uid(),date:String(f.get('date')),pain:Number(f.get('pain')),energy:Number(f.get('energy')),recovery:Number(f.get('recovery')),symptoms:String(f.get('symptoms')||'').trim(),training:String(f.get('training')||'normal'),notes:String(f.get('notes')||'').trim()});if(save()){e.target.reset();e.target.elements.date.value=todayISO();e.target.elements.pain.value='0';e.target.elements.energy.value='5';e.target.elements.recovery.value='5';toast('Tagesbefinden gespeichert.')}}}catch(err){console.error('LifeOS-Formularfehler:',err);alert('LifeOS konnte das Formular nicht speichern: '+(err&&err.message?err.message:'Unbekannter Fehler'))}});
@@ -3134,4 +3134,200 @@ html,body{background:var(--bg)!important;}
 .view>.section-title h2,.view>.section-title p{color:#F4FAF5!important;}
 /* Preserve existing card, sidebar, calendar and overlay styling. */
 </style>
+
+<style id="lifeos-v60-2-training-details-green">
+/* Nur die geoeffnete Trainingseinheitsseite: alte pinkfarbene Trainingsakzente
+   auf die vorhandenen Forest-Calm-Farbvariablen umstellen. Keine Logikaenderung. */
+
+/* Beide Hintergrundmodi nutzen helle Schrift auf dem gruenen Seitenhintergrund. */
+#sessionDetailOverlay > .detail-dialog > .panel-head h3,
+#sessionDetailOverlay #sessionDetailContent > .panel-head h3 {
+  color:#F4FAF5!important;
+}
+#sessionDetailOverlay > .detail-dialog > .panel-head .eyebrow,
+#sessionDetailOverlay #sessionDetailContent > .panel-head .sub,
+#sessionDetailOverlay #sessionDetailContent > p.sub {
+  color:#DFECE2!important;
+}
+
+/* Trainingselemente: Hintergrund und Text folgen Light/Dark Mode. */
+#sessionDetailOverlay .lifeos-exercise-tools {
+  background:var(--panel)!important;
+  border:1px solid var(--line)!important;
+  color:var(--ink)!important;
+}
+#sessionDetailOverlay .lifeos-exercise-tools .lifeos-position {
+  color:var(--muted)!important;
+}
+#sessionDetailOverlay .lifeos-exercise-tools button:not(.lifeos-fill-planned) {
+  background:var(--fc-soft)!important;
+  color:var(--ink)!important;
+  border-color:var(--line)!important;
+}
+#sessionDetailOverlay .lifeos-exercise-tools .lifeos-fill-planned,
+#sessionDetailOverlay .lifeos-copy-last button {
+  background:var(--fc-button)!important;
+  color:var(--fc-button-text)!important;
+  border:1px solid var(--fc-button)!important;
+}
+#sessionDetailOverlay .lifeos-copy-last small {color:var(--muted)!important;}
+
+/* Fortschrittskarten und Balken: kein Magenta mehr. */
+#sessionDetailOverlay .lifeos-set-progress,
+#sessionDetailOverlay .lifeos-session-progress-summary {
+  background:var(--panel)!important;
+  color:var(--ink)!important;
+  border:1px solid var(--line)!important;
+  box-shadow:var(--shadow);
+}
+#sessionDetailOverlay .lifeos-set-progress-head,
+#sessionDetailOverlay .lifeos-set-progress-label,
+#sessionDetailOverlay .lifeos-set-progress-percent {
+  color:var(--ink)!important;
+}
+#sessionDetailOverlay .lifeos-set-progress-track {
+  background:var(--green2)!important;
+}
+#sessionDetailOverlay .lifeos-set-progress-fill {
+  background:var(--green)!important;
+}
+#sessionDetailOverlay .lifeos-set-progress button {
+  background:var(--fc-soft)!important;
+  color:var(--ink)!important;
+  border:1px solid var(--line)!important;
+}
+
+/* Erledigte Saetze und Haken werden ebenfalls gruen statt rosa. */
+#sessionDetailOverlay #sessionDetailContent .exercise-detail table.table tr.lifeos-set-complete {
+  background:var(--green2)!important;
+  border-color:var(--line)!important;
+}
+#sessionDetailOverlay #sessionDetailContent tr.lifeos-set-complete td:first-child strong {
+  color:var(--green)!important;
+}
+#sessionDetailOverlay #sessionDetailContent [data-set-done],
+#sessionDetailOverlay .exercise-detail input[type="checkbox"] {
+  accent-color:var(--green)!important;
+}
+#sessionDetailOverlay .lifeos-set-actions button,
+#sessionDetailOverlay .lifeos-set-actions button:last-child {
+  background:var(--fc-soft)!important;
+  color:var(--ink)!important;
+  border-color:var(--line)!important;
+}
+
+/* Saubere Tastaturfokus-Markierung in beiden Modi. */
+#sessionDetailOverlay button:focus-visible,
+#sessionDetailOverlay input:focus-visible {
+  outline:2px solid var(--green)!important;
+  outline-offset:2px;
+}
+
+/* Fokusmodus, automatische Navigation und Trainingsuebersicht (ehemals pink). */
+#sessionDetailOverlay .lifeos-focus-toolbar,
+#sessionDetailOverlay .lifeos-workout-overview,
+#sessionDetailOverlay .lifeos-summary-v21,
+#sessionDetailOverlay .lifeos-rest-timer {
+  background:var(--panel)!important;
+  color:var(--ink)!important;
+  border:1px solid var(--line)!important;
+  box-shadow:var(--shadow)!important;
+}
+#sessionDetailOverlay .lifeos-workout-overview h3,
+#sessionDetailOverlay .lifeos-summary-v21 summary,
+#sessionDetailOverlay .lifeos-workout-overview strong {
+  color:var(--ink)!important;
+}
+#sessionDetailOverlay .lifeos-overview-stats span,
+#sessionDetailOverlay .lifeos-summary-v21 .lifeos-summary-stat {
+  background:var(--fc-soft)!important;
+  color:var(--ink)!important;
+  border-color:var(--line)!important;
+}
+#sessionDetailOverlay .lifeos-overview-bar {
+  background:var(--green2)!important;
+}
+#sessionDetailOverlay .lifeos-overview-fill {
+  background:var(--green)!important;
+}
+#sessionDetailOverlay .lifeos-workout-overview .lifeos-overview-hint,
+#sessionDetailOverlay .lifeos-next-exercise-note,
+#sessionDetailOverlay .lifeos-auto-next-note,
+#sessionDetailOverlay .lifeos-summary-v21 .lifeos-summary-note,
+#sessionDetailOverlay .lifeos-summary-v21 .lifeos-summary-stat small,
+#sessionDetailOverlay .lifeos-rest-status,
+#sessionDetailOverlay .lifeos-focus-label {
+  color:var(--muted)!important;
+}
+#sessionDetailOverlay .lifeos-exercise-state,
+#sessionDetailOverlay .lifeos-exercise-state[data-state="partial"],
+#sessionDetailOverlay .lifeos-exercise-state[data-state="done"] {
+  background:var(--green2)!important;
+  color:var(--green)!important;
+}
+#sessionDetailOverlay .lifeos-jump-button,
+#sessionDetailOverlay .lifeos-jump-button[data-state="partial"],
+#sessionDetailOverlay .lifeos-jump-button[data-state="done"] {
+  background:var(--fc-soft)!important;
+  border-color:var(--line)!important;
+  color:var(--ink)!important;
+}
+#sessionDetailOverlay .lifeos-jump-target {
+  outline-color:var(--green)!important;
+}
+#sessionDetailOverlay .lifeos-next-exercise,
+#sessionDetailOverlay .lifeos-focus-toolbar .lifeos-focus-toggle[aria-pressed="true"],
+#sessionDetailOverlay .lifeos-rest-timer button[data-rest-start] {
+  background:var(--fc-button)!important;
+  color:var(--fc-button-text)!important;
+  border-color:var(--fc-button)!important;
+}
+#sessionDetailOverlay .lifeos-next-exercise:disabled {
+  background:var(--fc-soft)!important;
+  color:var(--muted)!important;
+  border-color:var(--line)!important;
+}
+#sessionDetailOverlay .lifeos-focus-toolbar button,
+#sessionDetailOverlay .lifeos-rest-timer button {
+  background:var(--fc-soft)!important;
+  color:var(--ink)!important;
+  border:1px solid var(--line)!important;
+}
+#sessionDetailOverlay .lifeos-focus-toolbar .lifeos-focus-toggle[aria-pressed="true"],
+#sessionDetailOverlay .lifeos-rest-timer button[data-rest-start] {
+  background:var(--fc-button)!important;
+  color:var(--fc-button-text)!important;
+  border-color:var(--fc-button)!important;
+}
+#sessionDetailOverlay .lifeos-auto-next-setting,
+#sessionDetailOverlay .lifeos-auto-rest-option {
+  color:var(--ink)!important;
+}
+#sessionDetailOverlay .lifeos-auto-next-setting input,
+#sessionDetailOverlay .lifeos-auto-rest-option input {
+  accent-color:var(--green)!important;
+}
+#sessionDetailOverlay .lifeos-rest-clock {
+  color:var(--green)!important;
+}
+#sessionDetailOverlay .lifeos-rest-timer.lifeos-rest-finished {
+  background:var(--green2)!important;
+  border-color:var(--green)!important;
+}
+#sessionDetailOverlay .lifeos-summary-v21 .lifeos-summary-row {
+  border-color:var(--line)!important;
+}
+
+/* Vergleich mit der letzten Einheit: verbliebene rosa Flaeche ersetzen. */
+#sessionDetailOverlay .lifeos-last-session {
+  background:var(--panel)!important;
+  color:var(--ink)!important;
+  border:1px solid var(--line)!important;
+}
+#sessionDetailOverlay .lifeos-last-session-chip {
+  background:var(--fc-soft)!important;
+  color:var(--ink)!important;
+}
+</style>
+
 </body></html>
