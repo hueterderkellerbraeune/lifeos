@@ -3757,4 +3757,95 @@ document.getElementById('trainingTitleForm').addEventListener('submit',event=>{
 })();
 </script>
 
+<style id="cycle-calendar-style">
+#cycleCalendar{margin:28px 0;border-block:1px solid var(--line);padding:24px 0}
+.cycle-calendar-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.cycle-calendar-header h3{margin:0;font-size:22px}
+.cycle-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.cycle-weekday{text-align:center;font-size:12px;color:var(--muted);padding:10px 0}
+.cycle-day{position:relative;min-height:86px;min-width:0;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;color:var(--ink);padding:10px 4px;text-align:center}
+.cycle-day.outside{opacity:.5}
+.cycle-day.today .cycle-date{text-decoration:underline;text-underline-offset:5px;font-weight:800}
+.cycle-day.selected{box-shadow:inset 0 -3px var(--green);background:var(--green2)}
+.cycle-day[data-period="true"]{background:#f8e4eb;color:#762842}
+.cycle-day[data-fertile="true"]{background:#e6edfc;color:#284d7f}
+.cycle-day[data-ovulation="true"]{background:#ece4fa;color:#5d367c}
+.cycle-day[data-expected="true"]{border-top:2px dashed #bb6885}
+.cycle-day .cycle-mark{display:block;font-size:11px;line-height:1.4;margin-top:5px}
+.cycle-legend{display:flex;gap:10px 22px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:16px 0}
+.cycle-legend span::before{content:'';display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--mark)}
+.cycle-calendar-note{color:var(--muted);font-size:13px;max-width:85ch}
+#cycleDayDetails{border-top:1px solid var(--line);padding-top:18px;margin-top:20px}
+#cycleDayDetails h4{margin:0 0 6px;font-size:17px}
+#cycleDayDetails p{font-size:14px;color:var(--muted)}
+[data-lifeos-theme="dark"] .cycle-day[data-period="true"]{background:#482c37;color:#f3bdce}
+[data-lifeos-theme="dark"] .cycle-day[data-fertile="true"]{background:#253850;color:#b9d3fb}
+[data-lifeos-theme="dark"] .cycle-day[data-ovulation="true"]{background:#3e3053;color:#dac4f6}
+@media(max-width:680px){.cycle-day{min-height:65px;padding:8px 2px}.cycle-day .cycle-mark{font-size:9px}.cycle-calendar-header .toolbar{width:100%}.cycle-calendar-header h3{font-size:20px}}
+</style>
+<script id="cycle-calendar-script">
+// UTC day numbers keep calendar arithmetic independent of daylight saving changes.
+function lifeosCycleDayNumber(value){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return NaN;
+ const n=Date.parse(value+'T00:00:00Z');return Number.isFinite(n)?n/86400000:NaN;
+}
+function lifeosCycleMarkers(c,value,today=todayISO()){
+ const day=lifeosCycleDayNumber(value),now=lifeosCycleDayNumber(today);
+ const periods=(c.periodEntries||[]).filter(p=>Number.isFinite(lifeosCycleDayNumber(p.start))).sort((a,b)=>a.start.localeCompare(b.start));
+ const period=periods.some(p=>{const start=lifeosCycleDayNumber(p.start);const end=p.end?lifeosCycleDayNumber(p.end):start;return day>=start&&day<=Math.max(start,end)});
+ const log=(c.dailyLogs||[]).some(l=>l.date===value);
+ const latest=periods.filter(p=>lifeosCycleDayNumber(p.start)<=now).at(-1);
+ const length=Number(c.settings?.cycleLength);
+ const anchor=latest?lifeosCycleDayNumber(latest.start):NaN;
+ const estimate=c.settings?.mode==='natural'&&Number.isInteger(length)&&length>=15&&length<=60&&Number.isFinite(anchor)&&now<=anchor+length+7;
+ let ovulation=false,fertile=false,expected=false;
+ if(estimate&&!period){
+  const actualDuration=latest.end?lifeosCycleDayNumber(latest.end)-anchor+1:5;
+  const duration=Math.max(1,Math.min(10,actualDuration));
+  // Restrict forecasts to this cycle and the next; never infer a confirmed ovulation.
+  for(let cycle=0;cycle<2;cycle++){
+   const start=anchor+cycle*length,ovu=start+length-15;
+   if(day===ovu)ovulation=true;
+   if(day>=ovu-5&&day<=ovu+1)fertile=true;
+   if(cycle===1&&day>=start&&day<start+duration)expected=true;
+  }
+ }
+ return {period,log,ovulation,fertile,expected,estimate};
+}
+(()=>{
+ const view=document.getElementById('view-cycle');
+ const calendar=document.createElement('section');calendar.id='cycleCalendar';calendar.setAttribute('aria-label','Zykluskalender');
+ view.querySelector('.notice').after(calendar);
+ let monthOffset=0,selected=todayISO();
+ const dateString=n=>new Date(n*86400000).toISOString().slice(0,10);
+ function draw(){
+  const c=data.cycle||{settings:{},periodEntries:[],dailyLogs:[]};
+  const current=new Date();const first=new Date(Date.UTC(current.getFullYear(),current.getMonth()+monthOffset,1));
+  const firstDay=first.getTime()/86400000;const begin=firstDay-((first.getUTCDay()+6)%7);
+  const title=first.toLocaleDateString('de-DE',{month:'long',year:'numeric',timeZone:'UTC'});
+  const labels=m=>[m.period?'Blutung eingetragen':'',m.ovulation?'Eisprung geschätzt':m.fertile?'Fruchtbares Fenster geschätzt':'',m.expected?'Blutung erwartet (geschätzt)':'',m.log?'Befinden eingetragen':''].filter(Boolean);
+  const days=Array.from({length:42},(_,i)=>{
+   const value=dateString(begin+i),date=new Date((begin+i)*86400000),m=lifeosCycleMarkers(c,value);
+   const outside=date.getUTCMonth()!==first.getUTCMonth();
+   const mark=m.period?'● Blutung':m.ovulation?'◇ Eisprung*':m.fertile?'· Fruchtbar*':m.expected?'◌ Erwartet*':'';
+   const accessible=new Date(value+'T12:00:00Z').toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
+   return `<button type="button" class="cycle-day${outside?' outside':''}${value===todayISO()?' today':''}${value===selected?' selected':''}" data-cycle-date="${value}" data-period="${m.period}" data-fertile="${m.fertile}" data-ovulation="${m.ovulation}" data-expected="${m.expected}" aria-label="${esc(accessible+' · '+(labels(m).join(', ')||'Kein Eintrag'))}" aria-pressed="${value===selected}" ${value===todayISO()?'aria-current="date"':''}><span class="cycle-date">${date.getUTCDate()}</span><span class="cycle-mark">${mark}</span>${m.log?'<span class="cycle-mark" aria-hidden="true">✎</span>':''}</button>`;
+  }).join('');
+  const selectedMarkers=lifeosCycleMarkers(c,selected);
+  const canEstimate=lifeosCycleMarkers(c,todayISO()).estimate;
+  calendar.innerHTML=`<div class="cycle-calendar-header"><h3 id="cycleCalendarMonth">${esc(title)}</h3><div class="toolbar"><button type="button" class="btn secondary" data-cycle-month="-1" aria-label="Vorheriger Zyklusmonat">←</button><button type="button" class="btn secondary" data-cycle-month="0">Heute</button><button type="button" class="btn secondary" data-cycle-month="1" aria-label="Nächster Zyklusmonat">→</button></div></div><div class="cycle-calendar-grid" aria-labelledby="cycleCalendarMonth">${['Mo','Di','Mi','Do','Fr','Sa','So'].map(d=>`<div class="cycle-weekday">${d}</div>`).join('')}${days}</div><div class="cycle-legend"><span style="--mark:#bc6182">Blutung eingetragen</span><span style="--mark:#7b9dcc">Fruchtbares Fenster*</span><span style="--mark:#9c78c2">Eisprung*</span><span style="--mark:#d3a0b2">Blutung erwartet*</span><span style="--mark:var(--green)">✎ Befinden eingetragen</span></div><p class="cycle-calendar-note">${canEstimate?'* Grobe Kalenderschätzung aus Blutungsbeginn und eingestellter Zykluslänge für diesen und den nächsten Zyklus. Eisprung etwa 14 Tage vor der nächsten erwarteten Blutung; die tatsächlichen Tage können abweichen. Erwartete Blutungsdauer: letzter eingetragener Verlauf, sonst 5 Tage. Keine Bestätigung eines Eisprungs und nicht zur Verhütung geeignet.':'Eisprung und fruchtbares Fenster werden nur bei „natürlichem Zyklus“, gültiger Zykluslänge und einem aktuellen Blutungsbeginn geschätzt. Bei hormoneller Verhütung, unregelmäßigen oder unklaren Zyklen bleiben diese Schätzungen aus.'}</p><div id="cycleDayDetails" aria-live="polite"><h4>${fmtDate(selected)}</h4><p>${esc(labels(selectedMarkers).join(' · ')||'Noch keine Einträge für diesen Tag.')}</p><div class="toolbar"><button type="button" class="btn secondary" data-cycle-entry="period">Blutung eintragen</button><button type="button" class="btn secondary" data-cycle-entry="log">Befinden eintragen</button></div></div>`;
+ }
+ calendar.addEventListener('click',event=>{
+  const day=event.target.closest('[data-cycle-date]');
+  if(day){selected=day.dataset.cycleDate;draw();calendar.querySelector(`[data-cycle-date="${selected}"]`)?.focus({preventScroll:true});return}
+  const nav=event.target.closest('[data-cycle-month]');
+  if(nav){const n=Number(nav.dataset.cycleMonth);monthOffset=n?monthOffset+n:0;if(!n)selected=todayISO();draw();calendar.querySelector(`[data-cycle-month="${n}"]`)?.focus({preventScroll:true});return}
+  const entry=event.target.closest('[data-cycle-entry]');
+  if(entry){const form=document.getElementById(entry.dataset.cycleEntry==='period'?'periodForm':'cycleLogForm');const input=form.elements[entry.dataset.cycleEntry==='period'?'start':'date'];input.value=selected;form.scrollIntoView({behavior:'smooth',block:'start'});input.focus({preventScroll:true})}
+ });
+ const previous=renderCycle;renderCycle=function(){const result=previous.apply(this,arguments);draw();return result};
+ draw();
+})();
+</script>
+
 </body></html>
