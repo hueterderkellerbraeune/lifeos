@@ -317,7 +317,12 @@
 #lifeos-v53-controls button:focus-visible{outline:3px solid #83b69b;outline-offset:3px}
 @media(max-width:680px){#lifeos-v53-controls{padding-bottom:10px}#lifeos-v53-controls #lifeos-cloud-status{left:8px!important;bottom:66px!important}}
 </style>
-</head>
+<style id="lifeos-v57-back-style">
+#lifeosBackBtn{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex-shrink:0;border:1px solid #d7e7dc;border-radius:12px;background:#fff;color:#176b49;padding:10px 13px;font-weight:750;min-height:42px}
+#lifeosBackBtn:disabled{opacity:.38;cursor:default}
+#lifeosBackBtn:not(:disabled):hover{background:#e5f5ec}
+@media(max-width:680px){#lifeosBackBtn{padding:9px 11px}#lifeosBackBtn .lifeos-back-label{display:none}}
+</style></head>
 <body><div class="app"><aside class="sidebar" id="sidebar"><div class="brand"><div class="logo">✳</div><div><strong>LifeOS</strong><small>Mehr Struktur. Mehr du.</small></div></div><div><div class="nav-label">ÜBERSICHT</div><nav class="nav" id="nav"><button class="active" data-view="dashboard"><span class="ico">⌂</span>Dashboard</button><button data-view="week"><span class="ico">▦</span>Monatsplan</button><button data-view="exercises"><span class="ico">✚</span>Übungsbibliothek</button><button data-view="sessions"><span class="ico">☑</span>Trainingsprotokoll</button><button data-view="cycle"><span class="ico">♡</span>Zyklus & Befinden</button><button data-view="progress"><span class="ico">▥</span>Fortschritt</button></nav></div><div><div class="nav-label">DEIN LEBEN</div><nav class="nav"><button data-view="nutrition"><span class="ico">♧</span>Ernährung <span class="pill">Später</span></button><button data-view="tasks"><span class="ico">☷</span>Alltag & Aufgaben <span class="pill">Später</span></button><button data-view="habits"><span class="ico">↻</span>Gewohnheiten <span class="pill">Später</span></button><button data-view="sleep"><span class="ico">☾</span>Schlaf & Erholung <span class="pill">Später</span></button><button data-view="finance"><span class="ico">€</span>Finanzen <span class="pill">Später</span></button></nav></div><div style="margin-top:auto"><div class="nav-label">SYSTEM</div><nav class="nav"><button data-view="settings"><span class="ico">⚙</span>Einstellungen & Daten</button></nav><div class="side-note"><b>Kleine Schritte. Große Ziele.</b>Dein persönlicher Fortschritt beginnt mit dem nächsten Schritt.</div></div></aside><div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 <main class="main"><header class="topbar"><button class="mobile-menu" id="menuBtn" aria-label="Menü öffnen">☰</button><div><div class="eyebrow" id="topDate">DEIN PERSÖNLICHER ÜBERBLICK</div><h1 id="pageTitle">Dashboard</h1></div><div class="avatar" title="Dein Profil">L</div></header>
 <section class="view active" id="view-dashboard"><div class="hero"><div><div class="eyebrow">DEIN WEG, DEIN TEMPO</div><h2>Hallo! Schön, dass du da bist. 🌿</h2><p>Jeder kleine Schritt zählt. Plane deinen Monat, halte deine Fortschritte fest und bleib auf Kurs – ohne alles auf einmal machen zu müssen.</p><div style="margin-top:17px"><button class="btn" data-go="week">Monatsplan öffnen →</button></div></div><div class="hero-art">🌱</div></div><div class="stats"><div class="stat"><div class="stat-top"><span>Training diese Woche</span><span class="stat-icon tint-green">🏋️</span></div><strong id="statWorkouts">0</strong><small>abgeschlossene Einheiten</small></div><div class="stat"><div class="stat-top"><span>Geplant</span><span class="stat-icon tint-blue">🗓️</span></div><strong id="statPlanned">0</strong><small>künftige Einheiten</small></div><div class="stat"><div class="stat-top"><span>Trainingszeit</span><span class="stat-icon tint-purple">◷</span></div><strong id="statMinutes">0 min</strong><small>diese Woche</small></div><div class="stat"><div class="stat-top"><span>Letztes Gewicht</span><span class="stat-icon tint-amber">⚖️</span></div><strong id="statWeight">—</strong><small>kg · zuletzt eingetragen</small></div></div><div class="columns"><div class="panel"><div class="panel-head"><div><h3>Dein Monat</h3><div class="sub" id="weekLabel">Trainings im Überblick</div></div><button class="btn ghost" data-go="week">Alle ansehen →</button></div><div class="month-grid" id="miniWeek"></div><div class="list" id="upcomingList"></div></div><div class="panel"><div class="panel-head"><div><h3>Dein Fokus</h3><div class="sub">Ein guter Anfang</div></div><span class="stat-icon tint-green">✦</span></div><div class="progress-row"><div class="progress-label"><span>Wochenziel</span><b id="goalText">0 / 3 Einheiten</b></div><div class="bar"><span id="goalBar" style="width:0%"></span></div></div><div class="notice">💡 Plane realistisch und passe die Belastung an dein Wohlbefinden an. Ruhetage gehören zum Training dazu.</div><button class="btn secondary" data-go="exercises" style="width:100%">Übungen entdecken</button><div style="height:9px"></div><button class="btn" data-action="new-session" style="width:100%">＋ Training planen</button></div></div><div class="panel"><div class="panel-head"><div><h3>Zuletzt protokolliert</h3><div class="sub">Deine letzten Trainingseinheiten</div></div><button class="btn ghost" data-go="sessions">Protokoll öffnen →</button></div><div class="list" id="recentList"></div></div></section>
@@ -3057,4 +3062,66 @@ init();
   .app > .sidebar > * {flex-shrink:0;}
 }
 </style>
-</body></html>
+<script id="lifeos-v57-back-navigation">
+(function(){
+  'use strict';
+  const header=document.querySelector('.topbar');
+  if(!header || typeof navTo!=='function')return;
+  const back=document.createElement('button');
+  back.type='button';back.id='lifeosBackBtn';back.setAttribute('aria-label','Zur vorherigen Ansicht');
+  back.innerHTML='<span aria-hidden="true">←</span><span class="lifeos-back-label">Zurück</span>';
+  const menu=header.querySelector('#menuBtn');
+  if(menu)menu.insertAdjacentElement('afterend',back);else header.prepend(back);
+  const historyStack=[];
+  let restoring=false;
+  let sessionOrigin=null;
+  const originalNav=navTo;
+  navTo=function(view){
+    const from=currentView;
+    if(!restoring && from && from!==view)historyStack.push(from);
+    const result=originalNav.apply(this,arguments);
+    refresh();
+    return result;
+  };
+  const originalSession=showSessionDetails;
+  showSessionDetails=function(id){
+    const overlay=document.getElementById('sessionDetailOverlay');
+    if(!overlay?.classList.contains('open'))sessionOrigin=currentView;
+    const result=originalSession.apply(this,arguments);
+    refresh();return result;
+  };
+  closeSessionDetails=function(){
+    const overlay=document.getElementById('sessionDetailOverlay');
+    if(!overlay?.classList.contains('open'))return;
+    overlay.classList.remove('open');
+    document.body.style.overflow='';
+    const origin=sessionOrigin||currentView;
+    sessionOrigin=null;
+    if(currentView!==origin){restoring=true;try{navTo(origin)}finally{restoring=false}}
+    const day=document.querySelector('[data-select-date="'+selectedDate+'"]');
+    if(currentView==='week' && day)day.focus({preventScroll:true});
+    refresh();
+  };
+  function refresh(){
+    const openOverlay=!!document.querySelector('#sessionDetailOverlay.open,#exerciseDetailOverlay.open,#quickActionsOverlay.open');
+    back.disabled=!openOverlay && historyStack.length===0;
+    back.title=back.disabled?'Keine vorherige Ansicht':'Zur vorherigen Ansicht';
+  }
+  back.addEventListener('click',function(){
+    if(document.getElementById('quickActionsOverlay')?.classList.contains('open')){closeQuickActions();refresh();return}
+    if(document.getElementById('exerciseDetailOverlay')?.classList.contains('open')){closeExerciseDetails();refresh();return}
+    if(document.getElementById('sessionDetailOverlay')?.classList.contains('open')){closeSessionDetails();return}
+    if(!historyStack.length)return;
+    const previous=historyStack.pop();
+    restoring=true;
+    try{navTo(previous)}finally{restoring=false}
+    refresh();
+  });
+  const observer=new MutationObserver(refresh);
+  ['sessionDetailOverlay','exerciseDetailOverlay','quickActionsOverlay'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)observer.observe(el,{attributes:true,attributeFilter:['class']});
+  });
+  refresh();
+})();
+</script></body></html>
