@@ -3675,4 +3675,86 @@ document.getElementById('trainingTitleForm').addEventListener('submit',event=>{
 #sessionDetailOverlay .detail-dialog>.panel-head .eyebrow,#sessionDetailOverlay #sessionDetailContent>p.sub,#sessionDetailOverlay #sessionDetailContent>.panel-head .sub{color:var(--muted)!important}
 @media(max-width:680px){#sessionDetailOverlay [data-activity-id] .form-grid{grid-template-columns:1fr}}
 </style>
+<style id="training-readable-style">
+#sessionDetailOverlay .detail-dialog{max-width:980px!important}
+#sessionDetailOverlay .panel-head{position:static!important;background:transparent!important}
+#sessionDetailContent>.panel-head{border:0!important;padding:12px 0!important;margin:0!important}
+#sessionDetailContent .training-fold{border:0;border-bottom:1px solid var(--line);padding:12px 0;margin:0;background:transparent;color:var(--ink)}
+#sessionDetailContent .training-fold>summary{cursor:pointer;padding:10px 0;color:var(--ink);font-weight:600;min-height:44px}
+#sessionDetailContent .training-fold>summary:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+#sessionDetailContent .training-fold>summary h4{display:inline;font-size:18px!important;line-height:1.4;margin:0!important;color:var(--ink)!important}
+#sessionDetailContent .training-fold>summary small{font-size:12px;font-weight:400;color:var(--muted);margin-left:10px}
+#sessionDetailContent .training-exercise-fold{border:0;padding:0}
+#sessionDetailContent .training-exercise-fold>summary{padding:16px 0}
+#sessionDetailContent .training-exercise-fold>.training-exercise-body{padding:0 0 16px}
+#sessionDetailContent .exercise-detail[data-exercise-id],#sessionDetailContent .exercise-detail[data-activity-id]{padding:0!important}
+#sessionDetailContent .training-exercise-body>.sub{margin:8px 0 16px}
+#sessionDetailContent .training-extras{margin:10px 0 18px;font-size:14px}
+#sessionDetailContent .training-extras .lifeos-exercise-tools{background:transparent!important;border:0!important;padding:8px 0!important}
+#sessionDetailContent .training-extras .lifeos-last-session,#sessionDetailContent .training-extras .lifeos-copy-last{background:transparent!important;border:0!important;box-shadow:none!important}
+#sessionDetailContent .training-section-label{font-size:13px!important;color:var(--muted)!important;font-weight:500!important;margin:24px 0 8px}
+#sessionDetailContent .detail-meta{margin-top:12px}
+#sessionDetailContent>.training-main-hint{font-size:13px;color:var(--muted)!important;margin:14px 0}
+#sessionDetailContent .training-exercise-body .lifeos-set-progress{background:transparent!important;border:0!important;padding:8px 0!important}
+#sessionDetailContent .training-exercise-body .lifeos-set-progress-track{display:none}
+#sessionDetailContent .lifeos-add-panel{padding:12px 0!important}
+#sessionDetailContent>.form-actions{position:static!important;background:transparent!important;border-top:1px solid var(--line);padding-top:18px;flex-wrap:wrap}
+@media(max-width:680px){
+ #sessionDetailOverlay .detail-dialog{padding:16px!important}
+ #sessionDetailContent .training-exercise-fold>summary h4{font-size:17px!important}
+ #sessionDetailContent .training-exercise-fold>summary small{display:block;margin:4px 0 0 18px}
+}
+</style>
+<script id="training-readable-script">
+(()=>{
+ const root=document.getElementById('sessionDetailContent');
+ const fold=(label,className='')=>{const d=document.createElement('details');d.className='training-fold '+className;const s=document.createElement('summary');s.textContent=label;d.append(s);return d};
+ const sectionKey=d=>{const card=d.closest('[data-exercise-id],[data-activity-id]');return (card?.dataset.exerciseId||card?.dataset.activityId||'root')+'|'+d.querySelector(':scope > summary')?.textContent};
+ const previous=showSessionDetails;
+ showSessionDetails=function(id){
+  const openSections=new Set([...root.querySelectorAll('.training-fold[open]')].map(sectionKey));
+  const same=root.dataset.readableSession===String(id);
+  const openKeys=new Set([...root.querySelectorAll('.training-exercise-fold[open]')].map(d=>d.closest('[data-exercise-id],[data-activity-id]')?.dataset.exerciseId||d.closest('[data-activity-id]')?.dataset.activityId));
+  const result=previous.apply(this,arguments);
+  root.dataset.readableSession=String(id);
+  const meta=root.querySelector('.detail-meta');
+  if(meta){const d=fold('Details zum Training');meta.before(d);d.append(meta)}
+  const heading=root.querySelector(':scope > .panel-head');
+  if(heading){heading.classList.add('training-section-label');const h=heading.querySelector('h3');if(h)h.textContent='Deine Übungen'}
+  const hint=root.querySelector(':scope > p.sub');
+  if(hint){hint.classList.add('training-main-hint');hint.textContent='Öffne eine Übung zum Eintragen. Deine Angaben werden automatisch gespeichert.'}
+  const cards=[...root.querySelectorAll('.exercise-detail[data-exercise-id],.exercise-detail[data-activity-id]')];
+  cards.forEach((card,index)=>{
+   const key=card.dataset.exerciseId||card.dataset.activityId;
+   const title=card.querySelector('h4');if(!title)return;
+   const d=fold('','training-exercise-fold');d.open=same?openKeys.has(key):index===0;
+   const summary=d.querySelector('summary');summary.append(title);
+   const category=document.createElement('small');category.textContent=card.hasAttribute('data-exercise-id')?'Kraft · Sätze & Gewicht':card.querySelector('[data-activity-field="distanceKm"]')?'Ausdauer · Dauer & Distanz':'Mobilität · Dauer & Haltezeit';summary.append(category);
+   const body=document.createElement('div');body.className='training-exercise-body';
+   while(card.firstChild)body.append(card.firstChild);
+   d.append(body);card.append(d);
+   const extras=fold('Vorgaben, Hinweise & weitere Optionen','training-extras');
+   const targets=[...body.children].filter(el=>el.matches('p:not(.sub),.form-grid,.lifeos-exercise-tools,.lifeos-last-session,.lifeos-copy-last'));
+   if(card.hasAttribute('data-exercise-id')&&targets.length){body.prepend(extras);targets.forEach(el=>extras.append(el))}
+  });
+  const helpers=[...root.children].filter(el=>el.matches('.lifeos-workout-overview,.lifeos-summary-v21,.lifeos-focus-toolbar,.lifeos-session-progress-summary,.lifeos-jump-list,.lifeos-jump-heading'));
+  if(helpers.length){const d=fold('Fortschritt & Trainingshilfen');root.append(d);helpers.forEach(el=>d.append(el))}
+  const add=root.querySelector('.lifeos-add-panel');
+  if(add){const d=fold('Weitere Übungen hinzufügen');add.before(d);d.append(add)}
+  const footer=root.querySelector(':scope > .form-actions');if(footer)root.append(footer);
+  if(same)root.querySelectorAll('.training-fold').forEach(d=>{d.open=openSections.has(sectionKey(d))});
+  return result;
+ };
+ // Navigation and focus mode must reveal a folded exercise before scrolling to it.
+ root.addEventListener('click',event=>{
+  if(event.target.closest('.lifeos-jump-button,.lifeos-focus-next,.lifeos-focus-prev,.lifeos-focus-toggle,.lifeos-next-exercise')){
+   root.querySelectorAll('.training-exercise-fold').forEach(d=>{d.open=true});
+  }
+ },true);
+ if(document.getElementById('sessionDetailOverlay').classList.contains('open')){
+  const id=document.getElementById('sessionDetailOverlay').dataset.activeSessionId;if(id)showSessionDetails(id);
+ }
+})();
+</script>
+
 </body></html>
