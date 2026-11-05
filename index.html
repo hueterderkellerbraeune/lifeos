@@ -3124,4 +3124,14 @@ init();
   });
   refresh();
 })();
-</script></body></html>
+</script><style id="lifeos-v60-background-contrast-only">
+/* Based on LifeOS v59. Only page background and text on that background change. */
+:root,[data-lifeos-theme="light"]{--bg:#456D5C;}
+[data-lifeos-theme="dark"]{--bg:#081B15;}
+html,body{background:var(--bg)!important;}
+/* Headers sit directly on the page background, unlike the cards. */
+.main>.topbar .eyebrow,.main>.topbar h1,
+.view>.section-title h2,.view>.section-title p{color:#F4FAF5!important;}
+/* Preserve existing card, sidebar, calendar and overlay styling. */
+</style>
+</body></html>
