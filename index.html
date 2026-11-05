@@ -3479,4 +3479,139 @@ document.addEventListener('change',event=>{
   }
 });
 </script>
+<style id="lifeos-readable-layout">
+/* Calm hierarchy: open sections, quiet separators, colour reserved for actions. */
+:root,[data-lifeos-theme="light"]{
+ --bg:#f7f8f4;--panel:#fff;--ink:#243b30;--muted:#586e60;--line:#d8e1d8;
+ --green:#315d48;--green2:#e9f0e9;--fc-soft:#edf2ec;--fc-surface:#fff;
+ --shadow:none;--fc-button:#315d48;--fc-button-text:#fff;
+}
+[data-lifeos-theme="dark"]{
+ --bg:#12241c;--panel:#192e24;--ink:#edf4eb;--muted:#b4c5b8;--line:#354b3d;
+ --green:#b3d5bc;--green2:#233d2e;--fc-soft:#233d2e;--fc-surface:#192e24;
+ --shadow:none;--fc-button:#b3d5bc;--fc-button-text:#12241c;
+}
+body{line-height:1.6}
+.main>.topbar{border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:30px}
+.main>.topbar h1,.main>.topbar .eyebrow,.view>.section-title h2{color:var(--ink)!important}
+.view>.section-title p{color:var(--muted)!important}
+.topbar h1{font-size:24px;letter-spacing:-.6px}
+.view>.section-title{align-items:center;margin-bottom:28px;gap:20px}
+.view>.section-title h2{font-size:clamp(27px,3vw,34px)!important;line-height:1.2}
+.section-title p{max-width:60ch;line-height:1.6}
+.main .view .panel,
+#view-dashboard .panel,#view-week .panel,#view-exercises .panel,
+#view-progress .panel,#view-plans .panel,#view-sessions .panel{
+ background:transparent!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;padding:24px 0!important;
+}
+.main .view>.panel+.panel{border-top:1px solid var(--line)!important;margin-top:20px}
+.main .columns{gap:40px!important;margin-bottom:32px}
+.panel-head{margin-bottom:20px;gap:16px}
+.panel h3{font-size:19px!important;line-height:1.35;letter-spacing:-.3px}
+.main .view .hero{background:transparent!important;border:0!important;border-radius:0!important;padding:8px 0 28px!important}
+.main .view .hero h2{font-size:30px!important;line-height:1.2}
+.main .view .hero-art{font-size:36px;opacity:.65}
+.main .view .stats{gap:0!important;border-block:1px solid var(--line);padding:20px 0;margin-bottom:24px!important}
+.main .view .stat{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0 20px!important}
+.main .view .stat+.stat{border-left:1px solid var(--line)!important}
+.main .view .stat strong{font-size:30px!important;font-weight:650;margin-top:6px}
+.main .view .stat-icon{background:transparent!important;width:24px;height:24px;font-size:16px}
+.main .view .empty{background:transparent!important;border:0!important;border-radius:0!important;padding:26px 12px!important;color:var(--muted)!important}
+.main .view .empty span{font-size:23px;margin-bottom:6px}
+.main .view .notice{background:transparent!important;border:0!important;border-left:3px solid var(--line)!important;border-radius:0!important;padding:8px 16px!important;color:var(--muted)!important}
+.main .view .list{gap:0}
+.main .view .item{background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;padding:17px 4px!important}
+.main .view .item:last-child{border-bottom:0!important}
+.main .view .item-icon{background:transparent!important;width:30px;height:30px;font-size:20px}
+.main .view .item-body b{font-size:15px}
+.main .view .session-card:hover{background:var(--fc-soft)!important}
+.btn{border-radius:7px!important;min-height:42px;font-weight:650}
+.main .view .btn.secondary,.main .view .btn.ghost{background:transparent!important;border:1px solid var(--line)!important;color:var(--ink)!important}
+.main .view .btn.ghost{border-color:transparent!important;text-decoration:underline;text-underline-offset:4px}
+button:focus-visible,a:focus-visible,[tabindex="0"]:focus-visible{outline:2px solid var(--green)!important;outline-offset:3px!important}
+.sidebar{box-shadow:none!important}
+.sidebar .side-note{background:transparent!important;border-top:1px solid var(--line);border-radius:0;padding:18px 10px}
+.nav button{border-radius:6px!important;font-size:14px;padding:11px 13px}
+.nav button.active{box-shadow:inset 3px 0 var(--green)}
+/* A calendar is one grid, rather than forty-two individual cards. */
+#view-week .month-grid,#view-dashboard .month-grid{gap:0!important;border-top:1px solid var(--line);margin-top:16px}
+#view-week .month-weekday,#view-dashboard .month-weekday{padding:10px 0;font-weight:500}
+#view-week .month-day,#view-dashboard .month-day{
+ background:transparent!important;border:0!important;border-top:1px solid var(--line)!important;
+ border-radius:0!important;box-shadow:none!important;padding:10px 4px!important;min-height:68px;
+}
+#view-week .month-day:hover,#view-dashboard .month-day:hover{background:var(--fc-soft)!important}
+#view-week .month-day.selected,#view-dashboard .month-day.selected{background:var(--green2)!important;box-shadow:inset 0 -3px var(--green)!important}
+#view-week .month-day.today .date-number,#view-dashboard .month-day.today .date-number{color:var(--green);text-decoration:underline;text-underline-offset:5px;font-weight:800}
+#view-week .month-day .date-number,#view-dashboard .month-day .date-number{font-size:13px}
+#view-week .month-day.marked .dot,#view-dashboard .month-day.marked .dot{width:6px;height:6px}
+#view-week .lifeos-day-toolbar{margin-top:24px;padding-top:24px}
+/* Forms use a single reading column and rows instead of nested tiles. */
+.main .view .form-panel{border-top:1px solid var(--line)!important;margin:24px 0}
+.sessionForm{max-width:900px}
+.sessionForm .form-grid{column-gap:24px;row-gap:8px}
+.field label{font-size:14px!important;font-weight:600!important}
+.field input,.field select,.field textarea{border-radius:6px!important;min-height:44px;padding:11px 12px!important}
+.field input[type="checkbox"]{min-height:0;padding:0!important}
+.sessionForm .lifeos-v604-hint{background:transparent!important;border:0!important;border-left:2px solid var(--line)!important;border-radius:0!important;padding:4px 14px!important;color:var(--muted)!important}
+.sessionForm .session-exercise-picker{display:block!important;background:transparent!important;border:0!important;border-block:1px solid var(--line)!important;border-radius:0!important;max-height:360px;padding:0!important}
+.sessionForm .session-exercise-option{background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;padding:12px 4px!important;box-shadow:none!important}
+.sessionForm .session-exercise-option:has(input:checked){background:var(--green2)!important}
+.session-exercise-copy strong{font-size:15px;font-weight:600}
+.session-exercise-copy small{font-size:12px;margin-top:2px}
+.sessionForm .selected-exercises{background:transparent!important;border:0!important;border-radius:0!important;padding:16px 0!important}
+.sessionForm .selected-exercise-row{background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;padding:12px 0!important}
+/* The library reads as a list; illustrations support the names instead of dominating. */
+#view-exercises .filters{background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;padding:0 0 20px!important}
+#view-exercises .lifeos-library-grid{display:grid!important;grid-template-columns:1fr!important;gap:0!important}
+#view-exercises .lifeos-library-card{display:flex!important;align-items:center;gap:20px;background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;transform:none!important;padding:18px 0!important}
+#view-exercises .lifeos-library-card:hover{background:var(--fc-soft)!important}
+#view-exercises .lifeos-card-visual,#view-exercises .lifeos-card-visual-art{width:82px!important;height:82px!important;min-height:0!important;flex:0 0 82px!important;border:0!important;border-radius:8px!important;overflow:hidden}
+#view-exercises .lifeos-card-visual img,#view-exercises .lifeos-card-visual svg{width:82px!important;height:82px!important;min-height:0!important;object-fit:cover}
+#view-exercises .lifeos-card-body{padding:0!important;flex:1;min-width:0}
+#view-exercises .lifeos-card-body h3{font-size:17px!important;margin:3px 0 6px}
+#view-exercises .lifeos-card-body p{margin-bottom:8px}
+#view-exercises .lifeos-card-foot{border:0!important;padding-top:0!important}
+#view-exercises .lifeos-card-kicker{font-size:11px;letter-spacing:.6px}
+/* Detail overlays retain a distinct surface, with open inner sections. */
+#sessionDetailOverlay .exercise-detail,#exerciseDetailOverlay .exercise-detail-card,
+#sessionDetailOverlay .detail-meta>div,#exerciseDetailOverlay .exercise-info-block{
+ background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;box-shadow:none!important;padding:20px 0!important;
+}
+#sessionDetailOverlay .detail-dialog,#exerciseDetailOverlay .exercise-detail-dialog{background:var(--panel)!important;border-radius:12px!important}
+#lifeos-cloud-status{background:var(--panel)!important;color:var(--muted)!important;border-color:var(--line)!important;box-shadow:none!important;border-radius:7px;font-size:11px;bottom:16px;padding:6px 9px}
+#lifeos-cloud-status button{background:transparent!important;color:var(--ink)!important;border-color:var(--line)!important}
+#forest-calm-dashboard-toggle{background:transparent!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;padding:0 0 16px!important;margin-bottom:24px!important}
+#view-exercises .lifeos-favorites-filter{background:transparent!important;border:1px solid var(--line)!important;color:var(--green)!important;border-radius:6px!important}
+#view-exercises .lifeos-favorites-filter[aria-pressed="true"]{background:var(--green2)!important}
+#view-exercises .lifeos-favorite-btn{background:transparent!important;border:1px solid var(--line)!important;color:var(--green)!important}
+@media(min-width:1001px){.app>.main{max-width:1320px!important;padding:36px clamp(28px,4vw,64px)!important}}
+@media(max-width:680px){
+ .app>.main{padding:20px 18px 90px!important}
+ .main>.topbar{padding-bottom:16px;margin-bottom:24px}
+ .topbar h1{font-size:21px}
+ .view>.section-title{align-items:flex-start;flex-direction:column;gap:16px;margin-bottom:20px}
+ .view>.section-title .toolbar{width:100%}
+ .main .columns{gap:12px!important}
+ .main .view .panel{padding:20px 0!important}
+ .main .view .stat{padding:10px 12px!important}
+ .main .view .stat:nth-child(3){border-left:0!important}
+ .main .view .stats{padding:6px 0;row-gap:12px!important}
+ .main .view .stat strong{font-size:25px!important}
+ #view-week .month-day,#view-dashboard .month-day{min-height:52px;padding:8px 2px!important}
+ #view-exercises .lifeos-library-card{gap:14px}
+ #view-exercises .lifeos-card-visual,#view-exercises .lifeos-card-visual-art{width:64px!important;height:64px!important;flex-basis:64px!important}
+ #view-exercises .lifeos-card-visual img,#view-exercises .lifeos-card-visual svg{width:64px!important;height:64px!important}
+ .sessionForm .form-grid{grid-template-columns:minmax(0,1fr)!important}
+ .sessionForm .form-grid>.span2{grid-column:1!important}
+ .sessionForm .session-exercise-option{flex-wrap:wrap}
+ .sessionForm .session-exercise-option-main{flex-basis:180px}
+ .sessionForm .session-exercise-option .btn{min-height:36px;font-size:11px}
+ .panel-head{flex-wrap:wrap}
+ #lifeos-cloud-status{max-width:calc(100vw - 24px);bottom:10px;right:12px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+
 </body></html>
