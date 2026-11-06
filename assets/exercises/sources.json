@@ -1,0 +1,1193 @@
+{
+  "repository": "https://github.com/yuhonas/free-exercise-db",
+  "revision": "f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5",
+  "declaredLicense": "Unlicense",
+  "exercises": {
+    "e1": {
+      "sourceExercise": "Leg_Press",
+      "sourceName": "Leg Press",
+      "images": [
+        "assets/exercises/e1-0.jpg",
+        "assets/exercises/e1-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "name": "Beinpresse"
+    },
+    "e2": {
+      "sourceExercise": "Machine_Bench_Press",
+      "sourceName": "Machine Bench Press",
+      "images": [
+        "assets/exercises/e2-0.jpg",
+        "assets/exercises/e2-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "shoulders",
+        "triceps"
+      ],
+      "name": "Brustpresse"
+    },
+    "e3": {
+      "sourceExercise": "Wide-Grip_Lat_Pulldown",
+      "sourceName": "Wide-Grip Lat Pulldown",
+      "images": [
+        "assets/exercises/e3-0.jpg",
+        "assets/exercises/e3-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "middle back",
+        "shoulders"
+      ],
+      "name": "Latzug"
+    },
+    "e4": {
+      "sourceExercise": "Seated_Leg_Curl",
+      "sourceName": "Seated Leg Curl",
+      "images": [
+        "assets/exercises/e4-0.jpg",
+        "assets/exercises/e4-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [],
+      "name": "Beinbeuger"
+    },
+    "e5": {
+      "sourceExercise": "Walking_Treadmill",
+      "sourceName": "Walking, Treadmill",
+      "images": [
+        "assets/exercises/e5-0.jpg",
+        "assets/exercises/e5-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "name": "Laufband – Gehen"
+    },
+    "e6": {
+      "sourceExercise": "Bicycling_Stationary",
+      "sourceName": "Bicycling, Stationary",
+      "images": [
+        "assets/exercises/e6-0.jpg",
+        "assets/exercises/e6-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "name": "Fahrradergometer"
+    },
+    "e8": {
+      "sourceExercise": "Leg_Extensions",
+      "sourceName": "Leg Extensions",
+      "images": [
+        "assets/exercises/e8-0.jpg",
+        "assets/exercises/e8-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [],
+      "name": "Beinstrecker"
+    },
+    "e9": {
+      "sourceExercise": "Thigh_Abductor",
+      "sourceName": "Thigh Abductor",
+      "images": [
+        "assets/exercises/e9-0.jpg",
+        "assets/exercises/e9-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "abductors"
+      ],
+      "secondary": [
+        "glutes"
+      ],
+      "name": "Abduktorenmaschine"
+    },
+    "e10": {
+      "sourceExercise": "Thigh_Adductor",
+      "sourceName": "Thigh Adductor",
+      "images": [
+        "assets/exercises/e10-0.jpg",
+        "assets/exercises/e10-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "adductors"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "name": "Adduktorenmaschine"
+    },
+    "e11": {
+      "sourceExercise": "Standing_Calf_Raises",
+      "sourceName": "Standing Calf Raises",
+      "images": [
+        "assets/exercises/e11-0.jpg",
+        "assets/exercises/e11-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "calves"
+      ],
+      "secondary": [],
+      "name": "Wadenheben an der Maschine"
+    },
+    "e12": {
+      "sourceExercise": "Leverage_Iso_Row",
+      "sourceName": "Leverage Iso Row",
+      "images": [
+        "assets/exercises/e12-0.jpg",
+        "assets/exercises/e12-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "middle back"
+      ],
+      "name": "Sitzendes Rudern"
+    },
+    "e13": {
+      "sourceExercise": "Machine_Shoulder_Military_Press",
+      "sourceName": "Machine Shoulder (Military) Press",
+      "images": [
+        "assets/exercises/e13-0.jpg",
+        "assets/exercises/e13-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "shoulders"
+      ],
+      "secondary": [
+        "triceps"
+      ],
+      "name": "Schulterpresse"
+    },
+    "e14": {
+      "sourceExercise": "Butterfly",
+      "sourceName": "Butterfly",
+      "images": [
+        "assets/exercises/e14-0.jpg",
+        "assets/exercises/e14-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [],
+      "name": "Butterfly / Pec Deck"
+    },
+    "e15": {
+      "sourceExercise": "Reverse_Machine_Flyes",
+      "sourceName": "Reverse Machine Flyes",
+      "images": [
+        "assets/exercises/e15-0.jpg",
+        "assets/exercises/e15-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "shoulders"
+      ],
+      "secondary": [],
+      "name": "Reverse Butterfly"
+    },
+    "e16": {
+      "sourceExercise": "Hyperextensions_Back_Extensions",
+      "sourceName": "Hyperextensions (Back Extensions)",
+      "images": [
+        "assets/exercises/e16-0.jpg",
+        "assets/exercises/e16-1.jpg"
+      ],
+      "note": "Foto zeigt die Ausführung an einer Rückenstreckerbank.",
+      "primary": [
+        "lower back"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "name": "Rückenstrecker"
+    },
+    "e17": {
+      "sourceExercise": "Ab_Crunch_Machine",
+      "sourceName": "Ab Crunch Machine",
+      "images": [
+        "assets/exercises/e17-0.jpg",
+        "assets/exercises/e17-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "abdominals"
+      ],
+      "secondary": [],
+      "name": "Bauchmaschine"
+    },
+    "e18": {
+      "sourceExercise": "Seated_Cable_Rows",
+      "sourceName": "Seated Cable Rows",
+      "images": [
+        "assets/exercises/e18-0.jpg",
+        "assets/exercises/e18-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "middle back"
+      ],
+      "secondary": [
+        "biceps",
+        "lats",
+        "shoulders"
+      ],
+      "name": "Kabelzug-Rudern"
+    },
+    "e19": {
+      "sourceExercise": "Triceps_Pushdown",
+      "sourceName": "Triceps Pushdown",
+      "images": [
+        "assets/exercises/e19-0.jpg",
+        "assets/exercises/e19-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [],
+      "name": "Trizepsdrücken am Kabel"
+    },
+    "e20": {
+      "sourceExercise": "Standing_Biceps_Cable_Curl",
+      "sourceName": "Standing Biceps Cable Curl",
+      "images": [
+        "assets/exercises/e20-0.jpg",
+        "assets/exercises/e20-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [],
+      "name": "Bizepscurls am Kabel"
+    },
+    "e21": {
+      "sourceExercise": "Face_Pull",
+      "sourceName": "Face Pull",
+      "images": [
+        "assets/exercises/e21-0.jpg",
+        "assets/exercises/e21-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "shoulders"
+      ],
+      "secondary": [
+        "middle back"
+      ],
+      "name": "Face Pulls"
+    },
+    "e22": {
+      "sourceExercise": "Cable_Crossover",
+      "sourceName": "Cable Crossover",
+      "images": [
+        "assets/exercises/e22-0.jpg",
+        "assets/exercises/e22-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "shoulders"
+      ],
+      "name": "Brust-Flys am Kabel"
+    },
+    "e23": {
+      "sourceExercise": "Close-Grip_Front_Lat_Pulldown",
+      "sourceName": "Close-Grip Front Lat Pulldown",
+      "images": [
+        "assets/exercises/e23-0.jpg",
+        "assets/exercises/e23-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "middle back",
+        "shoulders"
+      ],
+      "name": "Latzug mit engem Griff"
+    },
+    "e27": {
+      "sourceExercise": "Butt_Lift_Bridge",
+      "sourceName": "Butt Lift (Bridge)",
+      "images": [
+        "assets/exercises/e27-0.jpg",
+        "assets/exercises/e27-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings"
+      ],
+      "name": "Glute Bridge / Beckenheben"
+    },
+    "e29": {
+      "sourceExercise": "Dead_Bug",
+      "sourceName": "Dead Bug",
+      "images": [
+        "assets/exercises/e29-0.jpg",
+        "assets/exercises/e29-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "abdominals"
+      ],
+      "secondary": [],
+      "name": "Dead Bug"
+    },
+    "e31": {
+      "sourceExercise": "Incline_Push-Up",
+      "sourceName": "Incline Push-Up",
+      "images": [
+        "assets/exercises/e31-0.jpg",
+        "assets/exercises/e31-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "shoulders",
+        "triceps"
+      ],
+      "name": "Liegestütze erhöht"
+    },
+    "e32": {
+      "sourceExercise": "Side_Leg_Raises",
+      "sourceName": "Side Leg Raises",
+      "images": [
+        "assets/exercises/e32-0.jpg",
+        "assets/exercises/e32-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "adductors"
+      ],
+      "secondary": [],
+      "name": "Seitliches Beinheben"
+    },
+    "e34": {
+      "sourceExercise": "Dumbbell_Bench_Press",
+      "sourceName": "Dumbbell Bench Press",
+      "images": [
+        "assets/exercises/e34-0.jpg",
+        "assets/exercises/e34-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "shoulders",
+        "triceps"
+      ],
+      "name": "Kurzhantel-Bankdrücken"
+    },
+    "e35": {
+      "sourceExercise": "One-Arm_Dumbbell_Row",
+      "sourceName": "One-Arm Dumbbell Row",
+      "images": [
+        "assets/exercises/e35-0.jpg",
+        "assets/exercises/e35-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "middle back"
+      ],
+      "secondary": [
+        "biceps",
+        "lats",
+        "shoulders"
+      ],
+      "name": "Kurzhantel-Rudern"
+    },
+    "e36": {
+      "sourceExercise": "Side_Lateral_Raise",
+      "sourceName": "Side Lateral Raise",
+      "images": [
+        "assets/exercises/e36-0.jpg",
+        "assets/exercises/e36-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "shoulders"
+      ],
+      "secondary": [],
+      "name": "Kurzhantel-Seitheben"
+    },
+    "e37": {
+      "sourceExercise": "Dumbbell_Bicep_Curl",
+      "sourceName": "Dumbbell Bicep Curl",
+      "images": [
+        "assets/exercises/e37-0.jpg",
+        "assets/exercises/e37-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "name": "Kurzhantel-Bizepscurls"
+    },
+    "e38": {
+      "sourceExercise": "Standing_Dumbbell_Triceps_Extension",
+      "sourceName": "Standing Dumbbell Triceps Extension",
+      "images": [
+        "assets/exercises/e38-0.jpg",
+        "assets/exercises/e38-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [],
+      "name": "Kurzhantel-Trizepsstrecken"
+    },
+    "e41": {
+      "sourceExercise": "Barbell_Squat",
+      "sourceName": "Barbell Squat",
+      "images": [
+        "assets/exercises/e41-0.jpg",
+        "assets/exercises/e41-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings",
+        "lower back"
+      ],
+      "name": "Langhantel-Kniebeuge"
+    },
+    "e42": {
+      "sourceExercise": "Bent_Over_Barbell_Row",
+      "sourceName": "Bent Over Barbell Row",
+      "images": [
+        "assets/exercises/e42-0.jpg",
+        "assets/exercises/e42-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "middle back"
+      ],
+      "secondary": [
+        "biceps",
+        "lats",
+        "shoulders"
+      ],
+      "name": "Langhantel-Rudern"
+    },
+    "e43": {
+      "sourceExercise": "Barbell_Bench_Press_-_Medium_Grip",
+      "sourceName": "Barbell Bench Press - Medium Grip",
+      "images": [
+        "assets/exercises/e43-0.jpg",
+        "assets/exercises/e43-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "shoulders",
+        "triceps"
+      ],
+      "name": "Langhantel-Bankdrücken"
+    },
+    "e44": {
+      "sourceExercise": "Walking_Treadmill",
+      "sourceName": "Walking, Treadmill",
+      "images": [
+        "assets/exercises/e44-0.jpg",
+        "assets/exercises/e44-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "name": "Laufband – zügiges Gehen"
+    },
+    "e45": {
+      "sourceExercise": "Walking_Treadmill",
+      "sourceName": "Walking, Treadmill",
+      "images": [
+        "assets/exercises/e45-0.jpg",
+        "assets/exercises/e45-1.jpg"
+      ],
+      "note": "Gerätebeispiel: Die eingestellte Steigung ist auf dem Foto nicht erkennbar.",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "name": "Laufband – Steigung gehen"
+    },
+    "e46": {
+      "sourceExercise": "Elliptical_Trainer",
+      "sourceName": "Elliptical Trainer",
+      "images": [
+        "assets/exercises/e46-0.jpg",
+        "assets/exercises/e46-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "name": "Crosstrainer"
+    },
+    "e47": {
+      "sourceExercise": "Rowing_Stationary",
+      "sourceName": "Rowing, Stationary",
+      "images": [
+        "assets/exercises/e47-0.jpg",
+        "assets/exercises/e47-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "biceps",
+        "calves",
+        "glutes",
+        "hamstrings",
+        "lower back",
+        "middle back"
+      ],
+      "name": "Ruderergometer"
+    },
+    "e48": {
+      "sourceExercise": "Recumbent_Bike",
+      "sourceName": "Recumbent Bike",
+      "images": [
+        "assets/exercises/e48-0.jpg",
+        "assets/exercises/e48-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "name": "Liegeergometer"
+    },
+    "e49": {
+      "sourceExercise": "Step_Mill",
+      "sourceName": "Step Mill",
+      "images": [
+        "assets/exercises/e49-0.jpg",
+        "assets/exercises/e49-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "name": "Stepper"
+    },
+    "e52": {
+      "sourceExercise": "Cat_Stretch",
+      "sourceName": "Cat Stretch",
+      "images": [
+        "assets/exercises/e52-0.jpg",
+        "assets/exercises/e52-1.jpg"
+      ],
+      "note": "Foto zeigt eine Position der Katze-Kuh-Bewegung.",
+      "primary": [
+        "lower back"
+      ],
+      "secondary": [
+        "middle back",
+        "traps"
+      ],
+      "name": "Katze-Kuh"
+    },
+    "e54": {
+      "sourceExercise": "Standing_Hip_Flexors",
+      "sourceName": "Standing Hip Flexors",
+      "images": [
+        "assets/exercises/e54-0.jpg",
+        "assets/exercises/e54-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "quadriceps"
+      ],
+      "secondary": [],
+      "name": "Hüftbeuger-Mobilisation im Stand"
+    },
+    "e56": {
+      "sourceExercise": "Seated_Floor_Hamstring_Stretch",
+      "sourceName": "Seated Floor Hamstring Stretch",
+      "images": [
+        "assets/exercises/e56-0.jpg",
+        "assets/exercises/e56-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [
+        "calves"
+      ],
+      "name": "Hamstring-Mobilisation im Sitzen"
+    },
+    "e57": {
+      "sourceExercise": "Shoulder_Circles",
+      "sourceName": "Shoulder Circles",
+      "images": [
+        "assets/exercises/e57-0.jpg",
+        "assets/exercises/e57-1.jpg"
+      ],
+      "note": "",
+      "primary": [
+        "shoulders"
+      ],
+      "secondary": [
+        "traps"
+      ],
+      "name": "Schulterblatt-Kreisen"
+    },
+    "e58": {
+      "sourceExercise": "Side_Neck_Stretch",
+      "sourceName": "Side Neck Stretch",
+      "images": [
+        "assets/exercises/e58-0.jpg",
+        "assets/exercises/e58-1.jpg"
+      ],
+      "note": "Foto zeigt eine seitliche Nackendehnung.",
+      "primary": [
+        "neck"
+      ],
+      "secondary": [],
+      "name": "Sanfte Nackenbeweglichkeit"
+    }
+  },
+  "files": [
+    {
+      "file": "e1-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leg_Press/0.jpg",
+      "sha256": "55079d514ae8d4dbc526731bb5120748e74a084ebcd546eaa890fa273427f0dc"
+    },
+    {
+      "file": "e1-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leg_Press/1.jpg",
+      "sha256": "f4e08d4ad4e6542f5dd923bbfabe9a28bf6c960bed02b1b9d65f6bafd6ceb051"
+    },
+    {
+      "file": "e2-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Machine_Bench_Press/0.jpg",
+      "sha256": "d3d8399ff8da08865f0ec97495b3001731a8170ac44a63663dfe382c7d092d41"
+    },
+    {
+      "file": "e2-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Machine_Bench_Press/1.jpg",
+      "sha256": "b916ff565039208b3baec76e141b4963f4e90aac17dff25c99098d6fc2131251"
+    },
+    {
+      "file": "e3-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Wide-Grip_Lat_Pulldown/0.jpg",
+      "sha256": "929bc29751c35d0a624840b24501e74dc59438d351e66cc017e7ee8682fb3346"
+    },
+    {
+      "file": "e3-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Wide-Grip_Lat_Pulldown/1.jpg",
+      "sha256": "781952e629e8a4cff549df94ee6b1da7e32c7cd507382d47e8566718c07807dd"
+    },
+    {
+      "file": "e4-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Leg_Curl/0.jpg",
+      "sha256": "c84ece2e8b52314c8605e9fc3ef1930a59fec475ff1b5a7f98687a4b8fc580a7"
+    },
+    {
+      "file": "e4-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Leg_Curl/1.jpg",
+      "sha256": "2cbd4aa6c22162a209a7ced5d1a68274d44e88780c8c3936c7fab57d6e9918fd"
+    },
+    {
+      "file": "e5-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Walking_Treadmill/0.jpg",
+      "sha256": "e13cd5838b04f617026dd097778d0ce298356992e7f972e1d71c7bf1fe1bb4c6"
+    },
+    {
+      "file": "e5-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Walking_Treadmill/1.jpg",
+      "sha256": "5b811c65e89b0eec47ae5006ad711b84c11e61fdbaac98334574cebe5855b025"
+    },
+    {
+      "file": "e6-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Bicycling_Stationary/0.jpg",
+      "sha256": "dc37a609b3e8de862f5e4b83c9d05488c9c5cd825073210dd6e46f2a5b436cfb"
+    },
+    {
+      "file": "e6-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Bicycling_Stationary/1.jpg",
+      "sha256": "390a6508a8ffd71998cf184f0b9d6a218630069f343b5678781608ddfe304faa"
+    },
+    {
+      "file": "e8-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leg_Extensions/0.jpg",
+      "sha256": "54fd46441d63459e3cdd26f26b826ad049e835fb7f1984b42398fdfbdefb5bfa"
+    },
+    {
+      "file": "e8-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leg_Extensions/1.jpg",
+      "sha256": "9e04d0e306d8fee608305766b14a56df1d1312956d374152f58dcbf267d591a9"
+    },
+    {
+      "file": "e9-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Thigh_Abductor/0.jpg",
+      "sha256": "572cef392f2a10c377153c5fe0acd5e0b4d0e881024ff6a7fdd4a6320dc7ed51"
+    },
+    {
+      "file": "e9-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Thigh_Abductor/1.jpg",
+      "sha256": "c438500671ec2dc6fa726086ec4a56903635ee65e37b3449174f18aaed1409c9"
+    },
+    {
+      "file": "e10-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Thigh_Adductor/0.jpg",
+      "sha256": "3b363f261901744a6e833a19fcd835db95495d0beda0eb6695e583ea2dfcf3ab"
+    },
+    {
+      "file": "e10-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Thigh_Adductor/1.jpg",
+      "sha256": "40be513dd0d6fad0fbd734431e4e83f924b7385b90b53d9ec7eab8809d96df7a"
+    },
+    {
+      "file": "e11-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Calf_Raises/0.jpg",
+      "sha256": "44922f411d204bb00dc86015981413e0ca503f0b9ba2346af25f345a91cf4848"
+    },
+    {
+      "file": "e11-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Calf_Raises/1.jpg",
+      "sha256": "f0990fed5d984fdf31c7b6a8420adb59ed6a3f286af6f228d53b68445caa1c51"
+    },
+    {
+      "file": "e12-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Iso_Row/0.jpg",
+      "sha256": "f68e7169d4d0ffcceb8f2a6f1197411806b1e4de8ba731eac43f04b816f80b6f"
+    },
+    {
+      "file": "e12-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Leverage_Iso_Row/1.jpg",
+      "sha256": "60b3b1ec65afade81734113ead86c887948f15ad20ed9bf38aaf61071e4b1a78"
+    },
+    {
+      "file": "e13-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Machine_Shoulder_Military_Press/0.jpg",
+      "sha256": "5c93a4ede9b98bbdcf804559b81fa475ba08da92240badccd671e095755dfaa1"
+    },
+    {
+      "file": "e13-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Machine_Shoulder_Military_Press/1.jpg",
+      "sha256": "e1864fee339bff5a3af525adbda87ca70c71e6a58055c5e8299743b6d014ed1d"
+    },
+    {
+      "file": "e14-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Butterfly/0.jpg",
+      "sha256": "8819cc3e699ff1d0b5d18c21a411a0e380fc0f316e83d9dcaa1207617f78ea23"
+    },
+    {
+      "file": "e14-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Butterfly/1.jpg",
+      "sha256": "7f471857324312b07e14f3fe73dd783d2ecd3a3ff15f9f52e9813390cda314db"
+    },
+    {
+      "file": "e15-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Reverse_Machine_Flyes/0.jpg",
+      "sha256": "732cac68ea0780bab823ac3593f4d5f5fda1eb7c14c01620b6a2a12c2f838161"
+    },
+    {
+      "file": "e15-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Reverse_Machine_Flyes/1.jpg",
+      "sha256": "c12b21e34fb7c46c14c0b61e29920637cd8c678474fd97a0c4ef61e86d4cf023"
+    },
+    {
+      "file": "e16-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Hyperextensions_Back_Extensions/0.jpg",
+      "sha256": "48f077fe32d2b839a2cff82450d36f50141559a8008d562495df2e6a21f8aa37"
+    },
+    {
+      "file": "e16-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Hyperextensions_Back_Extensions/1.jpg",
+      "sha256": "1e1d6c7131444657b0c53ca9ef05449fc7a10600af9b73a18b67d0379d97c867"
+    },
+    {
+      "file": "e17-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Ab_Crunch_Machine/0.jpg",
+      "sha256": "5072e495268201939f171a0ea2a038f7bae5f3a75f9972397a99f9c8696c6b84"
+    },
+    {
+      "file": "e17-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Ab_Crunch_Machine/1.jpg",
+      "sha256": "fb435de8360740438f7097e29afe5329e2f5b2d3a8b73d14cea259583013fd58"
+    },
+    {
+      "file": "e18-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Cable_Rows/0.jpg",
+      "sha256": "f5a4adf972f93a6c7b09e003f23005a1163653a7e36b71f1e374acab0243ddf7"
+    },
+    {
+      "file": "e18-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Cable_Rows/1.jpg",
+      "sha256": "0b8e1a0b0fff86cafff45d851ea631a20d469713e9fd735031d3fffb0299fde6"
+    },
+    {
+      "file": "e19-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Triceps_Pushdown/0.jpg",
+      "sha256": "5f52b0f699fcd01bcf07053d9abe26e428f227816d62bc61a3232435715b5e7e"
+    },
+    {
+      "file": "e19-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Triceps_Pushdown/1.jpg",
+      "sha256": "76f7793452cebb4f00846f9fd5ce3306d90d4b1912b192125cd428c2d8b76a3c"
+    },
+    {
+      "file": "e20-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Biceps_Cable_Curl/0.jpg",
+      "sha256": "ccfe9ea6c72996c905bc82c032facf110246442ef6ccf28babee775277f0bc29"
+    },
+    {
+      "file": "e20-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Biceps_Cable_Curl/1.jpg",
+      "sha256": "5aa3493077fbf138f40bd71a476880395275599ff72ca30f04ce0a15313c201b"
+    },
+    {
+      "file": "e21-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Face_Pull/0.jpg",
+      "sha256": "a184e981e8cc261a5cc1856b92d897894691d83e27929aae7e89bc9d8aa1d444"
+    },
+    {
+      "file": "e21-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Face_Pull/1.jpg",
+      "sha256": "1aeee744a027983d58328e68a258ee17ba2db85c1d16ba1bad00b4f2511dde2b"
+    },
+    {
+      "file": "e22-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Crossover/0.jpg",
+      "sha256": "a0d37cf03da0a31acb010620ed4203498fbe83b82e4af298cd28b7fe4435144b"
+    },
+    {
+      "file": "e22-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cable_Crossover/1.jpg",
+      "sha256": "ebaf5aa26a4c7502364fcd5c64d8af8d9ba368f190914eee14ec445f9adef2ca"
+    },
+    {
+      "file": "e23-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Close-Grip_Front_Lat_Pulldown/0.jpg",
+      "sha256": "fb9296bc0adba543a709d6f85930bcb0735776a3bd19ef4cdc7caf9fe5e9768c"
+    },
+    {
+      "file": "e23-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Close-Grip_Front_Lat_Pulldown/1.jpg",
+      "sha256": "9ba65cff05532f616996c077d8936578376ebab3f27fbea5511cec33aa1d6301"
+    },
+    {
+      "file": "e27-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Butt_Lift_Bridge/0.jpg",
+      "sha256": "f74f6813fc43cd5f60e6779ec182049a2ddb3ed9dc5777389dd4ab1880392d5c"
+    },
+    {
+      "file": "e27-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Butt_Lift_Bridge/1.jpg",
+      "sha256": "3eacd0851b56e3e1ea29a0a73c596b0d10e4bc746dd64afaed50d7255eae0819"
+    },
+    {
+      "file": "e29-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dead_Bug/0.jpg",
+      "sha256": "8b4e3e357c201d3752ce4fe97a0f1d00b00e7479cd702f8846791fdf5df66220"
+    },
+    {
+      "file": "e29-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dead_Bug/1.jpg",
+      "sha256": "8de0d54e4c41433b809b045a82832c6632c35102bee945cd3caf522f054d6730"
+    },
+    {
+      "file": "e31-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Incline_Push-Up/0.jpg",
+      "sha256": "07a34cfa5ba05bd7d87f00531ccec45a7db5e9412eafd49fe269cfe4e4bb03e9"
+    },
+    {
+      "file": "e31-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Incline_Push-Up/1.jpg",
+      "sha256": "3f9119875b57305c7e932fe9d222c5568def33da1bd38df7d5aa982c27e24541"
+    },
+    {
+      "file": "e32-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Side_Leg_Raises/0.jpg",
+      "sha256": "a19e2b448c0a27c356b2fbcdb0fd71b68018d615ab2a67819d335a1791962ce8"
+    },
+    {
+      "file": "e32-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Side_Leg_Raises/1.jpg",
+      "sha256": "2ca4bb748e65324386cb437749b4aa6a5ff349f8c351a79b3747fbc6e01d970b"
+    },
+    {
+      "file": "e34-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Bench_Press/0.jpg",
+      "sha256": "06494fc5d679283ad7de10fd60149e543396bbd9ba65b0821937de317ce9e001"
+    },
+    {
+      "file": "e34-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Bench_Press/1.jpg",
+      "sha256": "29ce1d1335b10ae5e92b208c512f4f562493379a9c49bafb249f945c5b702299"
+    },
+    {
+      "file": "e35-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/One-Arm_Dumbbell_Row/0.jpg",
+      "sha256": "04b2f49e6ba0c2fce5f566fe53d03571715fa58350a2b8558b3dfa9110093a53"
+    },
+    {
+      "file": "e35-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/One-Arm_Dumbbell_Row/1.jpg",
+      "sha256": "83d5ceaa6d9ec6732f0afedaaa9a842c34cfdedce89e6fed75681c0bf971174a"
+    },
+    {
+      "file": "e36-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Side_Lateral_Raise/0.jpg",
+      "sha256": "aa1982c367ea9151ee7769ac1f9f8795209db94a6eb85f7d51a7033886fb7ebc"
+    },
+    {
+      "file": "e36-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Side_Lateral_Raise/1.jpg",
+      "sha256": "9210e0fb0202c306026d45a55703aaec89b3bef7aafeb7791aa1d06adcf58ab3"
+    },
+    {
+      "file": "e37-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Bicep_Curl/0.jpg",
+      "sha256": "fad8458c2f70c39e1abb0a9554bba280da5abf9f8dc2d76f7c0be44ffdbfc99b"
+    },
+    {
+      "file": "e37-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Dumbbell_Bicep_Curl/1.jpg",
+      "sha256": "ec2c3a539aa80ea911a85e00ca9fb74502407e8ef0d8a4526e3b076a5a52b30a"
+    },
+    {
+      "file": "e38-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Dumbbell_Triceps_Extension/0.jpg",
+      "sha256": "f1689989803e4463fb92bcc955d96b422f6f5ef9ebd23d9a9e9547ab1242932f"
+    },
+    {
+      "file": "e38-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Dumbbell_Triceps_Extension/1.jpg",
+      "sha256": "9fd2a8098c9a042300789e542f651d599114adbb3f070dfe44a0c9e3d3bdcd0c"
+    },
+    {
+      "file": "e41-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Squat/0.jpg",
+      "sha256": "469a3c5a6eb35b88c45cda9fa7f9086032976fa3d45f5d844a0cc09a95574db5"
+    },
+    {
+      "file": "e41-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Squat/1.jpg",
+      "sha256": "8663a34f2d0a0a33d3d39b505cf3cdd38e282c1c9020d39d5587976e8d8a3020"
+    },
+    {
+      "file": "e42-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Bent_Over_Barbell_Row/0.jpg",
+      "sha256": "09abbeb2fca7006d0e072bdc802158b34acf7923bd3069bb835951e49a95de41"
+    },
+    {
+      "file": "e42-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Bent_Over_Barbell_Row/1.jpg",
+      "sha256": "3c323601573df29cc9c6343765e0d21e7cd99a2dc830105099ac95ecba2cea72"
+    },
+    {
+      "file": "e43-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Bench_Press_-_Medium_Grip/0.jpg",
+      "sha256": "44ba81b3ea124f625c555ae812b37263f82ae460749bbc9ebbeb55a6309f6663"
+    },
+    {
+      "file": "e43-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Barbell_Bench_Press_-_Medium_Grip/1.jpg",
+      "sha256": "5056475ae5def865dbe52882d30d2730142de2b03231bda304f82fd0b088f608"
+    },
+    {
+      "file": "e44-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Walking_Treadmill/0.jpg",
+      "sha256": "e13cd5838b04f617026dd097778d0ce298356992e7f972e1d71c7bf1fe1bb4c6"
+    },
+    {
+      "file": "e44-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Walking_Treadmill/1.jpg",
+      "sha256": "5b811c65e89b0eec47ae5006ad711b84c11e61fdbaac98334574cebe5855b025"
+    },
+    {
+      "file": "e45-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Walking_Treadmill/0.jpg",
+      "sha256": "e13cd5838b04f617026dd097778d0ce298356992e7f972e1d71c7bf1fe1bb4c6"
+    },
+    {
+      "file": "e45-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Walking_Treadmill/1.jpg",
+      "sha256": "5b811c65e89b0eec47ae5006ad711b84c11e61fdbaac98334574cebe5855b025"
+    },
+    {
+      "file": "e46-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Elliptical_Trainer/0.jpg",
+      "sha256": "c155ce19bd5dfe22484a47d99ee7cf1918d9ca4d8bc7d962d3ceaa70fa39fdd5"
+    },
+    {
+      "file": "e46-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Elliptical_Trainer/1.jpg",
+      "sha256": "f40b3f77d7f0f0d0af7ff49cbbb006ef3cd362664bdde2c7bb24dd57d822b003"
+    },
+    {
+      "file": "e47-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Rowing_Stationary/0.jpg",
+      "sha256": "fa14f0afb16b2c2dcc0054ac6b28446f3b228d966c3a1e42dee531e7e8994333"
+    },
+    {
+      "file": "e47-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Rowing_Stationary/1.jpg",
+      "sha256": "4a3bf232deab27c85bea616b249643a580b142a21e262bf6c12260ca7c01aeda"
+    },
+    {
+      "file": "e48-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Recumbent_Bike/0.jpg",
+      "sha256": "0502a0b15dde6ea44085e5ade6921e7056c3c822c617afda23709b5dba588bb1"
+    },
+    {
+      "file": "e48-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Recumbent_Bike/1.jpg",
+      "sha256": "dc365ea3ccc5743db6cc76ec1b7dc63c02ff3dc7ced4c8caf3f9ec0b3dddee20"
+    },
+    {
+      "file": "e49-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Step_Mill/0.jpg",
+      "sha256": "211f1d25ea80c0986b8cfd95503686de245c0e1fbb043678a71929c5d113adbb"
+    },
+    {
+      "file": "e49-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Step_Mill/1.jpg",
+      "sha256": "0ca44d0a447d6b5045c0ea4c468c354dc02fe17c8b8f3ec4b3534217203465bc"
+    },
+    {
+      "file": "e52-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cat_Stretch/0.jpg",
+      "sha256": "29ae8af3f71c422b5bf0491404bd80c33fd57aa0efe6f559e7ff3f51f6f5038b"
+    },
+    {
+      "file": "e52-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Cat_Stretch/1.jpg",
+      "sha256": "d54074a718c16ef774b8725877d3a0b09f92a16a573a2a3eac5490f9ef14a946"
+    },
+    {
+      "file": "e54-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Hip_Flexors/0.jpg",
+      "sha256": "828008b84ada439c464182a8fe9782a3ee3ed9727f8b6f223a4529170397964c"
+    },
+    {
+      "file": "e54-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Standing_Hip_Flexors/1.jpg",
+      "sha256": "95093f97e2f60a8f43b09bca6562213631255ca0b20d53475255950767b1bddf"
+    },
+    {
+      "file": "e56-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Floor_Hamstring_Stretch/0.jpg",
+      "sha256": "0ebf945289ebe99086315c51e207eea5273de544a6145c5111c0be77d0e6781d"
+    },
+    {
+      "file": "e56-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Seated_Floor_Hamstring_Stretch/1.jpg",
+      "sha256": "0ebf945289ebe99086315c51e207eea5273de544a6145c5111c0be77d0e6781d"
+    },
+    {
+      "file": "e57-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Shoulder_Circles/0.jpg",
+      "sha256": "10f2f6c205cd31d15fc7fc2210d6041e6762e76fee10a6954796501e0822944a"
+    },
+    {
+      "file": "e57-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Shoulder_Circles/1.jpg",
+      "sha256": "76f9bcfefe58444c4839b50a368d1d5dcd8046d0b05a24ab2c551cb0ede90ce3"
+    },
+    {
+      "file": "e58-0.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Side_Neck_Stretch/0.jpg",
+      "sha256": "ec5bf6c453477f7ffd188aaa2a5d6431361df34c0c45ae92821d7b3615fb012c"
+    },
+    {
+      "file": "e58-1.jpg",
+      "source": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5/exercises/Side_Neck_Stretch/1.jpg",
+      "sha256": "ee993ca0d49be6a1338c9b52423e6f7b241985ec0fa8ea3511c79248eb0f19b6"
+    }
+  ]
+}
