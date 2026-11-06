@@ -77,7 +77,7 @@
         "assets/exercises/e5-0.jpg",
         "assets/exercises/e5-1.jpg"
       ],
-      "note": "",
+      "note": "Die Fotos zeigen Gehen auf dem Laufband. Geschwindigkeit und Steigung wählst du passend zu deinem Training.",
       "primary": [
         "quadriceps"
       ],
@@ -86,7 +86,7 @@
         "glutes",
         "hamstrings"
       ],
-      "name": "Laufband – Gehen"
+      "name": "Laufband"
     },
     "e6": {
       "sourceExercise": "Bicycling_Stationary",
