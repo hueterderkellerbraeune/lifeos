@@ -3974,6 +3974,52 @@ body .main .view .stat{background:transparent!important;box-shadow:none!importan
  const validValue=n=>typeof n==='number'&&Number.isFinite(n)&&n>=0?n:null;
  const format=n=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:1}).format(n);
  let selected=todayISO(),dirty=false,signature='';
+ const factors={protein:4,carbs:4,fat:9};
+ let goalDraft=null,goalOpen=false;
+ const goalState=()=>goalDraft||{kcal:data.nutrition?.targets?.kcal??'',mode:data.nutrition?.targets?.mode||'percent',values:Object.fromEntries(['protein','carbs','fat'].map(key=>[key,data.nutrition?.targets?.mode==='grams'?(data.nutrition.targets[key]??''):(data.nutrition?.targets?.percentages?.[key]??'')]))};
+ function goalNumbers(state){
+  const kcal=Number(state.kcal);
+  return Object.fromEntries(['protein','carbs','fat'].map(key=>{const n=state.values[key]===''?null:Number(state.values[key]);return [key,{grams:n==null?null:state.mode==='grams'?n:kcal*n/100/factors[key],percent:n==null?null:state.mode==='percent'?n:kcal>0?n*factors[key]/kcal*100:null}]}));
+ }
+ function goalMarkup(){
+  const state=goalState();
+  return `<details class="nutrition-goals" ${goalOpen?'open':''}><summary>Dein tägliches Ziel${data.nutrition?.targets?.kcal?' · '+format(data.nutrition.targets.kcal)+' kcal':''}</summary><form id="nutritionGoalsForm"><p class="sub">Gilt für alle Tage. Kalorienziel und Verteilung bestimmst du selbst.</p><div class="nutrition-goal-settings"><label>Kalorien pro Tag (kcal)<input name="goalKcal" type="number" min="1" step="1" required value="${esc(state.kcal)}" placeholder="Dein Ziel"></label><label>Makroverteilung eingeben in<select name="goalMode"><option value="percent" ${state.mode==='percent'?'selected':''}>Prozent</option><option value="grams" ${state.mode==='grams'?'selected':''}>Gramm</option></select></label></div><div class="nutrition-goal-macros">${nutrients.slice(1).map(([key,label])=>`<label>${label} (${state.mode==='grams'?'g':'%'})<input data-goal-macro="${key}" type="number" min="0" ${state.mode==='percent'?'max="100"':''} step="0.1" value="${esc(state.values[key])}" placeholder="Optional" aria-label="Tagesziel ${label} (${state.mode==='grams'?'g':'%'})"><span data-goal-converted="${key}" class="sub"></span></label>`).join('')}</div><p class="sub" id="nutritionGoalDistribution"></p><p class="sub">Umrechnung: Eiweiß und Kohlenhydrate je 4 kcal/g, Fett 9 kcal/g. Für ein reines Kalorienziel kannst du alle Makrofelder leer lassen.</p><p id="nutritionGoalMessage" role="status"></p><button class="btn" type="submit">Tagesziel speichern</button></form></details>`;
+ }
+ function readGoalDraft(){
+  const form=view.querySelector('#nutritionGoalsForm');
+  goalDraft={kcal:form.elements.goalKcal.value,mode:form.elements.goalMode.value,values:Object.fromEntries([...form.querySelectorAll('[data-goal-macro]')].map(e=>[e.dataset.goalMacro,e.value]))};
+ }
+ function updateGoalPreview(){
+  const state=goalState(),numbers=goalNumbers(state),keys=['protein','carbs','fat'];
+  keys.forEach(key=>{const n=numbers[key];const el=view.querySelector(`[data-goal-converted="${key}"]`);if(el)el.textContent=n.grams==null||!Number(state.kcal)?'Noch kein Wert':state.mode==='percent'?format(n.grams)+' g':format(n.percent)+' %'});
+  const total=keys.reduce((sum,key)=>sum+(numbers[key].percent||0),0);
+  const el=view.querySelector('#nutritionGoalDistribution');if(el)el.textContent=keys.some(key=>state.values[key]!=='')?'Verteilung insgesamt: '+format(total)+' % · Ziel: 100 %':'';
+ }
+ view.addEventListener('toggle',event=>{if(event.target.matches('.nutrition-goals'))goalOpen=event.target.open},true);
+ view.addEventListener('input',event=>{if(event.target.closest('#nutritionGoalsForm')&&!event.target.matches('[name="goalMode"]')){readGoalDraft();view.querySelector('#nutritionGoalMessage').textContent='Noch nicht gespeichert.';updateGoalPreview()}});
+ view.addEventListener('change',event=>{
+  if(!event.target.matches('[name="goalMode"]'))return;
+  // The prior draft retains the previous unit until this change event.
+  const state=goalState(),nextMode=event.target.value,numbers=goalNumbers(state);
+  if(!(Number(state.kcal)>0)&&Object.values(state.values).some(v=>v!=='')){event.target.value=state.mode;view.querySelector('#nutritionGoalMessage').textContent='Bitte gib zuerst dein Kalorienziel ein, damit die Umrechnung möglich ist.';return}
+  goalDraft={...state,mode:nextMode,values:Object.fromEntries(['protein','carbs','fat'].map(key=>[key,state.values[key]===''?'':String(Math.round((nextMode==='grams'?numbers[key].grams:numbers[key].percent)*10)/10)]))};
+  view.querySelector('#nutritionGoalsHost').innerHTML=goalMarkup();updateGoalPreview();
+ });
+ view.addEventListener('submit',event=>{
+  if(event.target.id!=='nutritionGoalsForm')return;event.preventDefault();readGoalDraft();
+  const state=goalState(),kcal=Number(state.kcal),numbers=goalNumbers(state),keys=['protein','carbs','fat'];
+  const entered=keys.filter(key=>state.values[key]!=='');
+  const energy=keys.reduce((sum,key)=>sum+(numbers[key].grams||0)*factors[key],0);
+  const message=view.querySelector('#nutritionGoalMessage');
+  if(!(kcal>0&&Number.isFinite(kcal))){message.textContent='Bitte gib ein gültiges Kalorienziel ein.';return}
+  if(entered.length&&(entered.length!==3||keys.some(key=>!Number.isFinite(numbers[key].grams)||numbers[key].grams<0)||Math.abs(energy-kcal)>Math.max(1,kcal*.001)+1e-7)){message.textContent='Bitte verteile alle drei Makros so, dass sie zusammen 100 % deines Kalorienziels ergeben. Kleine Rundungsabweichungen sind erlaubt.';return}
+  const previous=data.nutrition;
+  data.nutrition={...previous,targets:{kcal,mode:state.mode,percentages:Object.fromEntries(keys.map(key=>[key,numbers[key].percent])),...Object.fromEntries(keys.map(key=>[key,numbers[key].grams]))}};
+  // Suppress full rerender during saving so unsaved meal inputs remain untouched.
+  const mealDirty=dirty;dirty=true;const saved=save();dirty=mealDirty;
+  if(!saved){data.nutrition=previous;message.textContent='Speichern fehlgeschlagen. Deine Eingaben bleiben erhalten.';return}
+  goalDraft=null;goalOpen=true;view.querySelector('#nutritionGoalsHost').innerHTML=goalMarkup();updateGoalPreview();updateTotals();view.querySelector('#nutritionGoalMessage').textContent='Tagesziel gespeichert.';
+ });
  const addDays=(value,n)=>{const d=dateObj(value);d.setDate(d.getDate()+n);return iso(d)};
  const meals=()=>Array.isArray(data.nutrition?.meals)?data.nutrition.meals:[];
  const forDay=date=>Object.fromEntries(slots.map(([slot])=>[slot,meals().find(m=>m.date===date&&m.slot===slot)?.text||'']));
@@ -3984,22 +4030,26 @@ body .main .view .stat{background:transparent!important;box-shadow:none!importan
   const values=inputs(),ns=nutrientInputs(),active=slots.filter(([slot])=>hasMeal(values,ns,slot));
   nutrients.forEach(([key,label,unit])=>{
    const known=active.map(([slot])=>ns[slot][key]).filter(n=>n!=null);
-   view.querySelector(`[data-nutrition-total="${key}"]`).textContent=known.length?format(known.reduce((sum,n)=>sum+n,0))+' '+unit:'—';
+   const sum=known.reduce((sum,n)=>sum+n,0);
+   view.querySelector(`[data-nutrition-total="${key}"]`).textContent=known.length?format(sum)+' '+unit:'—';
+   const target=validValue(data.nutrition?.targets?.[key]);
+   const targetEl=view.querySelector(`[data-nutrition-target="${key}"]`);
+   targetEl.textContent=target==null?'Kein Ziel eingestellt':'Ziel: '+format(target)+' '+unit+(known.length?' · '+(sum<=target?format(target-sum)+' '+unit+' bis zum Ziel':format(sum-target)+' '+unit+' über Ziel'):'');
   });
   const complete=active.length&&active.every(([slot])=>nutrients.every(([key])=>ns[slot][key]!=null));
   view.querySelector('#nutritionTotalsNote').textContent=!active.length?'Trage die Nährwerte deiner Mahlzeiten ein.':complete?'Summe deiner eingetragenen Mahlzeiten.': 'Zwischensumme: Nährwerte fehlen noch. Leere Felder sind unbekannt, nicht 0.';
  }
  const weekday=date=>dateObj(date).toLocaleDateString('de-DE',{weekday:'short'}).replace('.','');
  function render(force=false){
-  const next=JSON.stringify([selected,meals()]);if(!force&&(dirty||next===signature))return;
+  const next=JSON.stringify([selected,meals(),data.nutrition?.targets]);if(!force&&(dirty||next===signature))return;
   signature=next;
   const start=addDays(selected,-((dateObj(selected).getDay()+6)%7)),end=addDays(start,6),values=forDay(selected),ns=nutrientsForDay(selected);
   const days=Array.from({length:7},(_,i)=>{const date=addDays(start,i),v=forDay(date),dayNutrients=nutrientsForDay(date),count=slots.filter(([slot])=>hasMeal(v,dayNutrients,slot)).length;
    const names=slots.filter(([slot])=>hasMeal(v,dayNutrients,slot)).map(([slot,label])=>`${label}: ${v[slot]||'Nährwerte eingetragen'}`);
    return `<button type="button" class="nutrition-day${date===todayISO()?' today':''}" data-nutrition-day="${date}" aria-pressed="${date===selected}" aria-label="${esc(fmtDate(date)+' · '+(names.join(' · ')||'Noch keine Mahlzeiten geplant'))}"><strong>${weekday(date)}</strong><time datetime="${date}">${dateObj(date).toLocaleDateString('de-DE',{day:'numeric',month:'numeric'})}</time><span class="nutrition-day-preview">${count?count+' / 4 geplant':'Noch offen'}</span><span class="nutrition-week-meals">${slots.filter(([slot])=>hasMeal(v,dayNutrients,slot)).map(([slot,label])=>`<span title="${esc(label+': '+v[slot])}"><b>${label}</b> ${esc(v[slot]||'Nährwerte eingetragen')}</span>`).join('')}</span></button>`;
   }).join('');
-  view.innerHTML=`<div class="section-title"><div><h2>Ernährungsplan</h2><p>Plane in Ruhe voraus, was du essen möchtest.</p></div></div><section class="panel" aria-label="Wochenkalender Ernährung"><div class="nutrition-week-header"><h3>${fmtDate(start)} – ${fmtDate(end)}</h3><div class="toolbar"><button type="button" class="btn secondary" data-nutrition-week="-1" aria-label="Vorherige Ernährungswoche">←</button><button type="button" class="btn secondary" data-nutrition-week="0">Heute</button><button type="button" class="btn secondary" data-nutrition-week="1" aria-label="Nächste Ernährungswoche">→</button></div></div><div class="nutrition-week">${days}</div><p class="nutrition-empty">Wähle einen Tag. Freie Felder kannst du offen lassen.</p><div class="nutrition-editor-head"><h3>${dateObj(selected).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</h3><label class="nutrition-date-field" for="nutritionDate">Direkt zu einem Datum<input id="nutritionDate" type="date" value="${selected}" required></label></div><form id="nutritionDayForm"><section class="nutrition-daily-totals" aria-label="Tagesbilanz"><h4>Tagesbilanz</h4><div class="nutrition-total-grid">${nutrients.map(([key,label])=>`<div><span>${label}</span><strong data-nutrition-total="${key}">—</strong></div>`).join('')}</div><p class="sub" id="nutritionTotalsNote"></p></section><p class="sub nutrition-nutrient-hint">Nährwerte für die gesamte Mahlzeit selbst eintragen, z. B. von der Verpackung oder aus deinem Rezept. Die Tagesbilanz summiert deine Eingaben; aus dem Gerichtsnamen wird nichts berechnet.</p><div class="nutrition-meals">${slots.map(([slot,label,placeholder])=>`<section class="nutrition-meal"><div class="field"><label for="nutrition-${slot}">${label}</label><textarea id="nutrition-${slot}" name="${slot}" maxlength="1000" rows="2" placeholder="${placeholder}">${esc(values[slot])}</textarea></div><div class="nutrition-nutrient-inputs">${nutrients.map(([key,name,unit])=>`<label for="nutrition-${slot}-${key}">${name} (${unit})<input id="nutrition-${slot}-${key}" type="number" min="0" step="0.1" inputmode="decimal" data-nutrient-slot="${slot}" data-nutrient="${key}" value="${ns[slot][key]??''}" placeholder="—" aria-label="${label}: ${name} (${unit})"></label>`).join('')}</div></section>`).join('')}</div><p id="nutritionSaveMessage" role="status" aria-live="polite">${slots.some(([slot])=>hasMeal(values,ns,slot))?'Dein gespeicherter Tagesplan.':'Für diesen Tag ist noch nichts geplant.'}</p><button type="submit" class="btn">Tagesplan speichern</button></form><details class="nutrition-copy"><summary>Tagesplan auf einen anderen Tag kopieren</summary><p class="sub">Kopiert den gespeicherten Plan dieses Tages. Speichere deine Änderungen vorher.</p><div class="toolbar"><label class="nutrition-date-field" for="nutritionCopyDate">Zieldatum<input type="date" id="nutritionCopyDate" value="${addDays(selected,1)}"></label><button type="button" class="btn secondary" id="nutritionCopyDay">Tagesplan kopieren</button></div><p class="sub" id="nutritionCopyMessage" role="status"></p></details></section>`;
-  updateTotals();
+  view.innerHTML=`<div class="section-title"><div><h2>Ernährungsplan</h2><p>Plane in Ruhe voraus, was du essen möchtest.</p></div></div><section class="panel" aria-label="Wochenkalender Ernährung"><div id="nutritionGoalsHost">${goalMarkup()}</div><div class="nutrition-week-header"><h3>${fmtDate(start)} – ${fmtDate(end)}</h3><div class="toolbar"><button type="button" class="btn secondary" data-nutrition-week="-1" aria-label="Vorherige Ernährungswoche">←</button><button type="button" class="btn secondary" data-nutrition-week="0">Heute</button><button type="button" class="btn secondary" data-nutrition-week="1" aria-label="Nächste Ernährungswoche">→</button></div></div><div class="nutrition-week">${days}</div><p class="nutrition-empty">Wähle einen Tag. Freie Felder kannst du offen lassen.</p><div class="nutrition-editor-head"><h3>${dateObj(selected).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</h3><label class="nutrition-date-field" for="nutritionDate">Direkt zu einem Datum<input id="nutritionDate" type="date" value="${selected}" required></label></div><form id="nutritionDayForm"><section class="nutrition-daily-totals" aria-label="Tagesbilanz"><h4>Tagesbilanz</h4><div class="nutrition-total-grid">${nutrients.map(([key,label])=>`<div><span>${label}</span><strong data-nutrition-total="${key}">—</strong><small data-nutrition-target="${key}" class="sub"></small></div>`).join('')}</div><p class="sub" id="nutritionTotalsNote"></p></section><p class="sub nutrition-nutrient-hint">Nährwerte für die gesamte Mahlzeit selbst eintragen, z. B. von der Verpackung oder aus deinem Rezept. Die Tagesbilanz summiert deine Eingaben; aus dem Gerichtsnamen wird nichts berechnet.</p><div class="nutrition-meals">${slots.map(([slot,label,placeholder])=>`<section class="nutrition-meal"><div class="field"><label for="nutrition-${slot}">${label}</label><textarea id="nutrition-${slot}" name="${slot}" maxlength="1000" rows="2" placeholder="${placeholder}">${esc(values[slot])}</textarea></div><div class="nutrition-nutrient-inputs">${nutrients.map(([key,name,unit])=>`<label for="nutrition-${slot}-${key}">${name} (${unit})<input id="nutrition-${slot}-${key}" type="number" min="0" step="0.1" inputmode="decimal" data-nutrient-slot="${slot}" data-nutrient="${key}" value="${ns[slot][key]??''}" placeholder="—" aria-label="${label}: ${name} (${unit})"></label>`).join('')}</div></section>`).join('')}</div><p id="nutritionSaveMessage" role="status" aria-live="polite">${slots.some(([slot])=>hasMeal(values,ns,slot))?'Dein gespeicherter Tagesplan.':'Für diesen Tag ist noch nichts geplant.'}</p><button type="submit" class="btn">Tagesplan speichern</button></form><details class="nutrition-copy"><summary>Tagesplan auf einen anderen Tag kopieren</summary><p class="sub">Kopiert den gespeicherten Plan dieses Tages. Speichere deine Änderungen vorher.</p><div class="toolbar"><label class="nutrition-date-field" for="nutritionCopyDate">Zieldatum<input type="date" id="nutritionCopyDate" value="${addDays(selected,1)}"></label><button type="button" class="btn secondary" id="nutritionCopyDay">Tagesplan kopieren</button></div><p class="sub" id="nutritionCopyMessage" role="status"></p></details></section>`;
+  updateTotals();updateGoalPreview();
  }
  const inputs=()=>Object.fromEntries(slots.map(([slot])=>[slot,view.querySelector(`[name="${slot}"]`).value.trim()]));
  function persistDay(date,values,ns){
@@ -4057,5 +4107,17 @@ body .main .view .stat{background:transparent!important;box-shadow:none!importan
 .nutrition-nutrient-inputs input{width:100%;min-width:0;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--fc-surface);color:var(--ink);font:inherit;font-size:15px}
 .nutrition-nutrient-inputs input:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 @media(max-width:680px){.nutrition-total-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.nutrition-total-grid strong{font-size:22px}.nutrition-meal{padding:12px 0 22px}}
+</style>
+<style id="nutrition-goals-style">
+.nutrition-goals{border-bottom:1px solid var(--line);margin-bottom:24px;padding-bottom:16px}
+.nutrition-goals>summary{cursor:pointer;min-height:44px;padding:8px 0;font-weight:650}
+.nutrition-goal-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:20px 0}
+.nutrition-goal-macros{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#nutritionGoalsForm label{display:grid;gap:7px;font-size:13px;min-width:0;color:var(--ink)}
+#nutritionGoalsForm input,#nutritionGoalsForm select{width:100%;min-width:0;min-height:44px;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--fc-surface);color:var(--ink);font:inherit}
+#nutritionGoalsForm input:focus-visible,#nutritionGoalsForm select:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+#nutritionGoalMessage{font-size:13px;color:var(--ink)}
+.nutrition-total-grid>div>small{display:block;margin-top:6px;font-size:12px}
+@media(max-width:680px){.nutrition-goal-settings{grid-template-columns:1fr;gap:14px}.nutrition-goal-macros{grid-template-columns:1fr}.nutrition-goal-macros label{grid-template-columns:minmax(0,1fr) 95px;align-items:center}.nutrition-goal-macros label>span{grid-column:2}}
 </style>
 </body></html>
