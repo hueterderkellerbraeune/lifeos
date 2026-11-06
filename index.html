@@ -3869,4 +3869,64 @@ function lifeosCycleMarkers(c,value,today=todayISO()){
 })();
 </script>
 
+<style id="lifeos-section-surfaces">
+/* Elevate sections, not every row: keep the calm list layout inside each surface. */
+:root,[data-lifeos-theme="light"]{
+ --bg:#edf1eb;--panel:#fff;--fc-surface:#f7f9f5;
+ --section-edge:#d6e0d4;--section-shadow:0 3px 16px rgba(25,55,35,.045);
+}
+[data-lifeos-theme="dark"]{
+ --bg:#0e1d16;--panel:#20382b;--fc-surface:#172b20;
+ --section-edge:#36523f;--section-shadow:0 4px 18px rgba(0,0,0,.12);
+}
+body .main .view .panel,
+:is(#view-dashboard,#view-week,#view-exercises,#view-progress,#view-plans,#view-sessions,#view-cycle,#view-settings) .panel{
+ background:var(--panel)!important;border:1px solid var(--section-edge)!important;
+ border-radius:14px!important;box-shadow:var(--section-shadow)!important;padding:24px!important;
+}
+body .main .view>.panel+.panel{margin-top:24px;border-top:1px solid var(--section-edge)!important}
+body .main .view .panel .panel{
+ background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:18px 0!important;
+}
+body .main .columns{gap:24px!important;margin-bottom:24px}
+body .main .view .hero{
+ background:var(--panel)!important;border:1px solid var(--section-edge)!important;
+ border-radius:14px!important;padding:26px!important;box-shadow:var(--section-shadow)!important;margin-bottom:24px!important;
+}
+body .main .view .stats{
+ background:var(--panel)!important;border:1px solid var(--section-edge)!important;
+ border-radius:14px!important;box-shadow:var(--section-shadow)!important;padding:20px 6px!important;
+}
+body .main .view .stat{background:transparent!important;box-shadow:none!important}
+#cycleCalendar{
+ background:var(--panel);border:1px solid var(--section-edge);border-radius:14px;padding:24px;
+ box-shadow:var(--section-shadow);
+}
+#sessionDetailOverlay .detail-dialog{background:var(--bg)!important}
+#sessionDetailOverlay #sessionDetailContent .exercise-detail[data-exercise-id],
+#sessionDetailOverlay #sessionDetailContent .exercise-detail[data-activity-id]{
+ background:var(--panel)!important;border:1px solid var(--section-edge)!important;
+ border-radius:12px!important;box-shadow:var(--section-shadow)!important;padding:0 20px!important;
+ margin:0 0 14px!important;
+}
+#sessionDetailContent>.training-fold{
+ background:var(--panel);border:1px solid var(--section-edge);border-radius:10px;
+ padding:4px 18px;margin:0 0 16px;
+}
+#sessionDetailContent .training-exercise-body .training-fold{
+ background:transparent;border-radius:0;border-inline:0;box-shadow:none;
+}
+#sessionDetailOverlay .training-exercise-fold>summary:hover{color:var(--green)}
+@media(max-width:680px){
+ body .main .view .panel,
+ :is(#view-dashboard,#view-week,#view-exercises,#view-progress,#view-plans,#view-sessions,#view-cycle,#view-settings) .panel{padding:18px 14px!important;border-radius:12px!important}
+ body .main .view .hero{padding:20px 16px!important}
+ body .main .view .stats{padding:8px 0!important}
+ body .main .columns{gap:18px!important}
+ #cycleCalendar{padding:18px 10px;border-radius:12px}
+ #sessionDetailOverlay #sessionDetailContent .exercise-detail[data-exercise-id],
+ #sessionDetailOverlay #sessionDetailContent .exercise-detail[data-activity-id]{padding:0 14px!important}
+}
+</style>
+
 </body></html>
