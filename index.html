@@ -4596,17 +4596,24 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
  new MutationObserver(()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;if(overlay.classList.contains('open'))apply()})}).observe(content,{childList:true,subtree:true});
  overlay.addEventListener('click',e=>{
   const btn=e.target.closest('.lifeos-edit-toggle');if(!btn)return;
-  unlocked=!unlocked;
-  if(!unlocked)finishTitle();
-  if(!unlocked&&typeof lifeosPersistDetailInputs==='function')lifeosPersistDetailInputs(false);
-  apply();
-  if(unlocked)content.querySelector('.training-exercise-fold[open] '+FIELDS.split(',')[0].replace('.exercise-detail ',''))?.focus({preventScroll:true});
-  toast(unlocked?'Bearbeiten aktiv':'Gespeichert und gesperrt');
+  if(unlocked){lock();return}
+  unlocked=true;apply();
+  content.querySelector('.training-exercise-fold[open] input')?.focus({preventScroll:true});
+  toast('Bearbeiten aktiv');
  });
- // Im gesperrten Zustand schließt „Fertig“ nur, ohne erneut zu speichern.
+ // Speichern + sperren; die Trainingsansicht bleibt offen.
+ function lock(){
+  unlocked=false;finishTitle();
+  if(typeof lifeosPersistDetailInputs==='function')lifeosPersistDetailInputs(false);
+  apply();toast('Gespeichert');
+ }
+ // „Fertig“: gesperrt -> schließen; im Bearbeiten-Modus -> speichern, sperren, Ansicht bleibt offen.
  document.addEventListener('click',e=>{
-  if(unlocked||!e.target.closest('#saveSessionDetails'))return;
-  e.preventDefault();e.stopImmediatePropagation();closeSessionDetails();
+  if(!e.target.closest('#saveSessionDetails'))return;
+  e.preventDefault();e.stopImmediatePropagation();
+  // Im Bearbeiten-Modus beendet „Fertig“ nur das Bearbeiten und bleibt in der Ansicht.
+  if(unlocked){lock();overlay.scrollTo?.({top:0,behavior:'smooth'});return}
+  closeSessionDetails();
  },true);
 })();
 </script>
