@@ -4550,6 +4550,12 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
  let unlocked=false,lockedFor=null;
  function apply(){
   overlay.classList.toggle('lifeos-locked',!unlocked);
+  // Titel: im Bearbeiten-Modus durch Antippen änderbar.
+  const title=document.getElementById('detailTitle');
+  if(title){
+   if(unlocked){title.setAttribute('role','button');title.tabIndex=0;title.setAttribute('aria-label','Trainingsnamen ändern: '+title.textContent)}
+   else{title.removeAttribute('role');title.removeAttribute('tabindex');title.removeAttribute('aria-label')}
+  }
   content.querySelectorAll(FIELDS).forEach(el=>{
    if(isFree(el))return;
    if(!unlocked){if(!el.disabled){el.disabled=true;el.dataset.lifeosLocked='1'}}
@@ -4569,16 +4575,29 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
  const previous=showSessionDetails;
  showSessionDetails=function(id){
   // Jedes neu geöffnete Training startet gesperrt; Neuzeichnen desselben Trainings behält den Zustand.
-  if(String(id)!==lockedFor){unlocked=false;lockedFor=String(id)}
+  if(String(id)!==lockedFor){unlocked=false;lockedFor=String(id);closeTitle()}
   const result=previous.apply(this,arguments);apply();return result;
  };
  const close=closeSessionDetails;
- closeSessionDetails=function(){lockedFor=null;unlocked=false;return close.apply(this,arguments)};
+ closeSessionDetails=function(){lockedFor=null;unlocked=false;closeTitle();return close.apply(this,arguments)};
+ const titleForm=()=>document.getElementById('trainingTitleForm');
+ function closeTitle(){if(titleForm()&&!titleForm().hidden&&typeof lifeosCloseTitleEditor==='function')lifeosCloseTitleEditor()}
+ // Beim Sperren einen geänderten Namen mitspeichern, sonst den Editor einfach schließen.
+ function finishTitle(){
+  const form=titleForm();if(!form||form.hidden)return;
+  const value=document.getElementById('trainingTitleInput').value.trim();
+  const s=data.sessions.find(x=>x.id===overlay.dataset.activeSessionId);
+  if(value&&s&&value!==(s.title||''))form.requestSubmit();else closeTitle();
+ }
+ const openTitle=()=>{if(unlocked)document.getElementById('editTrainingTitle')?.click()};
+ overlay.addEventListener('click',e=>{if(e.target.closest('#detailTitle'))openTitle()});
+ overlay.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.id==='detailTitle'){e.preventDefault();openTitle()}});
  let queued=false;
  new MutationObserver(()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;if(overlay.classList.contains('open'))apply()})}).observe(content,{childList:true,subtree:true});
  overlay.addEventListener('click',e=>{
   const btn=e.target.closest('.lifeos-edit-toggle');if(!btn)return;
   unlocked=!unlocked;
+  if(!unlocked)finishTitle();
   if(!unlocked&&typeof lifeosPersistDetailInputs==='function')lifeosPersistDetailInputs(false);
   apply();
   if(unlocked)content.querySelector('.training-exercise-fold[open] '+FIELDS.split(',')[0].replace('.exercise-detail ',''))?.focus({preventScroll:true});
@@ -4845,6 +4864,23 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
 #sessionDetailOverlay.lifeos-compact .training-title-heading{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 #sessionDetailOverlay.lifeos-compact .lifeos-compact-meta{margin-top:2px}
 #sessionDetailOverlay.lifeos-compact #sessionDetailContent > .training-section-label{display:none!important}
+</style>
+
+<style id="training-title-tap-style">
+/* Kein Stift mehr: Titel wird im Bearbeiten-Modus durch Antippen geändert. */
+#sessionDetailOverlay.lifeos-compact #editTrainingTitle{display:none!important}
+#sessionDetailOverlay.lifeos-compact:not(.lifeos-locked) #detailTitle{cursor:text;text-decoration:underline dashed var(--muted);text-decoration-thickness:1px;text-underline-offset:5px}
+#sessionDetailOverlay.lifeos-compact .training-title-heading:has(~ #trainingTitleForm:not([hidden])){display:none!important}
+#sessionDetailOverlay.lifeos-compact #trainingTitleForm{margin:0!important;order:1}
+#sessionDetailOverlay.lifeos-compact .detail-dialog > .panel-head > div:first-child{display:flex;flex-direction:column}
+#sessionDetailOverlay.lifeos-compact .training-title-heading{order:0}
+#sessionDetailOverlay.lifeos-compact .lifeos-compact-meta{order:2}
+/* Gespeichert wird mit Enter oder „✓ Speichern“ oben – kein zweiter Speichern-Knopf. */
+#sessionDetailOverlay.lifeos-compact #trainingTitleForm [type=submit]{display:none!important}
+#sessionDetailOverlay.lifeos-compact #cancelTrainingTitle{min-height:40px;padding:4px 10px!important;font-size:13px!important}
+#sessionDetailOverlay.lifeos-compact #trainingTitleForm label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+#sessionDetailOverlay.lifeos-compact .training-title-controls{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#sessionDetailOverlay.lifeos-compact #trainingTitleInput{flex:1 1 180px;min-width:0;min-height:40px;padding:4px 10px;font-size:20px;font-weight:700;border:1px solid var(--green);border-radius:8px;background:var(--panel);color:var(--ink)}
 </style>
 
 </body></html>
