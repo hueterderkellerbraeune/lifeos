@@ -4491,7 +4491,10 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
   // Datum, Uhrzeit, Status und Dauer als eine Zeile unter dem Titel statt eigener Box.
   const heading=overlay.querySelector('.training-title-heading');
   if(heading){let meta=overlay.querySelector('.lifeos-compact-meta');if(!meta){meta=document.createElement('p');meta.className='lifeos-compact-meta';heading.insertAdjacentElement('afterend',meta)}
-   setText(meta,[fmtDate(s.date)+(s.time?' · '+s.time+' Uhr':''),completed(s)?'Abgeschlossen':'Geplant',duration(s)?duration(s)+' Min.':''].filter(Boolean).join(' · '))}
+   // „Geplant“ nur, solange noch etwas offen ist: alle Sätze abgehakt bzw. alle Ausdauer-/Mobilitätsübungen erledigt gilt als abgeschlossen.
+   const checks=[...content.querySelectorAll('[data-set-done],[data-activity-done]')];
+   const allDone=completed(s)||(checks.length>0&&checks.every(c=>c.checked));
+   setText(meta,[fmtDate(s.date)+(s.time?' · '+s.time+' Uhr':''),allDone?'Abgeschlossen':'Geplant',duration(s)?duration(s)+' Min.':''].filter(Boolean).join(' · '))}
   setText(document.getElementById('editTrainingTitle'),'✎');
   content.querySelectorAll('.exercise-detail[data-exercise-id]').forEach(card=>{
    const sets=card.querySelectorAll('[data-set-done]'),done=[...sets].filter(c=>c.checked).length;
