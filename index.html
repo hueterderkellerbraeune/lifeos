@@ -4589,5 +4589,65 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
  },true);
 })();
 </script>
+<style id="pull-to-refresh-style">
+/* Eigenes „Zum Aktualisieren ziehen“: funktioniert auch als Home-Bildschirm-App, ersetzt das native Verhalten. */
+@media (hover:none) and (pointer:coarse){html,body{overscroll-behavior-y:none}}
+#lifeosPullRefresh{position:fixed;top:0;left:50%;z-index:200;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:var(--panel,#fff);color:var(--ink,#20362C);border:1px solid var(--line,#D8E4D9);box-shadow:0 6px 20px #0002;font-size:13px;font-weight:600;white-space:nowrap;transform:translate(-50%,-70px);opacity:0;pointer-events:none;transition:transform .2s,opacity .2s}
+#lifeosPullRefresh.dragging{transition:none}
+#lifeosPullRefresh .ptr-icon{display:inline-block;font-size:17px;line-height:1;color:var(--green,#315D48)}
+#lifeosPullRefresh.ready .ptr-icon{transform:rotate(180deg)}
+#lifeosPullRefresh.loading .ptr-icon{animation:lifeosPtrSpin .8s linear infinite}
+@keyframes lifeosPtrSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#lifeosPullRefresh,#lifeosPullRefresh .ptr-icon{transition:none;animation:none}}
+</style>
+<script id="pull-to-refresh-script">
+(()=>{
+ 'use strict';
+ const THRESHOLD=75,MAX=110;
+ const box=document.createElement('div');box.id='lifeosPullRefresh';box.setAttribute('role','status');box.setAttribute('aria-live','polite');
+ box.innerHTML='<span class="ptr-icon" aria-hidden="true">↓</span><span class="ptr-text">Zum Aktualisieren ziehen</span>';
+ document.body.append(box);
+ const icon=box.querySelector('.ptr-icon'),text=box.querySelector('.ptr-text');
+ let start=null,pull=0,busy=false;
+ // Nicht auslösen, wenn ein Dialog, das Menü oder die Anmeldung offen ist.
+ const blocked=()=>!!document.querySelector('.detail-overlay.open,.quick-actions-overlay.open,#lifeos-auth-overlay.open,.sidebar.open');
+ const atTop=()=>(window.scrollY||document.documentElement.scrollTop||0)<=0;
+ const show=distance=>{
+  const y=Math.min(distance,MAX)*0.6-10;
+  box.style.transform=`translate(-50%,${Math.round(y)}px)`;box.style.opacity=String(Math.min(1,distance/40));
+  const ready=distance>=THRESHOLD;box.classList.toggle('ready',ready);
+  text.textContent=ready?'Loslassen zum Neuladen':'Zum Aktualisieren ziehen';
+ };
+ const hide=()=>{box.classList.remove('dragging','ready');box.style.transform='';box.style.opacity=''};
+ document.addEventListener('touchstart',e=>{
+  if(busy||e.touches.length!==1||!atTop()||blocked()){start=null;return}
+  start={x:e.touches[0].clientX,y:e.touches[0].clientY,active:false};pull=0;
+ },{passive:true});
+ document.addEventListener('touchmove',e=>{
+  if(!start||busy)return;
+  const dx=e.touches[0].clientX-start.x,dy=e.touches[0].clientY-start.y;
+  if(!start.active){
+   // Nur eindeutig senkrechtes Ziehen nach unten am Seitenanfang zählt.
+   if(Math.abs(dx)>12&&Math.abs(dx)>dy){start=null;return}
+   if(dy<10)return;
+   if(!atTop()){start=null;return}
+   start.active=true;box.classList.add('dragging');
+  }
+  pull=Math.max(0,dy-10);show(pull);
+ },{passive:true});
+ const end=()=>{
+  if(!start)return;const wasActive=start.active;start=null;
+  if(!wasActive)return;
+  if(pull>=THRESHOLD&&!blocked()){
+   busy=true;box.classList.remove('dragging','ready');box.classList.add('loading');icon.textContent='↻';text.textContent='Wird neu geladen …';
+   box.style.transform='translate(-50%,24px)';box.style.opacity='1';
+   document.activeElement?.blur?.();
+   setTimeout(()=>location.reload(),150);
+  }else hide();
+ };
+ document.addEventListener('touchend',end,{passive:true});
+ document.addEventListener('touchcancel',()=>{start=null;hide()},{passive:true});
+})();
+</script>
 
 </body></html>
