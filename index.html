@@ -5452,4 +5452,30 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
 })();
 </script>
 
+<script id="dashboard-stats-7days-script">
+// Kennzahlen auf dem Dashboard: „letzte 7 Tage“ statt Kalenderwoche (sonst steht montags alles auf 0),
+// „Geplant“ zählt alle künftigen Trainings, Zeit in Std./Min.
+(()=>{
+ 'use strict';
+ if(typeof renderDashboard!=='function')return;
+ const fmtMin=m=>{m=Math.round(m);if(m<60)return m+' min';const h=Math.floor(m/60),r=m%60;return h+' Std.'+(r?' '+r+' Min.':'')};
+ function update(){
+  const today=todayISO(),start=new Date(dateObj(today));start.setDate(start.getDate()-6);const from=iso(start);
+  const recent=data.sessions.filter(s=>completed(s)&&s.date>=from&&s.date<=today);
+  const upcoming=data.sessions.filter(s=>!completed(s)&&s.date>=today);
+  const minutes=recent.reduce((a,s)=>a+(Number(duration(s))||0),0);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el&&el.textContent!==String(v))el.textContent=v};
+  set('statWorkouts',recent.length);set('statPlanned',upcoming.length);set('statMinutes',fmtMin(minutes));
+  const card=id=>document.getElementById(id)?.closest('.stat');
+  const label=(id,top,sub)=>{const c=card(id);if(!c)return;const t=c.querySelector('.stat-top > span:first-child'),s=c.querySelector('small');if(t&&top)t.textContent=top;if(s&&sub)s.textContent=sub};
+  label('statWorkouts','Trainings',recent.length===1?'abgeschlossen · letzte 7 Tage':'abgeschlossen · letzte 7 Tage');
+  label('statPlanned','Geplant',upcoming.length===1?'künftiges Training':'künftige Trainings');
+  label('statMinutes','Trainingszeit','letzte 7 Tage');
+ }
+ const previous=renderDashboard;
+ renderDashboard=function(){const r=previous.apply(this,arguments);try{update()}catch(e){console.error(e)}return r};
+ update();
+})();
+</script>
+
 </body></html>
