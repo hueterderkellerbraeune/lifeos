@@ -4506,7 +4506,7 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
    const checks=[...content.querySelectorAll('[data-set-done],[data-activity-done]')];
    const allDone=completed(s)||(checks.length>0&&checks.every(c=>c.checked));
    const count=content.querySelectorAll('.exercise-detail[data-exercise-id],.exercise-detail[data-activity-id]').length;
-   setText(meta,[fmtDate(s.date)+(s.time?' · '+s.time+'\u00a0Uhr':''),allDone?'Abgeschlossen':'Geplant',duration(s)?duration(s)+'\u00a0Min.':'',count+(count===1?'\u00a0Übung':'\u00a0Übungen')].filter(Boolean).join(' · '))}
+   setText(meta,[fmtDate(s.date)+(s.time?' · '+s.time+'\u00a0Uhr':''),allDone?'Abgeschlossen':'Geplant',duration(s)?(m=>m<60?m+'\u00a0Min.':Math.floor(m/60)+'\u00a0Std.'+(m%60?'\u00a0'+(m%60)+'\u00a0Min.':''))(Math.round(Number(duration(s)))):'',count+(count===1?'\u00a0Übung':'\u00a0Übungen')].filter(Boolean).join(' · '))}
   setText(document.getElementById('editTrainingTitle'),'✎');
   content.querySelectorAll('.exercise-detail[data-exercise-id]').forEach(card=>{
    const sets=card.querySelectorAll('[data-set-done]'),done=[...sets].filter(c=>c.checked).length;
@@ -5166,6 +5166,130 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
  // Nach dem Verlassen der Wurzel (neue Ansicht geöffnet) den Puffer wieder aktivieren.
  const rearm=()=>{if(!armed&&!atRoot()){armed=true;guard()}};
  document.addEventListener('click',()=>setTimeout(rearm,0),true);
+})();
+</script>
+
+<style id="training-summary-style">
+/* Übersicht eines abgeschlossenen Trainings (nur lesen). */
+#sessionDetailOverlay.lifeos-summary-mode #sessionDetailContent > :not(#lifeosSummaryView){display:none!important}
+#lifeosSummaryView{display:grid;gap:12px}
+.ls-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.ls-stat{padding:12px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.ls-stat strong{display:block;font-size:22px;line-height:1.15;color:var(--ink);font-variant-numeric:tabular-nums}
+.ls-stat small{display:block;margin-top:2px;font-size:12px;color:var(--muted)}
+.ls-stat.ls-main{background:var(--green);border-color:var(--green)}
+.ls-stat.ls-main strong,.ls-stat.ls-main small{color:#fff}
+.ls-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ls-chips span{padding:4px 10px;border-radius:999px;background:var(--fc-soft,#eef4ef);color:var(--ink);font-size:12px;font-weight:600}
+.ls-ex{padding:12px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.ls-ex header{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+.ls-ex h4{margin:0;font-size:16px}
+.ls-ex-sum{font-size:12px;font-weight:700;color:var(--green);white-space:nowrap}
+.ls-sets{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.ls-sets td{padding:6px 4px;border-top:1px solid var(--line);font-size:14px}
+.ls-sets td:first-child{width:28px;color:var(--muted);font-size:12px}
+.ls-sets td:nth-child(2),.ls-sets td:nth-child(3){font-weight:700}
+.ls-sets td:last-child{width:28px;text-align:right;color:var(--green);font-weight:800}
+.ls-sets tr.ls-skip td{color:var(--muted);font-weight:400;text-decoration:line-through}
+.ls-sets tr.ls-skip td:last-child{text-decoration:none}
+.ls-act{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:6px}
+.ls-act div{padding:8px 10px;border-radius:10px;background:var(--fc-soft,#eef4ef)}
+.ls-act b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
+.ls-act small{font-size:11px;color:var(--muted)}
+.ls-note{margin:8px 0 0;font-size:13px;color:var(--muted);white-space:pre-wrap}
+.ls-empty{margin:0;font-size:13px;color:var(--muted)}
+.ls-session-note{padding:12px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.ls-session-note h4{margin:0 0 4px;font-size:13px;color:var(--muted)}
+.ls-session-note p{margin:0;white-space:pre-wrap}
+.ls-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.ls-actions .btn{min-height:44px}
+</style>
+<script id="training-summary-script">
+// Abgeschlossene Trainings öffnen als übersichtliche Zusammenfassung; „Werte bearbeiten“ wechselt in die Eingabeansicht.
+(()=>{
+ 'use strict';
+ const overlay=document.getElementById('sessionDetailOverlay'),content=document.getElementById('sessionDetailContent');
+ if(!overlay||!content||typeof showSessionDetails!=='function')return;
+ const nf=(v,d=1)=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:d}).format(v);
+ const num=v=>v===''||v===null||v===undefined||isNaN(Number(v))?null:Number(v);
+ const fmtMin=m=>{m=Math.round(m);if(m<60)return m+' Min.';const h=Math.floor(m/60),r=m%60;return h+' Std.'+(r?' '+r+' Min.':'')};
+ const fmtClock=sec=>{sec=Math.round(sec);const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
+ const isSwim=ex=>/schwimm|swim/i.test(ex?.name||'');
+ let editing=null; // ID des Trainings, das gerade in der Eingabeansicht bearbeitet wird
+ function build(s){
+  if(typeof lifeosEnsureEntries==='function')lifeosEnsureEntries(s);
+  const keys=s.exerciseEntryIds&&s.exerciseEntryIds.length?s.exerciseEntryIds:(s.exerciseIds||[]);
+  let sets=0,reps=0,volume=0,km=0,actSec=0,hasStrength=false,hasKm=false;
+  const cards=keys.map((key,i)=>{
+   const exId=(s.exerciseIds||[])[i]||key,ex=(data.exercises||[]).find(e=>e.id===exId)||{name:'Übung',category:''};
+   const d=(s.exerciseDetails||{})[key]||{};
+   const name=`<h4>${i+1}. ${esc(ex.name||'Übung')}</h4>`;
+   if(ex.category==='Ausdauer'||ex.category==='Mobilität'){
+    const sec=num(d.durationSeconds)??(num(d.activityMinutes)!==null?num(d.activityMinutes)*60:null);
+    const dist=num(d.distanceKm);
+    if(sec)actSec+=sec;if(dist){km+=dist;hasKm=true}
+    const tiles=[];
+    if(sec)tiles.push([sec>=3600||sec%60?fmtClock(sec):fmtMin(sec/60),'Dauer']);
+    if(dist)tiles.push([isSwim(ex)?nf(Math.round(dist*1000),0)+' m':nf(dist,2)+' km','Strecke']);
+    if(sec&&dist&&!isSwim(ex)&&typeof lifeosRunningMetrics==='function'){const m=lifeosRunningMetrics(sec,dist);tiles.push([m.pace,'Tempo'],[m.speed,'Ø Geschwindigkeit'])}
+    if(sec&&dist&&isSwim(ex)){const per100=sec/(dist*10);tiles.push([fmtClock(per100)+' /100 m','Tempo'])}
+    if(num(d.inclinePercent))tiles.push([nf(num(d.inclinePercent))+' %','Steigung']);
+    if(num(d.heartRateBpm))tiles.push([nf(num(d.heartRateBpm),0)+' bpm','Ø Puls']);
+    if(num(d.activityKcal))tiles.push([nf(num(d.activityKcal),0)+' kcal','Energie']);
+    if(num(d.holdSeconds))tiles.push([nf(num(d.holdSeconds),0)+' Sek.','Haltezeit']);
+    const sum=d.activityDone?'✓ Erledigt':'';
+    return `<section class="ls-ex"><header>${name}<span class="ls-ex-sum">${sum}</span></header>${tiles.length?`<div class="ls-act">${tiles.map(([v,l])=>`<div><b>${esc(v)}</b><small>${l}</small></div>`).join('')}</div>`:'<p class="ls-empty">Keine Werte eingetragen.</p>'}${d.activityNotes?`<p class="ls-note">${esc(d.activityNotes)}</p>`:''}</section>`;
+   }
+   hasStrength=true;
+   const records=Array.isArray(d.setRecords)?d.setRecords:[];
+   const anyDone=records.some(r=>r&&r.done);
+   const rows=records.map((r,j)=>{
+    r=r||{};const w=num(r.weight),rp=num(r.reps);const did=anyDone?!!r.done:(w!==null||rp!==null);
+    if(did){sets++;if(rp)reps+=rp;if(rp&&w)volume+=rp*w}
+    if(w===null&&rp===null&&!did)return '';
+    return `<tr class="${did?'':'ls-skip'}"><td>${j+1}</td><td>${rp!==null?nf(rp,0)+' Wdh.':'–'}</td><td>${w!==null?nf(w,2)+' kg':'–'}</td><td>${did?'✓':''}</td></tr>`;
+   }).join('');
+   const exSets=records.filter(r=>r&&(anyDone?r.done:(num(r.weight)!==null||num(r.reps)!==null))).length;
+   const exVol=records.reduce((a,r)=>a+((anyDone?r&&r.done:true)&&num(r?.reps)&&num(r?.weight)?num(r.reps)*num(r.weight):0),0);
+   const sum=exSets?`${exSets} ${exSets===1?'Satz':'Sätze'}${exVol?' · '+nf(exVol,0)+' kg':''}`:'';
+   const note=d.notes||d.exerciseNotes||'';
+   return `<section class="ls-ex"><header>${name}<span class="ls-ex-sum">${sum}</span></header>${rows?`<table class="ls-sets"><tbody>${rows}</tbody></table>`:'<p class="ls-empty">Keine Sätze eingetragen.</p>'}${note?`<p class="ls-note">${esc(note)}</p>`:''}</section>`;
+  });
+  const totalMin=Number(s.duration)>0?Number(s.duration):actSec/60;
+  const stats=[];
+  if(totalMin)stats.push([fmtMin(totalMin),'Dauer']);
+  if(hasStrength){stats.push([nf(sets,0),sets===1?'Satz':'Sätze']);if(volume)stats.push([nf(volume,0)+' kg','Volumen']);else if(reps)stats.push([nf(reps,0),'Wiederholungen'])}
+  if(hasKm){const allSwim=keys.every((k,i)=>{const ex=(data.exercises||[]).find(e=>e.id===(s.exerciseIds||[])[i]);return !ex||ex.category==='Krafttraining'||isSwim(ex)});stats.push([allSwim?nf(Math.round(km*1000),0)+' m':nf(km,2)+' km','Strecke'])}
+  stats.push([String(keys.length),keys.length===1?'Übung':'Übungen']);
+  const chips=[s.type,s.strengthFocus,s.enduranceType,s.enduranceIntensity,s.mobilityType,s.mobilityFocus].filter(Boolean);
+  return `<div class="ls-stats">${stats.slice(0,4).map(([v,l],i)=>`<div class="ls-stat${i===0?' ls-main':''}"><strong>${esc(v)}</strong><small>${l}</small></div>`).join('')}</div>`+
+   (chips.length?`<div class="ls-chips">${chips.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`:'')+
+   (cards.length?cards.join(''):'<p class="ls-empty">Diesem Training sind keine Übungen zugeordnet.</p>')+
+   (s.notes?`<div class="ls-session-note"><h4>Notizen</h4><p>${esc(s.notes)}</p></div>`:'')+
+   `<div class="ls-actions"><button type="button" class="btn secondary" data-ls-edit-values>Werte bearbeiten</button><button type="button" class="btn secondary" data-edit-session="${esc(s.id)}">Training bearbeiten</button></div>`;
+ }
+ function apply(){
+  const s=data.sessions.find(x=>x.id===overlay.dataset.activeSessionId);
+  content.querySelector('#lifeosSummaryView')?.remove();
+  const on=!!s&&completed(s)&&editing!==s.id;
+  overlay.classList.toggle('lifeos-summary-mode',on);
+  if(!on)return;
+  const view=document.createElement('div');view.id='lifeosSummaryView';view.innerHTML=build(s);content.prepend(view);
+ }
+ const previous=showSessionDetails;
+ let openId=null;
+ showSessionDetails=function(id){
+  if(editing&&String(id)!==editing)editing=null;
+  // Wird ein noch offenes Training gerade ausgefüllt, bleibt die Eingabeansicht bis zum Schließen –
+  // auch wenn es sich dabei automatisch abschließt. Die Übersicht erscheint beim nächsten Öffnen.
+  if(String(id)!==openId){openId=String(id);const s=data.sessions.find(x=>x.id===id);if(s&&!completed(s))editing=String(id)}
+  const r=previous.apply(this,arguments);apply();return r};
+ const close=closeSessionDetails;
+ closeSessionDetails=function(){editing=null;openId=null;overlay.classList.remove('lifeos-summary-mode');return close.apply(this,arguments)};
+ content.addEventListener('click',e=>{
+  if(!e.target.closest('[data-ls-edit-values]'))return;
+  editing=overlay.dataset.activeSessionId;apply();overlay.scrollTo?.({top:0});
+ });
 })();
 </script>
 
