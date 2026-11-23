@@ -4870,6 +4870,11 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
 .cal-legend span::before{content:'';width:12px;height:12px;border-radius:50%}
 .cal-legend-done::before{background:var(--cal-done)}
 .cal-legend-planned::before{background:var(--cal-planned)}
+/* Heute deutlich: kräftiger Rahmen um den Tag, Zahl im grünen Ring und „Heute“ darunter. */
+#view-dashboard #miniWeek .month-day.today{background:var(--green2,#e5f2ea)!important;box-shadow:inset 0 0 0 2px var(--green)!important;border-color:var(--green)!important;border-radius:10px!important;flex-direction:column;justify-content:center;gap:1px}
+#view-dashboard #miniWeek .month-day.today .date-number{text-decoration:none!important;font-weight:800!important}
+#view-dashboard #miniWeek .month-day.today:not(.cal-done):not(.cal-planned) .date-number{color:var(--green)!important;box-shadow:inset 0 0 0 2px var(--green)}
+#view-dashboard #miniWeek .month-day.today::after{content:'Heute';display:block;font-size:9px;font-weight:800;letter-spacing:.02em;line-height:1;color:var(--green);margin-top:1px}
 /* Monatsplan nicht mehr in der Navigation (Ansicht bleibt über „Alle ansehen“ & Co. erreichbar; andere Skripte verankern sich an diesem Button). */
 #nav > [data-view="week"]{display:none!important}
 </style>
