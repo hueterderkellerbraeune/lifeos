@@ -5135,6 +5135,10 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
 #sessionFormWrap .lifeos-duration-hm label{position:relative;display:block;flex:1;min-width:0;margin:0}
 #sessionFormWrap .lifeos-duration-hm input{width:100%;min-width:0;padding-left:8px!important;padding-right:34px!important;text-align:right}
 #sessionFormWrap .lifeos-duration-hm span{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:var(--muted);pointer-events:none}
+/* Keine Begrüßung oben auf dem Dashboard; „Vergangene Trainings“ beginnt direkt. */
+#view-dashboard .hero > div:first-child > :is(.eyebrow,h2,p){display:none!important}
+#view-dashboard .hero .dashboard-history{margin-top:0!important;padding-top:0!important;border-top:0!important}
+#view-dashboard .hero .hero-art{display:none!important}
 .dashboard-add-training{margin-left:auto;min-height:36px;padding:6px 12px!important;font-size:13px!important;white-space:nowrap}
 .visually-hidden-hint{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0!important;padding:0!important}
 </style>
