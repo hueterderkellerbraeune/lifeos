@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#315D48">
+<meta name="theme-color" content="#EDF1EB">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="LifeOS">
@@ -5691,6 +5691,13 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
 #sessionDetailContent .lifeos-jump-button[data-state="done"] .lifeos-jump-status::after{content:'✓';color:var(--green)}
 </style>
 
+<script id="pwa-theme-color-script">
+// Status- und Navigationsleiste der installierten App in der Hintergrundfarbe der Seite (hell/dunkel) statt grün.
+(()=>{const meta=document.querySelector('meta[name="theme-color"]');if(!meta)return;
+ const sync=()=>{const dark=getComputedStyle(document.documentElement).colorScheme.includes('dark');const c=dark?'#0E1D16':'#EDF1EB';if(meta.content!==c)meta.content=c};
+ sync();new MutationObserver(()=>requestAnimationFrame(sync)).observe(document.documentElement,{attributes:true,attributeFilter:['style','class','data-theme']});
+ matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>requestAnimationFrame(sync));})();
+</script>
 <script id="pwa-register-script">
 // App installierbar machen (Startbildschirm) und offline starten lassen.
 if("serviceWorker" in navigator&&window.isSecureContext){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(e=>console.warn('Service Worker nicht registriert:',e))})}
