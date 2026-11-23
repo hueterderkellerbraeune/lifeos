@@ -5518,6 +5518,16 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
 .lifeos-1rm-edit{display:flex;gap:6px;align-items:center}
 .lifeos-1rm-edit input{width:90px;min-height:36px;font-size:16px;text-align:center}
 .ls-1rm{font-size:11px;font-weight:600;color:var(--muted)}
+.lifeos-volume{display:grid;gap:8px;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.lifeos-volume-grid{display:grid;grid-template-columns:.8fr .9fr 1.5fr;gap:8px}
+.lifeos-volume .lv b{display:block;font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lifeos-volume .lv small{display:block;font-size:11px;color:var(--muted);line-height:1.3}
+.lifeos-volume .lv.ok b{color:var(--green)}
+.lifeos-volume .lv.low b{color:#b7791f}
+.lifeos-volume .lv.high b{color:#c0392b}
+.lifeos-volume-bar{height:6px;border-radius:999px;background:var(--line);overflow:hidden}
+.lifeos-volume-bar span{display:block;height:100%;background:var(--green);transition:width .2s}
+.lifeos-volume-warn{margin:0;font-size:12px;color:#c0392b}
 </style>
 <script id="strength-goal-script">
 // Maximalkraft (1RM) je Übung aus erledigten Sätzen schätzen (Epley: Gewicht × (1 + Wdh./30)) oder selbst eintragen,
@@ -5527,9 +5537,9 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
  const overlay=document.getElementById('sessionDetailOverlay'),content=document.getElementById('sessionDetailContent');
  if(!overlay||!content||typeof showSessionDetails!=='function')return;
  const GOALS={
-  kraft:{label:'Maximalkraft',reps:5,sets:4,rest:180,range:'1–5 Wdh. · 85–95 % 1RM'},
-  hypertrophie:{label:'Muskelaufbau',reps:10,sets:3,rest:90,range:'6–12 Wdh. · 67–85 % 1RM'},
-  ausdauer:{label:'Kraftausdauer',reps:15,sets:3,rest:45,range:'12–20 Wdh. · 50–67 % 1RM'}
+  kraft:{label:'Maximalkraft',reps:5,sets:4,rest:180,range:'1–5 Wdh. · 85–95 % 1RM',exercises:[3,5],totalSets:[12,20]},
+  hypertrophie:{label:'Muskelaufbau',reps:10,sets:3,rest:90,range:'6–12 Wdh. · 67–85 % 1RM',exercises:[4,8],totalSets:[15,25]},
+  ausdauer:{label:'Kraftausdauer',reps:15,sets:3,rest:45,range:'12–20 Wdh. · 50–67 % 1RM',exercises:[5,8],totalSets:[12,20]}
  };
  const nf=(v,d=1)=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:d}).format(v);
  const n=v=>v===''||v===null||v===undefined||isNaN(Number(v))?0:Number(v);
@@ -5568,6 +5578,7 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
   let bar=content.querySelector('.lifeos-goal-bar');
   if(!bar){bar=document.createElement('div');bar.className='lifeos-goal-bar';bar.innerHTML='<span>Trainingsziel</span><div class="lifeos-goal-options" role="group" aria-label="Trainingsziel">'+Object.entries(GOALS).map(([k,v])=>`<button type="button" data-goal="${k}">${v.label}</button>`).join('')+'</div>';cards[0].before(bar)}
   bar.querySelectorAll('[data-goal]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.goal===goal)));
+  renderVolume(s,goal,bar);
   cards.forEach(card=>{
    const key=card.dataset.exerciseId,exId=exIdOf(s,key),body=card.querySelector('.training-exercise-body');if(!body)return;
    const sug=suggestion(s,exId);
@@ -5579,6 +5590,37 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
    if(box.dataset.html!==html&&!box.querySelector('.lifeos-1rm-edit')){box.innerHTML=html;box.dataset.html=html}
   });
  }
+ // Trainingsumfang dieses Trainings: Übungen, Sätze, Volumen (Wdh. × kg) – Ist vs. Plan, mit Richtwerten je Ziel
+ // und Hinweis, wenn eine Muskelgruppe in diesem Training mehr als 10 Sätze bekommt.
+ function renderVolume(s,goal,bar){
+  const g=GOALS[goal];let sets=0,done=0,volPlan=0,volDone=0;const perMuscle={};
+  const allCards=[...content.querySelectorAll('.exercise-detail[data-exercise-id],.exercise-detail[data-activity-id]')];
+  strengthCards().forEach(card=>{
+   const exId=exIdOf(s,card.dataset.exerciseId),ex=(data.exercises||[]).find(e=>e.id===exId)||{};
+   const muscles=String(ex.muscles||'').split(',').map(m=>m.trim()).filter(Boolean);
+   const d=(s.exerciseDetails||{})[card.dataset.exerciseId]||{};
+   card.querySelectorAll('tbody tr').forEach(tr=>{
+    const repsIn=tr.querySelector('[data-set-reps]'),wIn=tr.querySelector('[data-set-weight]'),chk=tr.querySelector('[data-set-done]');if(!repsIn)return;
+    const reps=n(repsIn.value)||n(repsIn.placeholder)||n(d.targetReps),w=n(wIn?.value)||n(d.targetWeight);
+    sets++;volPlan+=reps*w;muscles.forEach(m=>perMuscle[m]=(perMuscle[m]||0)+1);
+    if(chk&&chk.checked){done++;volDone+=reps*w}
+   });
+  });
+  const ex=allCards.length,inRange=(v,[a,b])=>v<a?'low':v>b?'high':'ok';
+  const heavy=Object.entries(perMuscle).filter(([,c])=>c>10).map(([m,c])=>`${esc(m)} (${c})`);
+  const pct=volPlan?Math.min(100,Math.round(volDone/volPlan*100)):0;
+  const html=`<div class="lifeos-volume-grid">
+   <div class="lv ${inRange(ex,g.exercises)}"><b>${ex}</b><small>Übungen · Richtwert ${g.exercises[0]}–${g.exercises[1]}</small></div>
+   <div class="lv ${inRange(sets,g.totalSets)}"><b>${done} / ${sets}</b><small>Sätze · Richtwert ${g.totalSets[0]}–${g.totalSets[1]}</small></div>
+   <div class="lv"><b>${nf(volDone,0)} / ${nf(volPlan,0)}</b><small>Volumen in kg (Wdh. × kg)</small></div>
+  </div><div class="lifeos-volume-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}" aria-label="Volumen erreicht"><span style="width:${pct}%"></span></div>${heavy.length?`<p class="lifeos-volume-warn">Viel für eine Einheit: ${heavy.join(', ')} Sätze – Richtwert höchstens ~10 pro Muskelgruppe.</p>`:''}`;
+  let box=content.querySelector('.lifeos-volume');
+  if(!box){box=document.createElement('div');box.className='lifeos-volume';bar.after(box)}
+  if(box.dataset.html!==html){box.innerHTML=html;box.dataset.html=html}
+ }
+ let liveTimer=null;
+ content.addEventListener('input',()=>{clearTimeout(liveTimer);liveTimer=setTimeout(()=>{try{decorate()}catch(e){}},250)});
+ content.addEventListener('change',()=>{clearTimeout(liveTimer);liveTimer=setTimeout(()=>{try{decorate()}catch(e){}},50)});
  const previous=showSessionDetails;
  showSessionDetails=function(){const r=previous.apply(this,arguments);try{decorate()}catch(e){console.error(e)}return r};
  let queued=false;
