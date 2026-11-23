@@ -5510,7 +5510,7 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
  if(!bar||!select)return;
  const btn=document.createElement('button');btn.type='button';btn.id='lifeosThemeBtn';
  const isDark=()=>getComputedStyle(document.documentElement).colorScheme.includes('dark')||document.documentElement.style.colorScheme==='dark';
- const update=()=>{const dark=isDark();btn.textContent=dark?'☀️':'🌙';btn.setAttribute('aria-label',dark?'Hellen Modus einschalten':'Dunklen Modus einschalten');btn.title=btn.getAttribute('aria-label')};
+ const update=()=>{const dark=isDark();btn.textContent=dark?'🌙':'☀️';btn.setAttribute('aria-label',dark?'Hellen Modus einschalten':'Dunklen Modus einschalten');btn.title=btn.getAttribute('aria-label')};
  btn.addEventListener('click',()=>{select.value=isDark()?'light':'dark';select.dispatchEvent(new Event('change',{bubbles:true}));update();const sw=document.getElementById('fc-dashboard-dark');if(sw)sw.checked=isDark()});
  (bar.querySelector('.avatar')||bar.lastElementChild).after(btn);
  update();
