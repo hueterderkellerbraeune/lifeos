@@ -4958,6 +4958,20 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
 #sessionFormWrap .field > p.sub{display:none!important}
 #sessionFormWrap .form-panel{padding-top:16px}
 body:has(#view-week.active) #pageTitle{white-space:nowrap;font-size:clamp(17px,5vw,22px)}
+html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
+.lifeos-picker-open{width:100%;min-height:46px;font-weight:700}
+.lifeos-picker-sheet{position:fixed;inset:0;z-index:300;display:flex;align-items:flex-end;justify-content:center;background:#0006}
+.lifeos-picker-sheet[hidden]{display:none!important}
+.lifeos-picker-box{display:flex;flex-direction:column;width:100%;max-width:620px;height:min(88vh,900px);background:var(--panel);color:var(--ink);border-radius:18px 18px 0 0;box-shadow:0 -10px 40px #0003;padding:14px 14px calc(10px + env(safe-area-inset-bottom))}
+@media (min-width:700px){.lifeos-picker-sheet{align-items:center}.lifeos-picker-box{border-radius:18px;height:min(80vh,760px)}}
+.lifeos-picker-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.lifeos-picker-head h3{margin:0;font-size:18px}
+.lifeos-picker-done{min-height:40px;padding:6px 18px}
+.lifeos-picker-tools{display:grid;gap:8px;margin-bottom:8px}
+.lifeos-picker-tools .session-exercise-search{width:100%;min-height:44px;font-size:16px}
+.lifeos-picker-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.lifeos-picker-list .session-exercise-picker{max-height:none!important;overflow:visible!important;border-top:0!important}
+.lifeos-picker-box .session-exercise-count{display:block;padding-top:8px;border-top:1px solid var(--line)}
 @media (max-width:680px){
  #sessionFormWrap form.sessionForm .form-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important}
  #sessionFormWrap form.sessionForm .form-grid > *{grid-column:1/-1!important}
@@ -5004,7 +5018,37 @@ body:has(#view-week.active) #pageTitle{white-space:nowrap;font-size:clamp(17px,5
  function simplifyForm(){
   wrap.querySelectorAll('form.sessionForm .field > label:first-child').forEach(l=>{const t=l.textContent.trim();if(SHORT[t])l.textContent=SHORT[t]});
   const search=wrap.querySelector('.session-exercise-search');if(search)search.placeholder='🔎 Übung suchen';
+  buildPickerSheet();
  }
+ // Übungsliste nicht mehr als Scrollbereich mitten im Formular, sondern in einem eigenen Auswahlfenster.
+ function buildPickerSheet(){
+  const form=wrap.querySelector('form.sessionForm'),picker=form?.querySelector('.session-exercise-picker');
+  if(!form||!picker||form.querySelector('.lifeos-picker-sheet'))return;
+  const field=picker.closest('.field');
+  const sheet=document.createElement('div');sheet.className='lifeos-picker-sheet';sheet.hidden=true;
+  sheet.setAttribute('role','dialog');sheet.setAttribute('aria-modal','true');sheet.setAttribute('aria-label','Übungen auswählen');
+  sheet.innerHTML='<div class="lifeos-picker-box"><div class="lifeos-picker-head"><h3>Übungen auswählen</h3><button type="button" class="btn lifeos-picker-done">Fertig</button></div><div class="lifeos-picker-tools"></div><div class="lifeos-picker-list"></div></div>';
+  const tools=sheet.querySelector('.lifeos-picker-tools'),list=sheet.querySelector('.lifeos-picker-list');
+  [field.querySelector('.session-exercise-search'),field.querySelector('.session-show-all-label')].forEach(el=>el&&tools.append(el));
+  list.append(picker);
+  const count=field.querySelector('.session-exercise-count');if(count)sheet.querySelector('.lifeos-picker-box').append(count);
+  const open=document.createElement('button');open.type='button';open.className='btn secondary lifeos-picker-open';
+  const label=field.querySelector(':scope > label');(label||field.firstChild)?.after?.(open);
+  field.append(sheet);
+  // Anzahl = Einträge in „Reihenfolge“ (inkl. mehrfach eingeplanter Übungen), sonst die Häkchen.
+  const update=()=>{const items=form.querySelectorAll('.selected-exercise-list > li').length||form.querySelectorAll('input[name="exerciseIds"]:checked').length;const text=items?'Übungen ändern ('+items+')':'＋ Übungen auswählen';if(open.textContent!==text)open.textContent=text};
+  const show=()=>{const s=sheet.querySelector('.session-exercise-search');if(s)s.placeholder='🔎 Übung suchen';sheet.hidden=false;document.documentElement.classList.add('lifeos-sheet-open');list.scrollTop=0};
+  const hide=()=>{sheet.hidden=true;document.documentElement.classList.remove('lifeos-sheet-open');update();open.focus({preventScroll:true})};
+  open.addEventListener('click',show);
+  sheet.querySelector('.lifeos-picker-done').addEventListener('click',hide);
+  sheet.addEventListener('click',e=>{if(e.target===sheet)hide()});
+  form.addEventListener('change',update);form.addEventListener('click',()=>setTimeout(update,0));
+  new MutationObserver(update).observe(form.querySelector('.selected-exercise-list')||form,{childList:true});
+  update();
+ }
+ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const done=wrap.querySelector('.lifeos-picker-sheet:not([hidden]) .lifeos-picker-done');if(done){e.preventDefault();done.click()}});
+ // Formular weg (gespeichert/abgebrochen) -> Seite wieder scrollbar.
+ new MutationObserver(()=>{if(!wrap.querySelector('.lifeos-picker-sheet:not([hidden])'))document.documentElement.classList.remove('lifeos-sheet-open')}).observe(wrap,{childList:true});
  // „＋ Training planen“ (ohne gewählten Tag) startet mit heute statt mit dem zuletzt angetippten Tag.
  document.addEventListener('click',e=>{if(e.target.closest('[data-action="new-session"]'))selectedDate=todayISO()},true);
  // Nach Speichern oder Abbrechen ist das Formular weg -> zurück zum Dashboard.
