@@ -4965,8 +4965,10 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
   form.querySelectorAll('input[type="number"]').forEach(i=>{i.step='any'});
   const hIn=form.querySelector('[data-duration-h]');if(hIn)hIn.max='99';
  }
+ let idsBeforeSubmit=null;
  wrap.addEventListener('submit',e=>{
   const form=e.target.closest('form.sessionForm');if(!form)return;
+  idsBeforeSubmit=new Set(data.sessions.map(s=>s.id));
   const title=form.querySelector('[name="title"]'),date=form.querySelector('[name="date"]');
   const missing=!title?.value.trim()?title:!date?.value?date:null;
   if(missing){e.preventDefault();e.stopPropagation();toast(missing===title?'Bitte einen Titel eingeben.':'Bitte ein Datum wählen.');missing.focus();return}
@@ -5044,7 +5046,14 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
  // „＋ Training planen“ (ohne gewählten Tag) startet mit heute statt mit dem zuletzt angetippten Tag.
  document.addEventListener('click',e=>{if(e.target.closest('[data-action="new-session"]'))selectedDate=todayISO()},true);
  // Nach Speichern oder Abbrechen ist das Formular weg -> zurück zum Dashboard.
- new MutationObserver(()=>{if(currentView==='week'&&!hasForm())navTo('dashboard')}).observe(wrap,{childList:true});
+ new MutationObserver(()=>{
+  if(currentView!=='week'||hasForm())return;
+  navTo('dashboard');
+  // Neu angelegtes Training mit Übungen gleich zum Eintragen der Werte öffnen.
+  const before=idsBeforeSubmit;idsBeforeSubmit=null;
+  const created=before&&data.sessions.find(s=>!before.has(s.id));
+  if(created&&(created.exerciseIds||[]).length)setTimeout(()=>{if(typeof window.lifeosOpenForInput==='function')window.lifeosOpenForInput(created.id);else showSessionDetails(created.id)},0);
+ }).observe(wrap,{childList:true});
  if(currentView==='week'&&!hasForm())navTo('dashboard');
 })();
 </script>
@@ -5268,10 +5277,15 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
    (s.notes?`<div class="ls-session-note"><h4>Notizen</h4><p>${esc(s.notes)}</p></div>`:'')+
    `<div class="ls-actions"><button type="button" class="btn secondary" data-ls-edit-values>Werte bearbeiten</button><button type="button" class="btn secondary" data-edit-session="${esc(s.id)}">Training bearbeiten</button></div>`;
  }
+ // Ohne eingetragene Werte gibt es nichts zusammenzufassen -> direkt die Eingabeansicht zeigen.
+ function hasValues(s){
+  return Object.values(s.exerciseDetails||{}).some(d=>d&&((Array.isArray(d.setRecords)&&d.setRecords.some(r=>r&&(num(r.weight)!==null||num(r.reps)!==null)))||num(d.durationSeconds)||num(d.activityMinutes)||num(d.distanceKm)||num(d.holdSeconds)));
+ }
+ window.lifeosOpenForInput=id=>{editing=String(id);openId=String(id);showSessionDetails(id)};
  function apply(){
   const s=data.sessions.find(x=>x.id===overlay.dataset.activeSessionId);
   content.querySelector('#lifeosSummaryView')?.remove();
-  const on=!!s&&completed(s)&&editing!==s.id;
+  const on=!!s&&completed(s)&&editing!==s.id&&hasValues(s);
   overlay.classList.toggle('lifeos-summary-mode',on);
   if(!on)return;
   const view=document.createElement('div');view.id='lifeosSummaryView';view.innerHTML=build(s);content.prepend(view);
