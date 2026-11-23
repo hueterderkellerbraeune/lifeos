@@ -4848,8 +4848,14 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
  };
  // Strecke und Dauer aus den Übungen (Ausdauer/Mobilität) in die Trainingswerte übernehmen,
  // damit Übersicht, Verlauf und Fortschritt dieselben Zahlen zeigen wie die Trainingsansicht.
+ // Nur übernehmen, wenn in der Trainingsansicht wirklich Zeit/Strecke einer Übung geändert wurde –
+ // sonst würden im Formular geänderte Werte (Dauer, Distanz) beim nächsten „Fertig“ wieder überschrieben.
+ let activityEdited=false;
+ content.addEventListener('input',e=>{if(e.target.closest('[data-activity-field],[data-running-time],[data-swim-meters]'))activityEdited=true},true);
+ const prevShow=showSessionDetails;
+ showSessionDetails=function(id){if(String(id)!==overlay.dataset.activeSessionId)activityEdited=false;return prevShow.apply(this,arguments)};
  function syncTotals(){
-  if(!overlay.classList.contains('open'))return;
+  if(!overlay.classList.contains('open')||!activityEdited)return;
   const s=data.sessions.find(x=>x.id===overlay.dataset.activeSessionId);if(!s||!s.exerciseDetails)return;
   const keys=(Array.isArray(s.exerciseEntryIds)&&s.exerciseEntryIds.length?s.exerciseEntryIds:s.exerciseIds)||[];
   const cards=[...content.querySelectorAll('.exercise-detail[data-activity-id]')].map(c=>c.dataset.activityId);
@@ -4934,7 +4940,9 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
   return previousNav.call(this,target,...rest);
  };
  const previousForm=showSessionForm;
+ let formSessionId=null,formBefore=null;
  showSessionForm=function(id=null,...rest){
+  formSessionId=id;const s0=id?data.sessions.find(x=>x.id===id):null;formBefore=s0?{duration:Number(s0.duration)||0,distance:Number(s0.distance)||0}:null;
   allowWeek=true;
   try{return previousForm.call(this,id,...rest)}
   finally{
@@ -5051,6 +5059,22 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
   navTo('dashboard');
   // Neu angelegtes Training mit Übungen gleich zum Eintragen der Werte öffnen.
   const before=idsBeforeSubmit;idsBeforeSubmit=null;
+  // Besteht das Training nur aus einer Ausdauer-/Mobilitätsübung: im Formular geänderte Dauer/Distanz dorthin übernehmen.
+  if(before&&formSessionId&&formBefore){
+   const s=data.sessions.find(x=>x.id===formSessionId);
+   if(s){
+    if(typeof lifeosEnsureEntries==='function')lifeosEnsureEntries(s);
+    const acts=(s.exerciseIds||[]).map((exId,i)=>({ex:(data.exercises||[]).find(e=>e.id===exId),key:(s.exerciseEntryIds||[])[i]||exId})).filter(x=>x.ex&&(x.ex.category==='Ausdauer'||x.ex.category==='Mobilität'));
+    if(acts.length===1&&(s.exerciseIds||[]).length===1){
+     s.exerciseDetails=s.exerciseDetails||{};const d=s.exerciseDetails[acts[0].key]=s.exerciseDetails[acts[0].key]||{};let changed=false;
+     const dur=Number(s.duration)||0,dist=Number(s.distance)||0;
+     if(dur!==formBefore.duration&&dur>0){d.activityMinutes=dur;d.durationSeconds=dur*60;changed=true}
+     if(dist!==formBefore.distance&&dist>0){d.distanceKm=dist;changed=true}
+     if(changed)save();
+    }
+   }
+  }
+  formSessionId=null;formBefore=null;
   const created=before&&data.sessions.find(s=>!before.has(s.id));
   if(created&&(created.exerciseIds||[]).length)setTimeout(()=>{if(typeof window.lifeosOpenForInput==='function')window.lifeosOpenForInput(created.id);else showSessionDetails(created.id)},0);
  }).observe(wrap,{childList:true});
