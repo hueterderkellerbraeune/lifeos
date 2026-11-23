@@ -5354,4 +5354,60 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
 })();
 </script>
 
+<style id="long-press-style">
+/* Gedrückt halten: Training löschen oder kopieren. Kein Text-Markieren/Systemmenü beim Halten. */
+#view-dashboard :is(.dashboard-history-item,[data-session-card],#miniWeek .month-day){-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.lifeos-pressing{transform:scale(.97);transition:transform .15s}
+#quickActionsOverlay[data-kind="session"] #quickActionsContent > p{display:none}
+#quickActionsOverlay[data-kind="session"] .quick-actions-buttons{display:grid!important;grid-template-columns:1fr;gap:8px}
+#quickActionsOverlay[data-kind="session"] .quick-actions-buttons .btn{width:100%;min-height:44px}
+#deleteQuickSession{background:#c0392b!important;border-color:#c0392b!important;color:#fff!important}
+</style>
+<script id="long-press-script">
+// Langes Drücken (≈0,5 s) auf ein Training im Dashboard – Verlauf, Karten oder Kalendertag – öffnet „Kopieren / Löschen“.
+(()=>{
+ 'use strict';
+ if(typeof openQuickActions!=='function')return;
+ const TARGET='#view-dashboard .dashboard-history-item[data-detail],#view-dashboard [data-session-card],#miniWeek [data-select-date]';
+ let timer=null,start=null,el=null,suppressUntil=0;
+ const sessionIdOf=t=>t.dataset.detail||t.dataset.sessionCard||null;
+ function sessionsOfDay(date){return data.sessions.filter(s=>s.date===date).sort((a,b)=>String(a.time||'').localeCompare(String(b.time||'')))}
+ function fire(t){
+  suppressUntil=performance.now()+700;navigator.vibrate?.(15);
+  let id=sessionIdOf(t);
+  if(!id&&t.dataset.selectDate){
+   const list=sessionsOfDay(t.dataset.selectDate);
+   if(!list.length)return;
+   if(list.length>1){pickFromDay(t.dataset.selectDate,list);return}
+   id=list[0].id;
+  }
+  if(id)openQuickActions('session',{sessionId:id});
+ }
+ // Mehrere Trainings an einem Tag: erst auswählen, dann Kopieren/Löschen.
+ function pickFromDay(date,list){
+  const overlay=document.getElementById('quickActionsOverlay');
+  overlay.dataset.kind='pick-manage';overlay.dataset.date=date;overlay.dataset.sessionId='';
+  document.getElementById('quickActionsTitle').textContent='Trainings am '+fmtDate(date);
+  document.getElementById('quickActionsDescription').textContent='Welches Training kopieren oder löschen?';
+  document.getElementById('quickActionsContent').innerHTML='<div class="list dashboard-day-picker">'+list.map(s=>`<button type="button" class="btn secondary dashboard-day-session" data-manage-session="${esc(s.id)}"><b>${esc(s.title||s.type||'Training')}</b><span>${esc([s.time?s.time+' Uhr':'',s.type,completed(s)?'Abgeschlossen':'Geplant'].filter(Boolean).join(' · '))}</span></button>`).join('')+'</div>';
+  overlay.classList.add('open');
+ }
+ document.getElementById('quickActionsContent').addEventListener('click',e=>{const b=e.target.closest('[data-manage-session]');if(!b)return;openQuickActions('session',{sessionId:b.dataset.manageSession})});
+ const cancel=()=>{clearTimeout(timer);timer=null;el?.classList.remove('lifeos-pressing');el=null;start=null};
+ document.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  const t=e.target.closest(TARGET);if(!t)return;
+  if(t.dataset.selectDate&&!sessionsOfDay(t.dataset.selectDate).length)return;
+  cancel();el=t;start={x:e.clientX,y:e.clientY};t.classList.add('lifeos-pressing');
+  timer=setTimeout(()=>{const target=el;cancel();if(target)fire(target)},500);
+ },true);
+ document.addEventListener('pointermove',e=>{if(start&&Math.hypot(e.clientX-start.x,e.clientY-start.y)>10)cancel()},true);
+ ['pointerup','pointercancel','scroll'].forEach(type=>document.addEventListener(type,()=>{if(timer)cancel()},true));
+ // Rechtsklick / Android-Langdruck-Menü ebenfalls abfangen.
+ document.addEventListener('contextmenu',e=>{const t=e.target.closest(TARGET);if(!t)return;e.preventDefault();if(performance.now()<suppressUntil)return;cancel();fire(t)},true);
+ // Der eine Klick direkt nach dem Loslassen darf weder das Training öffnen noch das gerade geöffnete Menü schließen.
+ document.addEventListener('click',e=>{if(performance.now()<suppressUntil){suppressUntil=0;e.preventDefault();e.stopImmediatePropagation()}},true);
+})();
+</script>
+
 </body></html>
