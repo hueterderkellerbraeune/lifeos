@@ -5719,4 +5719,12 @@ if("serviceWorker" in navigator&&window.isSecureContext){window.addEventListener
 })();
 </script>
 
+<style id="cloud-status-inline-style">
+/* Cloud-Status klappt im Menü unter den Kreisen auf statt darüber zu schweben */
+#lifeos-v53-controls{flex-wrap:wrap}
+#lifeos-v53-controls #lifeos-cloud-status.lifeos-v53-open{position:static!important;flex:1 0 100%;width:100%!important;max-width:100%!important;box-sizing:border-box;margin:4px 0 0!important;box-shadow:none!important;flex-direction:column;align-items:stretch;gap:10px;padding:12px!important;border-radius:14px!important;inset:auto!important}
+#lifeos-v53-controls #lifeos-cloud-status.lifeos-v53-open #lifeos-cloud-text{font-size:14px;line-height:1.4}
+#lifeos-v53-controls #lifeos-cloud-status.lifeos-v53-open #lifeos-cloud-refresh{position:static!important;width:100%;margin:0!important;min-height:40px;border-radius:11px}
+</style>
+
 </body></html>
