@@ -5014,11 +5014,32 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
   }
  };
  // Formular ohne Erklärtexte und mit kurzen Feldnamen.
- const SHORT={'Dauer (Minuten, optional)':'Dauer (Min.)','Trainingsschwerpunkt (optional)':'Schwerpunkt','Übungen auswählen (optional)':'Übungen','Ausdauerart (optional)':'Ausdauerart','Distanz (km, optional)':'Distanz (km)','Intensität (optional)':'Intensität','Mobilitätsart (optional)':'Mobilitätsart','Körperbereich (optional)':'Körperbereich','Haltezeit pro Dehnung (Sek., optional)':'Haltezeit (Sek.)','Titel *':'Titel','Datum *':'Datum'};
+ const SHORT={'Dauer (Minuten, optional)':'Dauer','Trainingsschwerpunkt (optional)':'Schwerpunkt','Übungen auswählen (optional)':'Übungen','Ausdauerart (optional)':'Ausdauerart','Distanz (km, optional)':'Distanz (km)','Intensität (optional)':'Intensität','Mobilitätsart (optional)':'Mobilitätsart','Körperbereich (optional)':'Körperbereich','Haltezeit pro Dehnung (Sek., optional)':'Haltezeit (Sek.)','Titel *':'Titel','Datum *':'Datum'};
  function simplifyForm(){
   wrap.querySelectorAll('form.sessionForm .field > label:first-child').forEach(l=>{const t=l.textContent.trim();if(SHORT[t])l.textContent=SHORT[t]});
   const search=wrap.querySelector('.session-exercise-search');if(search)search.placeholder='🔎 Übung suchen';
   buildPickerSheet();
+  buildDurationInputs();
+ }
+ // Dauer in Stunden + Minuten eingeben; gespeichert wird weiterhin die Gesamtzahl Minuten im Feld „duration“.
+ function buildDurationInputs(){
+  const form=wrap.querySelector('form.sessionForm'),total=form?.querySelector('input[name="duration"]');
+  if(!total||form.querySelector('.lifeos-duration-hm'))return;
+  const minutes=Number(total.value)||0;
+  total.type='hidden';
+  const box=document.createElement('div');box.className='lifeos-duration-hm';
+  box.innerHTML='<label><input type="number" inputmode="numeric" min="0" max="24" step="1" placeholder="0" aria-label="Dauer Stunden" data-duration-h><span>Std.</span></label><label><input type="number" inputmode="numeric" min="0" max="59" step="1" placeholder="0" aria-label="Dauer Minuten" data-duration-m><span>Min.</span></label>';
+  const hIn=box.querySelector('[data-duration-h]'),mIn=box.querySelector('[data-duration-m]');
+  if(total.value!==''&&minutes>0){hIn.value=Math.floor(minutes/60)||'';mIn.value=minutes%60}
+  const sync=()=>{
+   let hrs=hIn.value===''?0:Math.max(0,Math.min(24,Math.floor(Number(hIn.value)||0)));
+   let mins=mIn.value===''?0:Math.max(0,Math.floor(Number(mIn.value)||0));
+   // 90 Min. eingetippt -> automatisch 1 Std. 30 Min.
+   if(mins>59){hrs=Math.min(24,hrs+Math.floor(mins/60));mins=mins%60;hIn.value=hrs;mIn.value=mins}
+   total.value=(hIn.value===''&&mIn.value==='')?'':String(hrs*60+mins);
+  };
+  hIn.addEventListener('input',sync);mIn.addEventListener('input',sync);mIn.addEventListener('change',sync);
+  total.after(box);
  }
  // Übungsliste nicht mehr als Scrollbereich mitten im Formular, sondern in einem eigenen Auswahlfenster.
  function buildPickerSheet(){
@@ -5059,6 +5080,10 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
 
 <style id="dashboard-calendar-simple-style">
 /* Kalender: „＋ Training hinzufügen“ oben rechts, Bedienhinweis nur noch für Screenreader. */
+#sessionFormWrap .lifeos-duration-hm{display:flex;gap:8px}
+#sessionFormWrap .lifeos-duration-hm label{position:relative;display:block;flex:1;min-width:0;margin:0}
+#sessionFormWrap .lifeos-duration-hm input{width:100%;min-width:0;padding-left:8px!important;padding-right:34px!important;text-align:right}
+#sessionFormWrap .lifeos-duration-hm span{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:var(--muted);pointer-events:none}
 .dashboard-add-training{margin-left:auto;min-height:36px;padding:6px 12px!important;font-size:13px!important;white-space:nowrap}
 .visually-hidden-hint{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0!important;padding:0!important}
 </style>
