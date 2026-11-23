@@ -4536,97 +4536,6 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
 })();
 </script>
 
-<style id="training-edit-lock-style">
-/* Trainingsdaten sind gesperrt, bis „Bearbeiten“ angetippt wird. */
-.lifeos-edit-toggle{margin-left:auto;min-height:32px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--green);font-size:13px;font-weight:700;cursor:pointer}
-.lifeos-edit-toggle[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green)}
-#sessionDetailOverlay .training-section-label{display:flex!important;align-items:center;gap:10px}
-#sessionDetailOverlay.lifeos-locked :is([data-lifeos-set-change],[data-lifeos-copy-last],.lifeos-copy-last,[data-lifeos-move],[data-lifeos-fill-planned],[data-remove-exercise],[data-exercise-up],[data-exercise-down],[data-lifeos-next-set],.lifeos-set-actions){display:none!important}
-#sessionDetailOverlay.lifeos-locked details.training-fold:has(.lifeos-add-panel){display:none!important}
-#sessionDetailOverlay.lifeos-locked #sessionDetailContent .exercise-detail :is(input,textarea,select):disabled{opacity:1;color:var(--ink)!important;-webkit-text-fill-color:var(--ink);background:transparent!important;border-color:transparent!important;cursor:default}
-#sessionDetailOverlay.lifeos-locked #sessionDetailContent .exercise-detail input[type=checkbox]:disabled{opacity:.85}
-#sessionDetailOverlay.lifeos-locked #sessionDetailContent .exercise-detail textarea:disabled{resize:none;min-height:0!important;padding-left:0!important}
-#sessionDetailOverlay.lifeos-locked #sessionDetailContent .exercise-detail .field:has(> label > textarea:disabled:placeholder-shown){display:none}
-#sessionDetailOverlay.lifeos-locked #sessionDetailContent .exercise-detail :is(input,textarea):disabled::placeholder{color:var(--muted);opacity:.5;-webkit-text-fill-color:var(--muted)}
-</style>
-<script id="training-edit-lock-script">
-(()=>{
- 'use strict';
- const overlay=document.getElementById('sessionDetailOverlay'),content=document.getElementById('sessionDetailContent');
- if(!overlay||!content||typeof showSessionDetails!=='function')return;
- // Pausentimer-Einstellungen sind keine Trainingsdaten und bleiben bedienbar.
- const FIELDS='.exercise-detail input,.exercise-detail textarea,.exercise-detail select';
- const isFree=el=>!!el.closest('.lifeos-rest-timer');
- let unlocked=false,lockedFor=null;
- function apply(){
-  overlay.classList.toggle('lifeos-locked',!unlocked);
-  // Titel: im Bearbeiten-Modus durch Antippen änderbar.
-  const title=document.getElementById('detailTitle');
-  if(title){
-   if(unlocked){title.setAttribute('role','button');title.tabIndex=0;title.setAttribute('aria-label','Trainingsnamen ändern: '+title.textContent)}
-   else{title.removeAttribute('role');title.removeAttribute('tabindex');title.removeAttribute('aria-label')}
-  }
-  content.querySelectorAll(FIELDS).forEach(el=>{
-   if(isFree(el))return;
-   if(!unlocked){if(!el.disabled){el.disabled=true;el.dataset.lifeosLocked='1'}}
-   else if(el.dataset.lifeosLocked){el.disabled=false;delete el.dataset.lifeosLocked}
-  });
-  // Der Button sitzt im Kopf neben dem Trainingstitel.
-  const label=overlay.querySelector('.detail-dialog > .panel-head');
-  if(label){
-   let btn=label.querySelector('.lifeos-edit-toggle');
-   if(!btn){btn=document.createElement('button');btn.type='button';btn.className='lifeos-edit-toggle';label.append(btn)}
-   const text=unlocked?'✓ Speichern':'✎ Bearbeiten';
-   if(btn.textContent!==text)btn.textContent=text;
-   btn.setAttribute('aria-pressed',String(unlocked));
-   btn.setAttribute('aria-label',unlocked?'Bearbeitung beenden und Trainingsdaten sperren':'Trainingsdaten bearbeiten');
-  }
- }
- const previous=showSessionDetails;
- showSessionDetails=function(id){
-  // Jedes neu geöffnete Training startet gesperrt; Neuzeichnen desselben Trainings behält den Zustand.
-  if(String(id)!==lockedFor){unlocked=false;lockedFor=String(id);closeTitle()}
-  const result=previous.apply(this,arguments);apply();return result;
- };
- const close=closeSessionDetails;
- closeSessionDetails=function(){lockedFor=null;unlocked=false;closeTitle();return close.apply(this,arguments)};
- const titleForm=()=>document.getElementById('trainingTitleForm');
- function closeTitle(){if(titleForm()&&!titleForm().hidden&&typeof lifeosCloseTitleEditor==='function')lifeosCloseTitleEditor()}
- // Beim Sperren einen geänderten Namen mitspeichern, sonst den Editor einfach schließen.
- function finishTitle(){
-  const form=titleForm();if(!form||form.hidden)return;
-  const value=document.getElementById('trainingTitleInput').value.trim();
-  const s=data.sessions.find(x=>x.id===overlay.dataset.activeSessionId);
-  if(value&&s&&value!==(s.title||''))form.requestSubmit();else closeTitle();
- }
- const openTitle=()=>{if(unlocked)document.getElementById('editTrainingTitle')?.click()};
- overlay.addEventListener('click',e=>{if(e.target.closest('#detailTitle'))openTitle()});
- overlay.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.id==='detailTitle'){e.preventDefault();openTitle()}});
- let queued=false;
- new MutationObserver(()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;if(overlay.classList.contains('open'))apply()})}).observe(content,{childList:true,subtree:true});
- overlay.addEventListener('click',e=>{
-  const btn=e.target.closest('.lifeos-edit-toggle');if(!btn)return;
-  if(unlocked){lock();return}
-  unlocked=true;apply();
-  content.querySelector('.training-exercise-fold[open] input')?.focus({preventScroll:true});
-  toast('Bearbeiten aktiv');
- });
- // Speichern + sperren; die Trainingsansicht bleibt offen.
- function lock(){
-  unlocked=false;finishTitle();
-  if(typeof lifeosPersistDetailInputs==='function')lifeosPersistDetailInputs(false);
-  apply();toast('Gespeichert');
- }
- // „Fertig“: gesperrt -> schließen; im Bearbeiten-Modus -> speichern, sperren, Ansicht bleibt offen.
- document.addEventListener('click',e=>{
-  if(!e.target.closest('#saveSessionDetails'))return;
-  e.preventDefault();e.stopImmediatePropagation();
-  // Im Bearbeiten-Modus beendet „Fertig“ nur das Bearbeiten und bleibt in der Ansicht.
-  if(unlocked){lock();overlay.scrollTo?.({top:0,behavior:'smooth'});return}
-  closeSessionDetails();
- },true);
-})();
-</script>
 <style id="pull-to-refresh-style">
 /* Eigenes „Zum Aktualisieren ziehen“: funktioniert auch als Home-Bildschirm-App, ersetzt das native Verhalten. */
 @media (hover:none) and (pointer:coarse){html,body{overscroll-behavior-y:none}}
@@ -4884,9 +4793,8 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
 </style>
 
 <style id="training-title-tap-style">
-/* Kein Stift mehr: Titel wird im Bearbeiten-Modus durch Antippen geändert. */
+/* Kein Stift: Der Titel wird über „Training bearbeiten“ geändert. */
 #sessionDetailOverlay.lifeos-compact #editTrainingTitle{display:none!important}
-#sessionDetailOverlay.lifeos-compact:not(.lifeos-locked) #detailTitle{cursor:text;text-decoration:underline dashed var(--muted);text-decoration-thickness:1px;text-underline-offset:5px}
 #sessionDetailOverlay.lifeos-compact .training-title-heading:has(~ #trainingTitleForm:not([hidden])){display:none!important}
 #sessionDetailOverlay.lifeos-compact #trainingTitleForm{margin:0!important;order:1}
 #sessionDetailOverlay.lifeos-compact .detail-dialog > .panel-head > div:first-child{display:flex;flex-direction:column}
