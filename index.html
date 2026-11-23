@@ -5025,7 +5025,24 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
   buildPickerSheet();
   buildDurationInputs();
   buildSwimDistance();
+  relaxValidation();
  }
+ // Gespeicherte Werte wie 37,5 Min. oder 5,123 km verletzten die Schrittweite der Zahlenfelder. Der Browser
+ // hat das Speichern dann still blockiert (Feld oft unsichtbar, z. B. km beim Schwimmen). Daher: eigene, einfache Prüfung.
+ function relaxValidation(){
+  const form=wrap.querySelector('form.sessionForm');if(!form||form.dataset.relaxed)return;
+  form.dataset.relaxed='1';form.noValidate=true;
+  form.querySelectorAll('input[type="number"]').forEach(i=>{i.step='any'});
+  const hIn=form.querySelector('[data-duration-h]');if(hIn)hIn.max='99';
+ }
+ wrap.addEventListener('submit',e=>{
+  const form=e.target.closest('form.sessionForm');if(!form)return;
+  const title=form.querySelector('[name="title"]'),date=form.querySelector('[name="date"]');
+  const missing=!title?.value.trim()?title:!date?.value?date:null;
+  if(missing){e.preventDefault();e.stopPropagation();toast(missing===title?'Bitte einen Titel eingeben.':'Bitte ein Datum wählen.');missing.focus();return}
+  // Negative Zahlen auf das erlaubte Minimum setzen.
+  form.querySelectorAll('input[type="number"]').forEach(i=>{if(i.value!==''&&i.min!==''&&Number(i.value)<Number(i.min))i.value=i.min});
+ },true);
  // Ausdauerart „Schwimmen“: Distanz in Metern, gespeichert weiter in km im Feld „distance“.
  function buildSwimDistance(){
   const form=wrap.querySelector('form.sessionForm'),km=form?.querySelector('input[name="distance"]'),type=form?.querySelector('select[name="enduranceType"]');
@@ -5056,10 +5073,10 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
   const hIn=box.querySelector('[data-duration-h]'),mIn=box.querySelector('[data-duration-m]');
   if(total.value!==''&&minutes>0){hIn.value=Math.floor(minutes/60)||'';mIn.value=minutes%60}
   const sync=()=>{
-   let hrs=hIn.value===''?0:Math.max(0,Math.min(24,Math.floor(Number(hIn.value)||0)));
+   let hrs=hIn.value===''?0:Math.max(0,Math.min(99,Math.floor(Number(hIn.value)||0)));
    let mins=mIn.value===''?0:Math.max(0,Math.floor(Number(mIn.value)||0));
    // 90 Min. eingetippt -> automatisch 1 Std. 30 Min.
-   if(mins>59){hrs=Math.min(24,hrs+Math.floor(mins/60));mins=mins%60;hIn.value=hrs;mIn.value=mins}
+   if(mins>59){hrs=Math.min(99,hrs+Math.floor(mins/60));mins=Math.round((mins%60)*100)/100;hIn.value=hrs;mIn.value=mins}
    total.value=(hIn.value===''&&mIn.value==='')?'':String(hrs*60+mins);
   };
   hIn.addEventListener('input',sync);mIn.addEventListener('input',sync);mIn.addEventListener('change',sync);
