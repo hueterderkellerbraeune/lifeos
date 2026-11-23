@@ -4600,17 +4600,17 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
 <style id="exercise-swipe-delete-style">
 /* Zugeklappte Übung nach links wischen -> „Löschen“ erscheint dahinter. */
 #sessionDetailContent .exercise-detail.lifeos-swipeable{position:relative;overflow:hidden}
-#sessionDetailContent .lifeos-swipeable > .training-exercise-fold:not([open]) > summary{position:relative;z-index:1;background:var(--panel);touch-action:pan-y;transition:transform .2s ease}
-#sessionDetailContent .lifeos-swipeable.dragging > .training-exercise-fold > summary{transition:none}
-.lifeos-swipe-delete{position:absolute;top:0;right:0;bottom:0;width:96px;z-index:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;border:0;border-radius:0 var(--radius,14px) var(--radius,14px) 0;background:#c0392b;color:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+#sessionDetailContent .lifeos-swipeable > .training-exercise-fold{position:relative;z-index:1;background:var(--panel);transition:transform .2s ease}
+#sessionDetailContent .lifeos-swipeable > .training-exercise-fold > summary{touch-action:pan-y}
+#sessionDetailContent .lifeos-swipeable.dragging > .training-exercise-fold{transition:none}
+.lifeos-swipe-delete{position:absolute;top:0;right:0;bottom:0;width:96px;z-index:0;display:flex;align-items:center;justify-content:flex-start;padding-top:18px;flex-direction:column;gap:2px;border:0;border-radius:0 var(--radius,14px) var(--radius,14px) 0;background:#c0392b;color:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 .lifeos-swipe-delete span{font-size:18px;line-height:1}
 .lifeos-swipeable:not(.revealed):not(.dragging) > .lifeos-swipe-delete{visibility:hidden;transition:visibility 0s .2s}
-#sessionDetailContent .training-exercise-fold[open] ~ .lifeos-swipe-delete{display:none}
 #lifeosUndoBar{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));z-index:220;display:flex;align-items:center;gap:14px;max-width:calc(100vw - 32px);padding:10px 12px 10px 16px;border-radius:12px;background:#20362C;color:#fff;font-size:14px;box-shadow:0 8px 24px #0004;transform:translate(-50%,140%);opacity:0;transition:transform .2s,opacity .2s}
 #lifeosUndoBar.show{transform:translate(-50%,0);opacity:1}
 #lifeosUndoBar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #lifeosUndoBar button{flex:none;border:0;background:transparent;color:#9fe3b9;font:inherit;font-weight:800;padding:6px 8px;cursor:pointer}
-@media (prefers-reduced-motion:reduce){#sessionDetailContent .lifeos-swipeable > .training-exercise-fold > summary,#lifeosUndoBar{transition:none}}
+@media (prefers-reduced-motion:reduce){#sessionDetailContent .lifeos-swipeable > .training-exercise-fold,#lifeosUndoBar{transition:none}}
 </style>
 <script id="exercise-swipe-delete-script">
 (()=>{
@@ -4620,7 +4620,8 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
  const REVEAL=96,TRIGGER=55;
  let open=null,drag=null,suppressClick=0,undo=null,undoTimer=null;
  const keyOf=card=>card.dataset.exerciseId||card.dataset.activityId;
- const summaryOf=card=>card.querySelector(':scope > .training-exercise-fold > summary');
+ // Verschoben wird die ganze Übungskarte (auch aufgeklappt); gewischt wird auf ihrer Kopfzeile.
+ const summaryOf=card=>card.querySelector(':scope > .training-exercise-fold');
  function setOffset(card,x){const s=summaryOf(card);if(s)s.style.transform=x?`translateX(${x}px)`:''}
  function close(card=open){if(!card)return;setOffset(card,0);card.classList.remove('revealed');const b=card.querySelector('.lifeos-swipe-delete');if(b)b.tabIndex=-1;if(open===card)open=null}
  function reveal(card){if(open&&open!==card)close(open);setOffset(card,-REVEAL);card.classList.add('revealed');open=card;const b=card.querySelector('.lifeos-swipe-delete');if(b)b.tabIndex=0}
@@ -4642,7 +4643,7 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
 
  // Wischgeste (Touch und Maus) nur auf der Kopfzeile zugeklappter Übungen.
  content.addEventListener('pointerdown',e=>{
-  const summary=e.target.closest('.lifeos-swipeable > .training-exercise-fold:not([open]) > summary');
+  const summary=e.target.closest('.lifeos-swipeable > .training-exercise-fold > summary');
   if(!summary||(e.pointerType==='mouse'&&e.button!==0))return;
   const card=summary.closest('.lifeos-swipeable');
   drag={card,id:e.pointerId,x:e.clientX,y:e.clientY,base:card===open?-REVEAL:0,active:false,dx:0};
@@ -4676,6 +4677,9 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
   }
  },true);
 
+ // Auf-/Zugeklappt-Zustand der Übungen über das Neuzeichnen hinweg behalten (Nummern im Titel verschieben sich).
+ const openKeys=()=>new Set([...content.querySelectorAll('.lifeos-swipeable')].filter(c=>c.querySelector(':scope > .training-exercise-fold')?.open).map(keyOf));
+ const restoreOpen=keys=>content.querySelectorAll('.lifeos-swipeable').forEach(c=>{const f=c.querySelector(':scope > .training-exercise-fold');if(f)f.open=keys.has(keyOf(c))});
  function showUndo(text){
   let bar=document.getElementById('lifeosUndoBar');
   if(!bar){bar=document.createElement('div');bar.id='lifeosUndoBar';bar.setAttribute('role','status');bar.innerHTML='<span></span><button type="button">Rückgängig</button>';document.body.append(bar);
@@ -4683,7 +4687,8 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
     if(!undo)return;const {id,snapshot}=undo;undo=null;hideUndo();
     const s=data.sessions.find(x=>x.id===id);if(!s)return;
     Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);
-    if(save()){if(overlay.classList.contains('open')&&overlay.dataset.activeSessionId===id)showSessionDetails(id);toast('Übung wiederhergestellt.')}
+    const keys=openKeys();if(undo===null&&snapshot)(snapshot.exerciseEntryIds||[]).forEach(k=>keys.add(k));
+    if(save()){if(overlay.classList.contains('open')&&overlay.dataset.activeSessionId===id){showSessionDetails(id);restoreOpen(keys)}toast('Übung wiederhergestellt.')}
    });}
   bar.querySelector('span').textContent=text;bar.classList.add('show');
   clearTimeout(undoTimer);undoTimer=setTimeout(hideUndo,6000);
@@ -4705,9 +4710,9 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
   const name=card.querySelector('summary h4')?.textContent?.replace(/^\d+\.\s*/,'')||'Übung';
   s.exerciseIds.splice(i,1);if(entries.length>i)entries.splice(i,1);
   if(s.exerciseDetails){delete s.exerciseDetails[key]}
-  open=null;
+  open=null;const keys=openKeys();
   if(!save()){Object.keys(s).forEach(k=>delete s[k]);Object.assign(s,snapshot);return}
-  showSessionDetails(s.id);
+  showSessionDetails(s.id);restoreOpen(keys);
   undo={id:s.id,snapshot};showUndo(name+' gelöscht');
  });
  // Beim Schließen des Trainings verfällt das Rückgängigmachen nicht, aber die Leiste soll nicht ewig stehen.
@@ -5036,5 +5041,38 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
 .dashboard-add-training{margin-left:auto;min-height:36px;padding:6px 12px!important;font-size:13px!important;white-space:nowrap}
 .visually-hidden-hint{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0!important;padding:0!important}
 </style>
+
+<style id="training-full-details-style">
+/* Alle Angaben des Trainings sichtbar: Infos als kompakte Kacheln, Übungen aufgeklappt. */
+#sessionDetailOverlay.lifeos-compact details.training-fold:has(> .detail-meta){display:block!important;border:0!important;background:transparent!important;padding:0!important;margin:0 0 12px!important;box-shadow:none!important}
+#sessionDetailOverlay.lifeos-compact details.training-fold:has(> .detail-meta) > summary{display:none!important}
+#sessionDetailOverlay.lifeos-compact .detail-meta{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px!important;margin:0!important;padding:0!important}
+#sessionDetailOverlay.lifeos-compact .detail-meta > div{padding:8px 12px!important;border-radius:10px!important;background:var(--panel)!important;border:1px solid var(--line)!important;min-width:0}
+#sessionDetailOverlay.lifeos-compact .detail-meta small{display:block;font-size:11px;color:var(--muted)}
+#sessionDetailOverlay.lifeos-compact .detail-meta b{display:block;font-size:14px;overflow-wrap:anywhere}
+/* Datum/Uhrzeit, Status/Dauer und Anzahl Übungen stehen schon in der Zeile unter dem Titel. */
+#sessionDetailOverlay.lifeos-compact .detail-meta > div:first-child,#sessionDetailOverlay.lifeos-compact .detail-meta > div:nth-child(3),#sessionDetailOverlay.lifeos-compact .detail-meta > div:last-child{display:none!important}
+#sessionDetailOverlay.lifeos-compact #sessionDetailContent > .exercise-detail:not([data-exercise-id]):not([data-activity-id]){padding:10px 12px!important;margin:0 0 10px!important}
+#sessionDetailOverlay.lifeos-compact #sessionDetailContent > .exercise-detail:not([data-exercise-id]):not([data-activity-id]) h4{font-size:13px;color:var(--muted);margin:0 0 4px}
+#sessionDetailOverlay.lifeos-compact #sessionDetailContent > .exercise-detail:not([data-exercise-id]):not([data-activity-id]) p{margin:0;white-space:pre-wrap}
+</style>
+<script id="training-full-details-script">
+// Beim Öffnen eines Trainings sind alle Übungen aufgeklappt; Neuzeichnen desselben Trainings behält den Zustand.
+(()=>{
+ 'use strict';
+ const overlay=document.getElementById('sessionDetailOverlay'),content=document.getElementById('sessionDetailContent');
+ if(!overlay||!content||typeof showSessionDetails!=='function')return;
+ let lastId=null;
+ const previous=showSessionDetails;
+ showSessionDetails=function(id){
+  const result=previous.apply(this,arguments);
+  const meta=content.querySelector('.detail-meta');if(meta&&meta.parentElement.tagName==='DETAILS')meta.parentElement.open=true;
+  if(String(id)!==lastId){lastId=String(id);content.querySelectorAll('.training-exercise-fold').forEach(d=>{d.open=true})}
+  return result;
+ };
+ const close=closeSessionDetails;
+ closeSessionDetails=function(){lastId=null;return close.apply(this,arguments)};
+})();
+</script>
 
 </body></html>
