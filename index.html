@@ -5727,4 +5727,79 @@ if("serviceWorker" in navigator&&window.isSecureContext){window.addEventListener
 #lifeos-v53-controls #lifeos-cloud-status.lifeos-v53-open #lifeos-cloud-refresh{position:static!important;width:100%;margin:0!important;min-height:40px;border-radius:11px}
 </style>
 
+<style id="library-compact-style">
+/* Übungsbibliothek: kompakte Liste, Kategorie-Chips, keine doppelten Überschriften */
+#view-exercises > .section-title > div{display:none!important}
+#view-exercises > .section-title{justify-content:flex-end!important;margin:0 0 12px!important;padding:0!important}
+#view-exercises > .section-title [data-action="new-exercise"]{width:100%;min-height:46px}
+#view-exercises > .panel{padding:14px!important}
+#view-exercises .filters{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;margin:0!important}
+#view-exercises .filters #exerciseCategory{display:none!important}
+#view-exercises .filters input,#view-exercises .filters select{min-height:44px!important;width:100%!important}
+.lib-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:10px -14px 4px;padding:0 14px 4px;-webkit-overflow-scrolling:touch}
+.lib-chips::-webkit-scrollbar{display:none}
+.lib-chip{flex:none;border:1px solid var(--line);background:var(--fc-soft,transparent);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;font-weight:650;cursor:pointer;white-space:nowrap}
+.lib-chip.active{background:var(--green)!important;border-color:var(--green)!important;color:var(--fc-button-text,#fff)!important}
+#exerciseList .lifeos-library-count{display:flex!important;align-items:center;margin:8px 0 4px!important;padding:0!important;font-size:13px;color:var(--muted)}
+#exerciseList .lifeos-library-count .lifeos-favorites-filter{display:none!important}
+#exerciseList .lifeos-library-grid{display:block!important;gap:0!important}
+#exerciseList article.lifeos-library-card{display:grid!important;grid-template-columns:56px minmax(0,1fr) 40px!important;align-items:center!important;column-gap:12px!important;row-gap:2px!important;padding:10px 0!important;margin:0!important;min-height:0!important;border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;cursor:pointer}
+#exerciseList article.lifeos-library-card:last-child{border-bottom:0!important}
+#exerciseList .lifeos-card-visual{width:56px!important;height:56px!important;min-height:0!important;aspect-ratio:auto!important;border-radius:12px!important;overflow:hidden;margin:0!important;padding:0!important;display:grid!important;place-items:center;background:var(--fc-soft,#e8efe9)!important;position:relative}
+#exerciseList .lifeos-card-visual img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:0!important;margin:0!important}
+#exerciseList .lifeos-card-visual .real-photo-unavailable{display:none!important}
+#exerciseList .lifeos-card-visual.lib-nophoto::after{content:attr(data-initial);font-size:22px;font-weight:800;color:var(--green)}
+#exerciseList .lifeos-card-body{display:contents!important}
+#exerciseList .lifeos-card-body>*{grid-column:2;margin:0!important}
+#exerciseList .lifeos-card-kicker,#exerciseList .lifeos-card-foot{display:none!important}
+#exerciseList .lifeos-card-body h3{font-size:16px!important;line-height:1.25!important;margin:0!important;padding:0!important;overflow-wrap:anywhere;grid-row:1;align-self:end}
+#exerciseList .lifeos-card-body p{font-size:13px!important;line-height:1.35!important;color:var(--muted)!important;margin:2px 0 0!important;grid-row:2;align-self:start;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#exerciseList .lifeos-card-visual{grid-column:1;grid-row:1 / span 2}
+#exerciseList .lifeos-card-body .lifeos-favorite-toggle{background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+#exerciseList .lifeos-card-body .lifeos-favorite-toggle:not(.is-favorite){color:var(--muted)!important}
+#exerciseList .lifeos-card-body .lifeos-favorite-toggle.is-favorite{color:#e0457b!important}
+#exerciseList .lifeos-card-body .lifeos-favorite-toggle{grid-column:3!important;grid-row:1 / span 2!important;position:static!important;inset:auto!important;width:40px!important;height:40px!important;margin:0!important;justify-self:end;align-self:center;display:grid;place-items:center;border-radius:50%!important;font-size:18px!important}
+#exerciseList .lib-meta:not(:empty)::before{content:' · '}
+#exerciseDetailOverlay .form-actions .lib-delete{background:transparent!important;color:#e0645a!important;border:1px solid #e0645a88!important;box-shadow:none!important}
+</style>
+<script id="library-compact-script">
+(function(){
+ const view=document.getElementById('view-exercises');if(!view)return;
+ const cat=document.getElementById('exerciseCategory'),filters=view.querySelector('.filters'),list=document.getElementById('exerciseList');
+ if(!cat||!filters||!list)return;
+ const chips=document.createElement('div');chips.className='lib-chips';chips.setAttribute('role','toolbar');chips.setAttribute('aria-label','Kategorie filtern');
+ const defs=[['all','Alle'],['Krafttraining','Kraft'],['Ausdauer','Ausdauer'],['Mobilität','Mobilität'],['fav','♥ Favoriten']];
+ chips.innerHTML=defs.map(([v,l])=>`<button type="button" class="lib-chip" data-lib-chip="${v}">${l}</button>`).join('');
+ filters.after(chips);
+ const favOn=()=>list.querySelector('[data-lifeos-favorites-filter]')?.getAttribute('aria-pressed')==='true';
+ function syncChips(){const f=favOn();chips.querySelectorAll('.lib-chip').forEach(b=>{const v=b.dataset.libChip;const on=v==='fav'?f:(!f&&cat.value===v);b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))})}
+ chips.addEventListener('click',e=>{const b=e.target.closest('[data-lib-chip]');if(!b)return;const v=b.dataset.libChip;
+  if(v==='fav'){if(!favOn())list.querySelector('[data-lifeos-favorites-filter]')?.click();}
+  else{if(favOn())list.querySelector('[data-lifeos-favorites-filter]')?.click();cat.value=v;cat.dispatchEvent(new Event('change',{bubbles:true}));}
+  syncChips();});
+ const EQ={'Kein Gerät':''};
+ function decorate(){
+  const c=list.querySelector('.lifeos-library-count>span');
+  if(c&&/Tippe/.test(c.textContent))c.textContent=c.textContent.replace(/\s*·\s*Tippe.*$/,'');
+  list.querySelectorAll('article.lifeos-library-card').forEach(a=>{
+   const v=a.querySelector('.lifeos-card-visual'),name=a.querySelector('h3')?.textContent.trim()||'';
+   if(v){const img=v.querySelector('img');const ok=img&&!img.hidden;v.classList.toggle('lib-nophoto',!ok);v.dataset.initial=name.charAt(0).toUpperCase();
+    if(img&&!img.dataset.libWatch){img.dataset.libWatch='1';img.addEventListener('error',()=>v.classList.add('lib-nophoto'));}}
+   const body=a.querySelector('.lifeos-card-body');
+   const p=a.querySelector('.lifeos-card-body p');if(p&&!p.querySelector('.lib-meta')){const k=(a.querySelector('.lifeos-card-kicker')?.textContent||'').trim();const m=document.createElement('span');m.className='lib-meta';m.textContent=k in EQ?EQ[k]:k;p.append(m);}
+  });
+  syncChips();
+ }
+ new MutationObserver(decorate).observe(list,{childList:true,subtree:false});
+ decorate();
+ // Löschen in der Detailansicht statt in jeder Zeile
+ const overlay=document.getElementById('exerciseDetailOverlay');
+ const actions=overlay?.querySelector('.form-actions');
+ if(actions){const del=document.createElement('button');del.type='button';del.className='btn danger lib-delete';del.textContent='Löschen';actions.prepend(del);
+  del.addEventListener('click',()=>{const title=document.getElementById('exerciseDetailTitle')?.textContent;const ex=(data.exercises||[]).find(x=>x.name===title);if(!ex)return;
+   if(typeof closeExerciseDetails==='function')closeExerciseDetails();
+   const b=list.querySelector(`[data-delete-exercise="${CSS.escape(ex.id)}"]`);if(b)b.click();});}
+})();
+</script>
+
 </body></html>
