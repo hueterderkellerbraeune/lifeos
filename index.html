@@ -5703,4 +5703,20 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
 if("serviceWorker" in navigator&&window.isSecureContext){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(e=>console.warn('Service Worker nicht registriert:',e))})}
 </script>
 
+<style id="no-templates-style">
+#nav [data-view="plans"],#view-plans,[data-lifeos-save-template],#lifeosTemplateToolbar,.lifeos-template-toolbar{display:none!important}
+</style>
+<script id="no-templates-script">
+(function(){
+ function strip(){
+  document.querySelectorAll('[data-view="plans"]').forEach(b=>{if(b.closest('#nav')||b.tagName==='BUTTON'||b.tagName==='A')b.remove()});
+  document.querySelectorAll('[data-lifeos-save-template]').forEach(b=>b.remove());
+  const v=document.getElementById('view-plans');if(v){if(v.classList.contains('active')&&typeof navTo==='function')navTo('dashboard');}
+ }
+ if(typeof navTo==='function'){const prev=navTo;navTo=function(view,...a){if(view==='plans')view='dashboard';return prev.call(this,view,...a)};window.navTo=navTo;}
+ strip();
+ new MutationObserver(()=>{if(document.querySelector('#nav [data-view="plans"],[data-lifeos-save-template]'))strip()}).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
 </body></html>
