@@ -5100,5 +5100,73 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
  closeSessionDetails=function(){const wasOpen=document.getElementById('sessionDetailOverlay')?.classList.contains('open');const r=previous.apply(this,arguments);if(wasOpen){try{renderAll()}catch(e){console.error(e)}}return r};
 })();
 </script>
+<style id="swipe-back-style">
+#lifeosSwipeBack{position:fixed;left:6px;top:50%;z-index:400;width:40px;height:40px;margin-top:-20px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--panel,#fff);color:var(--green,#315D48);border:1px solid var(--line,#D8E4D9);box-shadow:0 4px 14px #0003;font-size:20px;font-weight:800;opacity:0;transform:translateX(-50px);pointer-events:none;transition:opacity .15s,transform .15s}
+#lifeosSwipeBack.dragging{transition:none}
+#lifeosSwipeBack.ready{background:var(--green,#315D48);color:#fff}
+</style>
+<script id="swipe-back-script">
+// Nach rechts wischen = zurück (wie der Zurück-Knopf). Nicht auf Elementen, die selbst seitlich wischen
+// (Dashboard-Kalender, Übungskarten), nicht in Eingabefeldern und nicht in seitlich scrollbaren Bereichen.
+(()=>{
+ 'use strict';
+ const TRIGGER=90;
+ const hint=document.createElement('div');hint.id='lifeosSwipeBack';hint.setAttribute('aria-hidden','true');hint.textContent='←';document.body.append(hint);
+ const EXCLUDE='#miniWeek,.lifeos-swipeable > .training-exercise-fold,input,textarea,select,[contenteditable="true"],#lifeosUndoBar';
+ const scrollsSideways=el=>{for(let n=el;n&&n!==document.body;n=n.parentElement){const s=getComputedStyle(n);if(/(auto|scroll)/.test(s.overflowX)&&n.scrollWidth>n.clientWidth+2&&n.scrollLeft>0)return true}return false};
+ let g=null;
+ const show=dx=>{const p=Math.min(1,dx/TRIGGER);hint.style.opacity=String(p);hint.style.transform=`translateX(${Math.round(-50+p*56)}px)`;hint.classList.toggle('ready',dx>=TRIGGER)};
+ const hide=()=>{hint.classList.remove('dragging','ready');hint.style.opacity='';hint.style.transform=''};
+ document.addEventListener('touchstart',e=>{
+  g=null;if(e.touches.length!==1)return;
+  const t=e.target;if(t.closest&&t.closest(EXCLUDE))return;if(scrollsSideways(t))return;
+  g={x:e.touches[0].clientX,y:e.touches[0].clientY,t:performance.now(),active:false,dx:0};
+ },{passive:true});
+ document.addEventListener('touchmove',e=>{
+  if(!g)return;const dx=e.touches[0].clientX-g.x,dy=e.touches[0].clientY-g.y;
+  if(!g.active){if(Math.abs(dy)>14&&Math.abs(dy)>Math.abs(dx)){g=null;return}if(dx<-10){g=null;return}if(dx<16)return;g.active=true;hint.classList.add('dragging')}
+  if(Math.abs(dy)>80){g=null;hide();return}
+  g.dx=dx;show(dx);
+ },{passive:true});
+ document.addEventListener('touchend',()=>{if(!g)return;const ok=g.active&&g.dx>=TRIGGER&&performance.now()-g.t<1200;g=null;hide();if(ok)goBack()},{passive:true});
+ document.addEventListener('touchcancel',()=>{g=null;hide()},{passive:true});
+ // Ein Schritt zurück innerhalb der App. Gibt false zurück, wenn es nichts mehr zurückzugehen gibt (Dashboard).
+ function goBack(){
+  const sheetDone=document.querySelector('.lifeos-picker-sheet:not([hidden]) .lifeos-picker-done');if(sheetDone){sheetDone.click();return true}
+  const sidebar=document.querySelector('.sidebar.open');if(sidebar&&typeof closeSidebar==='function'){closeSidebar();return true}
+  const overlayOpen=document.querySelector('#sessionDetailOverlay.open,#exerciseDetailOverlay.open,#quickActionsOverlay.open');
+  if(!overlayOpen&&currentView==='week'){const cancel=document.querySelector('#sessionFormWrap [data-cancel-form="session"]:not(.icon-btn)')||document.querySelector('#sessionFormWrap [data-cancel-form="session"]');if(cancel){cancel.click();return true}}
+  const back=document.getElementById('lifeosBackBtn');if(back&&!back.disabled){back.click();return true}
+  if(currentView!=='dashboard'&&typeof navTo==='function'){navTo('dashboard');return true}
+  return false;
+ }
+ window.lifeosGoBack=goBack;
+})();
+</script>
+
+<script id="browser-back-script">
+// Browser-/Handy-Zurück (Wischgeste, Android-Zurück-Taste) bleibt in der App: Ein Puffer-Eintrag im Verlauf
+// fängt „Zurück“ ab, die App geht einen Schritt zurück und legt den Puffer neu an. Auf dem Dashboard ohne
+// offene Ansicht verlässt „Zurück“ die App wie gewohnt.
+(()=>{
+ 'use strict';
+ if(!window.history||typeof history.pushState!=='function')return;
+ const guard=()=>{try{history.pushState({lifeos:'guard'},'')}catch(e){}};
+ // Nach einem Neuladen steht man schon auf dem Puffer (darunter liegt der Basis-Eintrag) – dann nichts anlegen.
+ if(!(history.state&&history.state.lifeos==='guard')){try{history.replaceState({lifeos:'base'},'')}catch(e){}guard()}
+ let armed=true;
+ const atRoot=()=>!document.querySelector('.detail-overlay.open,.quick-actions-overlay.open,.lifeos-picker-sheet:not([hidden]),.sidebar.open')&&currentView==='dashboard';
+ window.addEventListener('popstate',()=>{
+  if(!armed)return;
+  // Auf dem Dashboard ohne offene Ansicht: App wie gewohnt verlassen.
+  if(atRoot()){armed=false;history.back();return}
+  window.lifeosGoBack?.();
+  guard();
+ });
+ // Nach dem Verlassen der Wurzel (neue Ansicht geöffnet) den Puffer wieder aktivieren.
+ const rearm=()=>{if(!armed&&!atRoot()){armed=true;guard()}};
+ document.addEventListener('click',()=>setTimeout(rearm,0),true);
+})();
+</script>
 
 </body></html>
