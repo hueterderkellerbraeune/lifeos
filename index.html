@@ -5216,10 +5216,19 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
   const sidebar=document.querySelector('.sidebar.open');if(sidebar&&typeof closeSidebar==='function'){closeSidebar();return true}
   const overlayOpen=document.querySelector('#sessionDetailOverlay.open,#exerciseDetailOverlay.open,#quickActionsOverlay.open');
   if(!overlayOpen&&currentView==='week'){const cancel=document.querySelector('#sessionFormWrap [data-cancel-form="session"]:not(.icon-btn)')||document.querySelector('#sessionFormWrap [data-cancel-form="session"]');if(cancel){cancel.click();return true}}
+  if(currentView==='dashboard'&&!overlayOpen)return openMenu();
   const back=document.getElementById('lifeosBackBtn');if(back&&!back.disabled){back.click();return true}
   if(currentView!=='dashboard'&&typeof navTo==='function'){navTo('dashboard');return true}
+  // Auf dem Dashboard: Wischen nach rechts öffnet die Navigationsleiste (nur wenn sie ausklappbar ist, also am Handy).
+  if(openMenu())return true;
   return false;
  }
+ function openMenu(){
+  const btn=document.getElementById('menuBtn');
+  if(!btn||!btn.offsetParent||document.querySelector('.sidebar.open'))return false;
+  btn.click();return true;
+ }
+ window.lifeosOpenMenu=openMenu;
  window.lifeosGoBack=goBack;
 })();
 </script>
@@ -5234,14 +5243,20 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
  const guard=()=>{try{history.pushState({lifeos:'guard'},'')}catch(e){}};
  // Nach einem Neuladen steht man schon auf dem Puffer (darunter liegt der Basis-Eintrag) – dann nichts anlegen.
  if(!(history.state&&history.state.lifeos==='guard')){try{history.replaceState({lifeos:'base'},'')}catch(e){}guard()}
- let armed=true;
+ let armed=true,menuByBack=false;
  const atRoot=()=>!document.querySelector('.detail-overlay.open,.quick-actions-overlay.open,.lifeos-picker-sheet:not([hidden]),.sidebar.open')&&currentView==='dashboard';
  window.addEventListener('popstate',()=>{
   if(!armed)return;
-  // Auf dem Dashboard ohne offene Ansicht: App wie gewohnt verlassen.
-  if(atRoot()){armed=false;history.back();return}
+  // Dashboard ohne offene Ansicht: erst die Navigationsleiste öffnen; ein weiteres „Zurück“ schließt sie,
+  // danach verlässt „Zurück“ die App wie gewohnt.
+  if(atRoot()){
+   if(!menuByBack&&window.lifeosOpenMenu?.()){menuByBack=true;guard();return}
+   armed=false;menuByBack=false;history.back();return;
+  }
+  const closingBackMenu=menuByBack&&document.querySelector('.sidebar.open')&&currentView==='dashboard';
   window.lifeosGoBack?.();
-  guard();
+  if(closingBackMenu){armed=false;menuByBack=false;return}
+  menuByBack=false;guard();
  });
  // Nach dem Verlassen der Wurzel (neue Ansicht geöffnet) den Puffer wieder aktivieren.
  const rearm=()=>{if(!armed&&!atRoot()){armed=true;guard()}};
