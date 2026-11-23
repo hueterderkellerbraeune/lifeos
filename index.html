@@ -4912,4 +4912,35 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
 #nav > [data-view="week"]{display:none!important}
 </style>
 
+<script id="training-auto-complete-script">
+// Training schließt sich automatisch ab, sobald alle Sätze und Übungen abgehakt sind –
+// kein extra „Abschließen“ mehr nötig. Wird wieder etwas abgehakt-entfernt, ist es wieder offen
+// (nur wenn es automatisch abgeschlossen wurde; manuell abgeschlossene bleiben abgeschlossen).
+(()=>{
+ 'use strict';
+ const overlay=document.getElementById('sessionDetailOverlay'),content=document.getElementById('sessionDetailContent');
+ if(!overlay||!content||typeof lifeosPersistDetailInputs!=='function')return;
+ const previous=lifeosPersistDetailInputs;
+ lifeosPersistDetailInputs=function(){
+  const result=previous.apply(this,arguments);
+  try{sync()}catch(e){console.error(e)}
+  return result;
+ };
+ function sync(){
+  if(!overlay.classList.contains('open'))return;
+  const s=data.sessions.find(x=>x.id===overlay.dataset.activeSessionId);if(!s)return;
+  const checks=[...content.querySelectorAll('[data-set-done],[data-activity-done]')];
+  if(!checks.length)return;
+  const allDone=checks.every(c=>c.checked);
+  if(allDone&&s.status!=='completed'){
+   s.status='completed';s.completedAt=new Date().toISOString();s.autoCompleted=true;if(!s.duration)s.duration=0;
+   if(save())toast('Alles abgehakt – Training abgeschlossen ✓');
+  }else if(!allDone&&s.status==='completed'&&s.autoCompleted){
+   s.status='planned';delete s.completedAt;delete s.autoCompleted;
+   if(save())toast('Training wieder offen');
+  }
+ }
+})();
+</script>
+
 </body></html>
