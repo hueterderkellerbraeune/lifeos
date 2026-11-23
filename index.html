@@ -4919,6 +4919,10 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
 #sessionFormWrap .field > div.sub,
 #sessionFormWrap .field > p.sub{display:none!important}
 #sessionFormWrap .form-panel{padding-top:16px}
+/* Abbrechen / Training speichern: nicht mehr als feste Leiste unten, sondern am Ende des Formulars (unter „Einheit ist bereits abgeschlossen“). */
+#sessionFormWrap .sessionForm{padding-bottom:0!important}
+#sessionFormWrap .sessionForm > .form-actions{position:static!important;display:grid!important;grid-template-columns:1fr 1fr;gap:10px!important;margin:18px 0 0!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:auto!important}
+#sessionFormWrap .sessionForm > .form-actions .btn{width:100%;min-height:48px;white-space:nowrap;padding-left:8px!important;padding-right:8px!important}
 body:has(#view-week.active) #pageTitle{white-space:nowrap;font-size:clamp(17px,5vw,22px)}
 html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
 .lifeos-picker-open{width:100%;min-height:46px;font-weight:700}
