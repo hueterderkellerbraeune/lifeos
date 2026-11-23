@@ -5212,12 +5212,14 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
   if(Math.abs(dy)>80){g=null;hide();return}
   g.dx=dx;show(dx);
  },{passive:true});
- document.addEventListener('touchend',()=>{if(!g)return;const ok=g.active&&g.dx>=TRIGGER&&performance.now()-g.t<1200;g=null;hide();if(ok)goBack()},{passive:true});
+ document.addEventListener('touchend',()=>{if(!g)return;const ok=g.active&&g.dx>=TRIGGER&&performance.now()-g.t<1200;g=null;hide();if(ok)goBack(true)},{passive:true});
  document.addEventListener('touchcancel',()=>{g=null;hide()},{passive:true});
  // Ein Schritt zurück innerhalb der App. Gibt false zurück, wenn es nichts mehr zurückzugehen gibt (Dashboard).
- function goBack(){
+ function goBack(fromSwipe=false){
   const sheetDone=document.querySelector('.lifeos-picker-sheet:not([hidden]) .lifeos-picker-done');if(sheetDone){sheetDone.click();return true}
-  const sidebar=document.querySelector('.sidebar.open');if(sidebar&&typeof closeSidebar==='function'){closeSidebar();return true}
+  const sidebar=document.querySelector('.sidebar.open');
+  if(sidebar&&fromSwipe&&currentView==='dashboard')return true; // Rechtswischen auf dem Dashboard: Leiste bleibt offen
+  if(sidebar&&typeof closeSidebar==='function'){closeSidebar();return true}
   const overlayOpen=document.querySelector('#sessionDetailOverlay.open,#exerciseDetailOverlay.open,#quickActionsOverlay.open');
   if(!overlayOpen&&currentView==='week'){const cancel=document.querySelector('#sessionFormWrap [data-cancel-form="session"]:not(.icon-btn)')||document.querySelector('#sessionFormWrap [data-cancel-form="session"]');if(cancel){cancel.click();return true}}
   if(currentView==='dashboard'&&!overlayOpen)return openMenu();
@@ -5233,7 +5235,7 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
   btn.click();return true;
  }
  window.lifeosOpenMenu=openMenu;
- window.lifeosGoBack=goBack;
+ window.lifeosGoBack=()=>goBack(false);
 })();
 </script>
 
@@ -5247,20 +5249,16 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
  const guard=()=>{try{history.pushState({lifeos:'guard'},'')}catch(e){}};
  // Nach einem Neuladen steht man schon auf dem Puffer (darunter liegt der Basis-Eintrag) – dann nichts anlegen.
  if(!(history.state&&history.state.lifeos==='guard')){try{history.replaceState({lifeos:'base'},'')}catch(e){}guard()}
- let armed=true,menuByBack=false;
+ let armed=true;
  const atRoot=()=>!document.querySelector('.detail-overlay.open,.quick-actions-overlay.open,.lifeos-picker-sheet:not([hidden]),.sidebar.open')&&currentView==='dashboard';
  window.addEventListener('popstate',()=>{
   if(!armed)return;
-  // Dashboard ohne offene Ansicht: erst die Navigationsleiste öffnen; ein weiteres „Zurück“ schließt sie,
-  // danach verlässt „Zurück“ die App wie gewohnt.
-  if(atRoot()){
-   if(!menuByBack&&window.lifeosOpenMenu?.()){menuByBack=true;guard();return}
-   armed=false;menuByBack=false;history.back();return;
-  }
-  const closingBackMenu=menuByBack&&document.querySelector('.sidebar.open')&&currentView==='dashboard';
+  // Dashboard ohne offene Ansicht: Zurück/Rechtswischen öffnet immer die Navigationsleiste – die App wird
+  // dadurch nie verlassen; ist die Leiste schon offen, bleibt sie offen. Überall sonst: ein Schritt zurück.
+  if(atRoot()){window.lifeosOpenMenu?.();guard();return}
+  if(currentView==='dashboard'&&document.querySelector('.sidebar.open')&&!document.querySelector('.detail-overlay.open,.quick-actions-overlay.open')){guard();return} // Leiste bleibt offen
   window.lifeosGoBack?.();
-  if(closingBackMenu){armed=false;menuByBack=false;return}
-  menuByBack=false;guard();
+  guard();
  });
  // Nach dem Verlassen der Wurzel (neue Ansicht geöffnet) den Puffer wieder aktivieren.
  const rearm=()=>{if(!armed&&!atRoot()){armed=true;guard()}};
