@@ -5501,4 +5501,116 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
 })();
 </script>
 
+<style id="strength-goal-style">
+/* Trainingsziel + Gewichtsvorschlag aus der geschätzten Maximalkraft (1RM). */
+.lifeos-goal-bar{display:grid;gap:6px;margin:0 0 12px}
+.lifeos-goal-bar > span{font-size:12px;font-weight:700;color:var(--muted)}
+.lifeos-goal-options{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.lifeos-goal-options button{min-height:40px;padding:6px 4px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.lifeos-goal-options button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.lifeos-suggest{display:grid;gap:6px;padding:10px 12px;border-radius:12px;background:var(--fc-soft,#eef4ef);border:1px solid var(--line)}
+.lifeos-suggest-main{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lifeos-suggest-main b{font-size:15px}
+.lifeos-suggest-main small,.lifeos-suggest-meta{font-size:12px;color:var(--muted)}
+.lifeos-suggest-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.lifeos-suggest .btn{min-height:36px;padding:6px 12px!important;font-size:13px!important;white-space:nowrap}
+.lifeos-suggest-link{border:0;background:none;padding:0;color:var(--green);font:inherit;font-size:12px;font-weight:700;text-decoration:underline;cursor:pointer}
+.lifeos-1rm-edit{display:flex;gap:6px;align-items:center}
+.lifeos-1rm-edit input{width:90px;min-height:36px;font-size:16px;text-align:center}
+.ls-1rm{font-size:11px;font-weight:600;color:var(--muted)}
+</style>
+<script id="strength-goal-script">
+// Maximalkraft (1RM) je Übung aus erledigten Sätzen schätzen (Epley: Gewicht × (1 + Wdh./30)) oder selbst eintragen,
+// Trainingsziel wählen und daraus Gewicht, Wiederholungen, Sätze und Pause vorschlagen.
+(()=>{
+ 'use strict';
+ const overlay=document.getElementById('sessionDetailOverlay'),content=document.getElementById('sessionDetailContent');
+ if(!overlay||!content||typeof showSessionDetails!=='function')return;
+ const GOALS={
+  kraft:{label:'Maximalkraft',reps:5,sets:4,rest:180,range:'1–5 Wdh. · 85–95 % 1RM'},
+  hypertrophie:{label:'Muskelaufbau',reps:10,sets:3,rest:90,range:'6–12 Wdh. · 67–85 % 1RM'},
+  ausdauer:{label:'Kraftausdauer',reps:15,sets:3,rest:45,range:'12–20 Wdh. · 50–67 % 1RM'}
+ };
+ const nf=(v,d=1)=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:d}).format(v);
+ const n=v=>v===''||v===null||v===undefined||isNaN(Number(v))?0:Number(v);
+ const epley=(w,r)=>r<=1?w:w*(1+r/30);
+ const round=kg=>kg>=5?Math.floor(kg/2.5)*2.5:Math.round(kg*2)/2;
+ const daysAgo=(date,days)=>{const d=new Date(dateObj(todayISO()));d.setDate(d.getDate()-days);return date>=iso(d)};
+ window.lifeosEstimateOneRm=function(exId,excludeSessionId){
+  const found=[];
+  data.sessions.forEach(s=>{
+   if(s.id===excludeSessionId)return;
+   (s.exerciseIds||[]).forEach((id,i)=>{
+    if(id!==exId)return;const key=(s.exerciseEntryIds||[])[i]||id;const recs=(s.exerciseDetails||{})[key]?.setRecords||[];
+    const anyDone=recs.some(r=>r&&r.done);
+    recs.forEach(r=>{if(!r)return;const w=n(r.weight),rp=n(r.reps);const did=anyDone?r.done:completed(s);if(did&&w>0&&rp>=1&&rp<=15)found.push({value:epley(w,rp),date:s.date,source:'geschätzt'})});
+   });
+  });
+  const manual=(data.oneRmManual||{})[exId];if(manual&&n(manual.kg)>0)found.push({value:n(manual.kg),date:manual.date||'0000',source:'eingetragen'});
+  if(!found.length)return null;
+  const recent=found.filter(f=>daysAgo(f.date,56));
+  const pick=recent.length?recent.reduce((a,b)=>b.value>a.value?b:a):found.reduce((a,b)=>b.date>a.date?b:a);
+  return {value:Math.round(pick.value*10)/10,source:pick.source,date:pick.date};
+ };
+ const goalOf=s=>GOALS[s.trainingGoal]?s.trainingGoal:(GOALS[data.settings?.trainingGoal]?data.settings.trainingGoal:'hypertrophie');
+ const session=()=>data.sessions.find(x=>x.id===overlay.dataset.activeSessionId);
+ const strengthCards=()=>[...content.querySelectorAll('.exercise-detail[data-exercise-id]')];
+ function exIdOf(s,key){const i=(s.exerciseEntryIds||[]).indexOf(key);return i>=0?(s.exerciseIds||[])[i]:key}
+ function suggestion(s,exId){
+  const g=GOALS[goalOf(s)],rm=window.lifeosEstimateOneRm(exId,s.id);
+  if(!rm)return {g,rm:null};
+  return {g,rm,kg:round(rm.value/(1+g.reps/30))};
+ }
+ function decorate(){
+  const s=session();if(!s||overlay.classList.contains('lifeos-summary-mode'))return;
+  const cards=strengthCards();if(!cards.length)return;
+  const goal=goalOf(s);
+  let bar=content.querySelector('.lifeos-goal-bar');
+  if(!bar){bar=document.createElement('div');bar.className='lifeos-goal-bar';bar.innerHTML='<span>Trainingsziel</span><div class="lifeos-goal-options" role="group" aria-label="Trainingsziel">'+Object.entries(GOALS).map(([k,v])=>`<button type="button" data-goal="${k}">${v.label}</button>`).join('')+'</div>';cards[0].before(bar)}
+  bar.querySelectorAll('[data-goal]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.goal===goal)));
+  cards.forEach(card=>{
+   const key=card.dataset.exerciseId,exId=exIdOf(s,key),body=card.querySelector('.training-exercise-body');if(!body)return;
+   const sug=suggestion(s,exId);
+   const html=sug.rm
+    ?`<div class="lifeos-suggest-main"><div><b>${sug.g.sets} × ${sug.g.reps} mit ${nf(sug.kg,1)} kg</b><br><small>${sug.g.label} · ${sug.g.rest>=120?nf(sug.g.rest/60,1)+' Min.':sug.g.rest+' Sek.'} Pause</small></div><button type="button" class="btn small" data-apply-suggest>Übernehmen</button></div><div class="lifeos-suggest-meta"><span>1RM ≈ ${nf(sug.rm.value,1)} kg (${sug.rm.source})</span><button type="button" class="lifeos-suggest-link" data-edit-1rm>1RM ändern</button></div>`
+    :`<div class="lifeos-suggest-meta"><span>Noch keine Maximalkraft bekannt – trag einen Satz ein und hake ihn ab, oder gib dein 1RM ein.</span><button type="button" class="lifeos-suggest-link" data-edit-1rm>1RM eingeben</button></div>`;
+   let box=body.querySelector(':scope > .lifeos-suggest');
+   if(!box){box=document.createElement('div');box.className='lifeos-suggest';body.prepend(box)}
+   if(box.dataset.html!==html&&!box.querySelector('.lifeos-1rm-edit')){box.innerHTML=html;box.dataset.html=html}
+  });
+ }
+ const previous=showSessionDetails;
+ showSessionDetails=function(){const r=previous.apply(this,arguments);try{decorate()}catch(e){console.error(e)}return r};
+ let queued=false;
+ new MutationObserver(()=>{if(queued)return;queued=true;queueMicrotask(()=>{queued=false;if(overlay.classList.contains('open'))try{decorate()}catch(e){}})}).observe(content,{childList:true,subtree:true});
+ content.addEventListener('click',e=>{
+  const s=session();if(!s)return;
+  const goalBtn=e.target.closest('[data-goal]');
+  if(goalBtn){s.trainingGoal=goalBtn.dataset.goal;data.settings=data.settings||{};data.settings.trainingGoal=goalBtn.dataset.goal;if(typeof lifeosPersistDetailInputs==='function')lifeosPersistDetailInputs(false);save();decorate();return}
+  const card=e.target.closest('.exercise-detail[data-exercise-id]');if(!card)return;
+  const key=card.dataset.exerciseId,exId=exIdOf(s,key);
+  if(e.target.closest('[data-apply-suggest]')){
+   const sug=suggestion(s,exId);if(!sug.rm)return;
+   if(typeof lifeosPersistDetailInputs==='function')lifeosPersistDetailInputs(false);
+   s.exerciseDetails=s.exerciseDetails||{};const d=s.exerciseDetails[key]=s.exerciseDetails[key]||{};
+   d.targetSets=sug.g.sets;d.targetReps=sug.g.reps;d.targetWeight=sug.kg;d.restSeconds=sug.g.rest;
+   const recs=Array.isArray(d.setRecords)?d.setRecords:[];
+   d.setRecords=Array.from({length:Math.max(sug.g.sets,recs.filter(r=>r&&r.done).length)},(_,j)=>{const r=recs[j]||{};return r.done?r:{...r,weight:sug.kg,reps:sug.g.reps,done:false}});
+   if(save()){showSessionDetails(s.id);toast('Vorschlag übernommen: '+sug.g.sets+' × '+sug.g.reps+' mit '+nf(sug.kg,1)+' kg')}
+   return;
+  }
+  if(e.target.closest('[data-edit-1rm]')){
+   const box=card.querySelector('.lifeos-suggest');const cur=window.lifeosEstimateOneRm(exId,s.id);
+   box.innerHTML=`<div class="lifeos-1rm-edit"><label>1RM (kg)<input type="number" inputmode="decimal" min="0" max="1000" step="any" data-1rm-input value="${cur?cur.value:''}"></label><button type="button" class="btn small" data-save-1rm>Speichern</button><button type="button" class="lifeos-suggest-link" data-cancel-1rm>Abbrechen</button></div><small class="lifeos-suggest-meta">Das schwerste Gewicht, das du genau 1× sauber schaffst.</small>`;box.dataset.html='';return;
+  }
+  if(e.target.closest('[data-cancel-1rm]')){card.querySelector('.lifeos-suggest').innerHTML='';decorate();return}
+  if(e.target.closest('[data-save-1rm]')){
+   const v=n(card.querySelector('[data-1rm-input]').value);
+   data.oneRmManual=data.oneRmManual||{};if(v>0)data.oneRmManual[exId]={kg:v,date:todayISO()};else delete data.oneRmManual[exId];
+   save();card.querySelector('.lifeos-suggest').innerHTML='';decorate();toast(v>0?'1RM gespeichert':'1RM entfernt');
+  }
+ });
+})();
+</script>
+
 </body></html>
