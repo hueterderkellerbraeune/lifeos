@@ -5572,7 +5572,7 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
    const key=card.dataset.exerciseId,exId=exIdOf(s,key),body=card.querySelector('.training-exercise-body');if(!body)return;
    const sug=suggestion(s,exId);
    const html=sug.rm
-    ?`<div class="lifeos-suggest-main"><div><b>${sug.g.sets} × ${sug.g.reps} mit ${nf(sug.kg,1)} kg</b><br><small>${sug.g.label} · ${sug.g.rest>=120?nf(sug.g.rest/60,1)+' Min.':sug.g.rest+' Sek.'} Pause</small></div><button type="button" class="btn small" data-apply-suggest>Übernehmen</button></div><div class="lifeos-suggest-meta"><span>1RM ≈ ${nf(sug.rm.value,1)} kg (${sug.rm.source})</span><button type="button" class="lifeos-suggest-link" data-edit-1rm>1RM ändern</button></div>`
+    ?`<div class="lifeos-suggest-main"><div><b>${sug.g.sets} Sätze × ${sug.g.reps} Wdh. · ${nf(sug.kg,1)} kg</b><br><small>${sug.g.label} · ${sug.g.rest>=120?nf(sug.g.rest/60,1)+' Min.':sug.g.rest+' Sek.'} Pause</small></div><button type="button" class="btn small" data-apply-suggest>Übernehmen</button></div><div class="lifeos-suggest-meta"><span>1RM ≈ ${nf(sug.rm.value,1)} kg (${sug.rm.source})</span><button type="button" class="lifeos-suggest-link" data-edit-1rm>1RM ändern</button></div>`
     :`<div class="lifeos-suggest-meta"><span>Noch keine Maximalkraft bekannt – trag einen Satz ein und hake ihn ab, oder gib dein 1RM ein.</span><button type="button" class="lifeos-suggest-link" data-edit-1rm>1RM eingeben</button></div>`;
    let box=body.querySelector(':scope > .lifeos-suggest');
    if(!box){box=document.createElement('div');box.className='lifeos-suggest';body.prepend(box)}
@@ -5596,7 +5596,7 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
    d.targetSets=sug.g.sets;d.targetReps=sug.g.reps;d.targetWeight=sug.kg;d.restSeconds=sug.g.rest;
    const recs=Array.isArray(d.setRecords)?d.setRecords:[];
    d.setRecords=Array.from({length:Math.max(sug.g.sets,recs.filter(r=>r&&r.done).length)},(_,j)=>{const r=recs[j]||{};return r.done?r:{...r,weight:sug.kg,reps:sug.g.reps,done:false}});
-   if(save()){showSessionDetails(s.id);toast('Vorschlag übernommen: '+sug.g.sets+' × '+sug.g.reps+' mit '+nf(sug.kg,1)+' kg')}
+   if(save()){showSessionDetails(s.id);toast('Übernommen: '+sug.g.sets+' Sätze × '+sug.g.reps+' Wdh. · '+nf(sug.kg,1)+' kg')}
    return;
   }
   if(e.target.closest('[data-edit-1rm]')){
