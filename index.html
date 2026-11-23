@@ -417,7 +417,8 @@ function monthGrid(el,offset=0){const dates=monthDates(offset);const headers=['M
 function sessionCard(s){const isDone=completed(s);return `<div class="item session-card" data-session-card="${s.id}" role="button" tabindex="0" aria-label="Details für ${esc(s.title||s.type)} öffnen"><div class="item-icon">${s.type==='Ausdauer'?'🚴':s.type==='Mobilität'?'🧘':'🏋️'}</div><div class="item-body"><b>${esc(s.title||s.type)}</b><small>${fmtDate(s.date)}${s.time?' · '+esc(s.time):''}${duration(s)?' · '+duration(s)+' Min.':''}</small>${s.notes?`<small>${esc(s.notes)}</small>`:''}</div><span class="pill ${isDone?'done':'planned'}">${isDone?'Abgeschlossen':'Geplant'}</span><button class="btn ghost small" title="Löschen" data-delete-session="${s.id}">×</button></div>`}
 function dashboardPastSessions(now=new Date()){
  const today=iso(now),time=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
- return data.sessions.filter(s=>s.date<today||(s.date===today&&(completed(s)||(s.time&&s.time<=time))))
+ // Abgeschlossene Trainings immer zeigen – auch wenn ihr Datum (z. B. nach dem Bearbeiten) in der Zukunft liegt.
+ return data.sessions.filter(s=>completed(s)||s.date<today||(s.date===today&&s.time&&s.time<=time))
   .sort((a,b)=>b.date.localeCompare(a.date)||String(b.time||'').localeCompare(String(a.time||'')));
 }
 function dashboardHistoryItem(s){
@@ -4841,9 +4842,25 @@ document.getElementById('lifeosHome').addEventListener('click',event=>{
  const previous=lifeosPersistDetailInputs;
  lifeosPersistDetailInputs=function(){
   const result=previous.apply(this,arguments);
+  try{syncTotals()}catch(e){console.error(e)}
   try{sync()}catch(e){console.error(e)}
   return result;
  };
+ // Strecke und Dauer aus den Übungen (Ausdauer/Mobilität) in die Trainingswerte übernehmen,
+ // damit Übersicht, Verlauf und Fortschritt dieselben Zahlen zeigen wie die Trainingsansicht.
+ function syncTotals(){
+  if(!overlay.classList.contains('open'))return;
+  const s=data.sessions.find(x=>x.id===overlay.dataset.activeSessionId);if(!s||!s.exerciseDetails)return;
+  const keys=(Array.isArray(s.exerciseEntryIds)&&s.exerciseEntryIds.length?s.exerciseEntryIds:s.exerciseIds)||[];
+  const cards=[...content.querySelectorAll('.exercise-detail[data-activity-id]')].map(c=>c.dataset.activityId);
+  if(!cards.length)return;
+  let km=0,hasKm=false,min=0;
+  cards.forEach(k=>{const d=s.exerciseDetails[k]||{};if(d.distanceKm!==''&&d.distanceKm!==undefined&&Number(d.distanceKm)>0){km+=Number(d.distanceKm);hasKm=true}if(Number(d.activityMinutes)>0)min+=Number(d.activityMinutes)});
+  let changed=false;
+  if(hasKm){const v=Math.round(km*1000)/1000;if(Number(s.distance||0)!==v){s.distance=v;changed=true}}
+  if(min>0){const total=Math.round(min);const onlyActivities=cards.length>=keys.length;const v=onlyActivities?total:Math.max(Number(s.duration)||0,total);if(Number(s.duration||0)!==v){s.duration=v;changed=true}}
+  if(changed)save();
+ }
  function sync(){
   if(!overlay.classList.contains('open'))return;
   const s=data.sessions.find(x=>x.id===overlay.dataset.activeSessionId);if(!s)return;
@@ -5072,6 +5089,15 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
  };
  const close=closeSessionDetails;
  closeSessionDetails=function(){lastId=null;return close.apply(this,arguments)};
+})();
+</script>
+
+<script id="overview-refresh-script">
+// Beim Schließen eines Trainings die Übersicht neu zeichnen, damit Status, Kalenderfarben und Listen sofort stimmen.
+(()=>{
+ if(typeof closeSessionDetails!=='function'||typeof renderAll!=='function')return;
+ const previous=closeSessionDetails;
+ closeSessionDetails=function(){const wasOpen=document.getElementById('sessionDetailOverlay')?.classList.contains('open');const r=previous.apply(this,arguments);if(wasOpen){try{renderAll()}catch(e){console.error(e)}}return r};
 })();
 </script>
 
