@@ -26,3 +26,12 @@ python3 -m http.server 8000
 - Der Supabase-Schlüssel im Code ist ein *publishable* Key und darf öffentlich sein – die
   Sicherheit hängt vollständig an den Row-Level-Security-Regeln der Tabelle `lifeos_data`
   (nur `auth.uid() = user_id` darf lesen/schreiben).
+
+## Als App installieren
+
+LifeOS ist eine installierbare Web-App (PWA): `manifest.webmanifest`, App-Icons in `assets/icons/`
+und ein Service Worker (`sw.js`), der die App offline startbar macht. Die Seite selbst wird immer
+zuerst aus dem Netz geladen, Updates kommen also sofort an.
+
+- **Android (Chrome):** Seite öffnen → Menü ⋮ → „App installieren“ / „Zum Startbildschirm hinzufügen“.
+- **iPhone (Safari):** Seite öffnen → Teilen-Symbol → „Zum Home-Bildschirm“.
