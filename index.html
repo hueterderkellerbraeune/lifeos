@@ -1506,7 +1506,7 @@ document.addEventListener('click',function(e){
   let label=toolbar.querySelector('.lifeos-auto-next-setting');
   if(!label){
    label=document.createElement('label');label.className='lifeos-auto-next-setting';
-   label.innerHTML='<input type="checkbox" class="lifeos-auto-next-check"> Nach letzter erledigter Serie automatisch zur nächsten offenen Übung';
+   label.innerHTML='<input type="checkbox" class="lifeos-auto-next-check"> Nach dem letzten Satz automatisch zur nächsten Übung springen';
    toolbar.append(label);
   }
   label.querySelector('input').checked=enabled;
@@ -3891,7 +3891,7 @@ document.getElementById('trainingTitleForm').addEventListener('submit',event=>{
    if(card.hasAttribute('data-exercise-id')&&targets.length){body.prepend(extras);targets.forEach(el=>extras.append(el))}
   });
   const helpers=[...root.children].filter(el=>el.matches('.lifeos-workout-overview,.lifeos-summary-v21,.lifeos-focus-toolbar,.lifeos-session-progress-summary,.lifeos-jump-list,.lifeos-jump-heading'));
-  if(helpers.length){const d=fold('Fortschritt & Trainingshilfen');root.append(d);helpers.forEach(el=>d.append(el))}
+  if(helpers.length){const d=fold('Trainingshilfen');root.append(d);helpers.forEach(el=>d.append(el))}
   const add=root.querySelector('.lifeos-add-panel');
   if(add){const d=fold('Weitere Übungen hinzufügen');add.before(d);d.append(add)}
   const footer=root.querySelector(':scope > .form-actions');if(footer)root.append(footer);
@@ -5654,5 +5654,24 @@ html.lifeos-sheet-open,html.lifeos-sheet-open body{overflow:hidden}
  });
 })();
 </script>
+
+<style id="training-helpers-simple-style">
+/* „Trainingshilfen“ aufgeräumt: nur Fokusmodus, automatisch weiter, nächste Übung und Übungsliste.
+   Fortschrittszahlen stehen bereits oben (Sätze/Volumen) und an jeder Übung. */
+#sessionDetailContent :is(.lifeos-focus-label,.lifeos-overview-stats,.lifeos-overview-bar,.lifeos-workout-overview > div:not(.lifeos-overview-stats):not(.lifeos-overview-bar):not(.lifeos-jump-list),.lifeos-overview-hint,.lifeos-jump-heading,.lifeos-next-exercise-note,.lifeos-summary-v21,.lifeos-session-progress-summary,.lifeos-workout-overview > h3){display:none!important}
+#sessionDetailContent .lifeos-focus-toolbar{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important;padding:0!important;margin:0 0 10px!important;border:0!important;background:transparent!important;box-shadow:none!important}
+#sessionDetailContent .lifeos-focus-toggle{grid-column:1/-1;min-height:44px}
+#sessionDetailContent .lifeos-focus-toggle[aria-pressed="false"] ~ :is(.lifeos-focus-prev,.lifeos-focus-next){display:none!important}
+#sessionDetailContent .lifeos-auto-next-setting{grid-column:1/-1;display:flex!important;align-items:center;gap:10px;font-size:14px;font-weight:600;margin:2px 0 0!important}
+#sessionDetailContent .lifeos-auto-next-check{width:22px;height:22px;flex:none;accent-color:var(--green)}
+#sessionDetailContent .lifeos-workout-overview{padding:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;display:grid;gap:8px}
+#sessionDetailContent .lifeos-next-exercise{min-height:44px;margin:0!important}
+#sessionDetailContent .lifeos-jump-list{display:grid!important;grid-template-columns:1fr;gap:6px!important;margin:0!important}
+#sessionDetailContent .lifeos-jump-button{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:10px;min-height:42px!important;padding:8px 12px!important;text-align:left!important}
+#sessionDetailContent .lifeos-jump-status{font-size:0!important}
+#sessionDetailContent .lifeos-jump-status::after{font-size:16px;font-weight:800;content:'○';color:var(--muted)}
+#sessionDetailContent .lifeos-jump-button[data-state="partial"] .lifeos-jump-status::after{content:'◐';color:#b7791f}
+#sessionDetailContent .lifeos-jump-button[data-state="done"] .lifeos-jump-status::after{content:'✓';color:var(--green)}
+</style>
 
 </body></html>
