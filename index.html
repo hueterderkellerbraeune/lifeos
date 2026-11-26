@@ -5892,4 +5892,60 @@ details.cy-fold .notice,details.cy-fold .cycle-calendar-note{display:block!impor
 })();
 </script>
 
+<style id="progress-tabs-style">
+/* Fortschritt: Tabs statt endloser Seite */
+#view-progress > *:not(.prg-tabs){display:none!important}
+#view-progress[data-prg="overview"] > .stats,#view-progress[data-prg="overview"] > .lifeos-goal-v24,#view-progress[data-prg="overview"] > .lifeos-activity-v22,#view-progress[data-prg="perf"] > #lifeosPerformancePanel,#view-progress[data-prg="hist"] > #lifeos-v36-history,#view-progress[data-prg="hist"] > .ly27,#view-progress[data-prg="body"] > .section-title,#view-progress[data-prg="body"] > #measurementFormWrap,#view-progress[data-prg="body"] > .columns:has(#weightChart),#view-progress[data-prg="body"] > .panel:has(#measurementList){display:block!important}
+#view-progress[data-prg="overview"] > .stats{display:grid!important}
+.prg-tabs{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;margin:0 0 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.prg-tabs button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13.5px;font-weight:700;padding:10px 2px;border-radius:10px;cursor:pointer}
+.prg-tabs button.active{background:var(--green);color:var(--fc-button-text,#fff)}
+#view-progress > .section-title > div{display:none!important}
+#view-progress > .section-title{margin:0 0 12px!important;padding:0!important}
+#view-progress > .section-title [data-action="new-measurement"]{width:100%;min-height:46px}
+#view-progress > .columns:has(#weightChart){grid-template-columns:1fr!important}
+#view-progress > .columns > .panel:has(#workoutChart){display:none!important}
+#view-progress > .stats{grid-template-columns:1fr 1fr!important;gap:10px!important;margin:0 0 14px!important}
+#view-progress > .stats .stat{padding:14px!important;min-height:0!important}
+#view-progress > .stats .stat strong{font-size:24px!important}
+#view-progress > .stats .stat small{font-size:12px!important}
+#view-progress > section,#view-progress > .panel,#view-progress > .columns{margin-bottom:14px!important}
+#view-progress > .stats{padding:0!important;background:none!important;border:0!important;box-shadow:none!important;width:auto!important;max-width:100%!important}
+#view-progress > .stats .stat{min-width:0!important;margin:0!important}
+#view-progress #lifeosPerformancePanel .panel-head .sub,#view-progress #lifeosPerformancePanel .panel-head p{display:none!important}
+#view-progress .lifeos-compare > h4{display:none!important}
+#view-progress .lifeos-performance-stats > *{background:var(--fc-soft,rgba(0,0,0,.04))!important;color:var(--ink)!important;border:1px solid var(--line)!important;box-shadow:none!important}
+#view-progress .lifeos-performance-stats > * *{color:inherit!important}
+#view-progress .lifeos-performance-stats > * strong,#view-progress .lifeos-performance-stats > * b{color:var(--green)!important}
+/* Erklärtexte raus */
+#view-progress .lifeos-activity-v22 > p,#view-progress .lifeos-goal-v24 > p,#view-progress .ly27 > p,#view-progress .ly28-hint,#view-progress #lifeos-v36-history > p,#view-progress .lifeos-compare-note,#view-progress #lifeosPerformanceResult > p.sub,#view-progress .panel:has(#measurementList) .panel-head .sub{display:none!important}
+#view-progress .lifeos-goal-v24 h4{margin-top:14px!important}
+/* Verlauf: Details-Button dezent */
+#view-progress #lifeos-v36-history .v36-item button{background:transparent!important;color:var(--green)!important;border:1px solid var(--line)!important;box-shadow:none!important;padding:7px 12px!important;min-height:0!important;font-size:13px!important}
+#view-progress #lifeos-v36-history{border-color:var(--line)!important}
+#view-progress #v36-count{font-size:13px;color:var(--muted)}
+/* Leistung: nur die letzten Einträge, Vergleich ruhiger */
+#view-progress .lifeos-performance-scroll tbody tr:nth-child(n+7){display:none}
+#view-progress .lifeos-compare-grid > *{background:var(--fc-soft,rgba(0,0,0,.04))!important;color:var(--ink)!important;border:1px solid var(--line)!important;box-shadow:none!important}
+#view-progress .lifeos-compare-grid > * *{color:inherit}
+#view-progress .lifeos-compare-grid select{background:var(--panel)!important;color:var(--ink)!important}
+</style>
+<script id="progress-tabs-script">
+(function(){
+ const v=document.getElementById('view-progress');if(!v)return;
+ const tabs=document.createElement('div');tabs.className='prg-tabs';tabs.setAttribute('role','tablist');
+ const defs=[['overview','Überblick'],['perf','Leistung'],['hist','Verlauf'],['body','Körper']];
+ tabs.innerHTML=defs.map(([k,l])=>`<button type="button" role="tab" data-prg-tab="${k}">${l}</button>`).join('');
+ v.prepend(tabs);
+ let cur='overview';try{cur=sessionStorage.getItem('lifeos-prg-tab')||'overview'}catch(e){}
+ function set(k){cur=k;v.dataset.prg=k;tabs.querySelectorAll('button').forEach(b=>{const on=b.dataset.prgTab===k;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});try{sessionStorage.setItem('lifeos-prg-tab',k)}catch(e){}}
+ tabs.addEventListener('click',e=>{const b=e.target.closest('[data-prg-tab]');if(!b)return;set(b.dataset.prgTab);window.scrollTo({top:0})});
+ set(cur);
+ // Neuer Körperdaten-Eintrag springt in den Körper-Tab
+ document.addEventListener('click',e=>{if(e.target.closest('[data-action="new-measurement"]'))set('body')},true);
+ // Neue Abschnitte, die später eingefügt werden, bleiben in der Reihenfolge hinter den Tabs
+ new MutationObserver(()=>{if(v.firstElementChild!==tabs)v.prepend(tabs)}).observe(v,{childList:true});
+})();
+</script>
+
 </body></html>
