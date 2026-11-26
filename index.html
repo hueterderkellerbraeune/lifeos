@@ -5802,4 +5802,94 @@ if("serviceWorker" in navigator&&window.isSecureContext){window.addEventListener
 })();
 </script>
 
+<style id="cycle-clean-style">
+/* Zyklus & Befinden: aufgeräumt */
+#view-cycle > .section-title,#view-cycle > .notice,#view-cycle .cycle-calendar-note{display:none!important}
+#view-cycle > .columns:empty{display:none!important}
+#view-cycle .cy-card{margin:0 0 14px!important}
+#cycleDayDetails .toolbar{display:grid!important;grid-template-columns:1fr 1fr;gap:8px}
+#cycleDayDetails .toolbar .btn{width:100%;min-height:44px;margin:0!important}
+#cycleDayDetails [data-cycle-entry="period"]{background:#c4587a!important;border-color:#c4587a!important;color:#fff!important}
+#cycleDayDetails [data-cycle-entry="log"]{background:var(--green)!important;border-color:var(--green)!important;color:var(--fc-button-text,#fff)!important}
+#cycleCalendar .cycle-calendar-header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;flex-wrap:nowrap!important}
+#cycleCalendar .cycle-calendar-header h3{margin:0!important;font-size:20px!important;white-space:nowrap}
+#cycleCalendar .cycle-calendar-header .toolbar{display:flex!important;gap:6px!important;margin:0!important;flex-wrap:nowrap!important}
+#cycleCalendar .cycle-calendar-header .toolbar .btn{min-height:38px!important;min-width:38px!important;padding:6px 10px!important}
+#cycleDayDetails [data-cycle-entry]{font-size:0!important}
+#cycleDayDetails [data-cycle-entry]::before{font-size:15px;font-weight:750}
+#cycleDayDetails [data-cycle-entry="period"]::before{content:'＋ Blutung'}
+#cycleDayDetails [data-cycle-entry="log"]::before{content:'＋ Befinden'}
+#view-cycle #cycleHistory .empty{padding:4px 0!important;min-height:0!important;text-align:left!important;font-size:14px;color:var(--muted)}
+#cyEntryHost > .panel{display:none}
+#cyEntryHost > .panel.cy-open{display:block;animation:cyIn .18s ease}
+@keyframes cyIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#cyEntryHost .cy-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+#cyEntryHost .cy-actions .btn{width:100%;min-height:44px;margin:0!important}
+#cyEntryHost .cy-two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+#cyEntryHost .cy-two .field{margin:0}
+.cy-range{display:flex;align-items:center;gap:12px}
+.cy-range input[type=range]{flex:1;accent-color:var(--green);min-height:32px;padding:0!important;border:0!important;background:transparent!important}
+.cy-range output{min-width:44px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+#cycleLogForm .field label .cy-hint{font-weight:500;color:var(--muted);font-size:12px}
+#cySummaryCard #cyclePhaseSummary .sub{font-size:13px;margin:8px 0 0}
+#cySummaryCard #cycleSummary{text-align:left!important;padding:0!important;min-height:0!important}
+#cySummaryCard #cycleSummary.empty{color:var(--muted);font-size:14px}
+#cyPeriodsCard > p.sub,#cycleTrainingContext > p[style]{display:none!important}
+#cycleHistory .list .item,#cycleTrainingContext .list .item{padding:10px 0!important}
+details.cy-fold{border:1px solid var(--line);border-radius:16px;background:var(--panel);margin:0 0 14px;overflow:hidden}
+details.cy-fold > summary{list-style:none;cursor:pointer;padding:15px 16px;font-weight:750;display:flex;justify-content:space-between;align-items:center}
+details.cy-fold > summary::-webkit-details-marker{display:none}
+details.cy-fold > summary::after{content:'›';font-size:20px;transition:transform .15s;color:var(--muted)}
+details.cy-fold[open] > summary::after{transform:rotate(90deg)}
+details.cy-fold > .cy-fold-body{padding:0 16px 16px}
+details.cy-fold > .cy-fold-body > .panel{border:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;margin:0!important}
+details.cy-fold > .cy-fold-body > .panel > .panel-head{display:none!important}
+details.cy-fold .notice,details.cy-fold .cycle-calendar-note{display:block!important;margin:0 0 10px!important;font-size:13px;color:var(--muted)}
+</style>
+<script id="cycle-clean-script">
+(function(){
+ const view=document.getElementById('view-cycle');if(!view)return;
+ const $id=id=>document.getElementById(id);
+ const panelOf=el=>el&&el.closest('.panel');
+ const cal=$id('cycleCalendar'),periodP=panelOf($id('periodForm')),logP=panelOf($id('cycleLogForm')),settingsP=panelOf($id('cycleSettingsForm')),summaryP=panelOf($id('cycleSummary')),historyP=panelOf($id('cycleHistory')),periodsP=panelOf($id('cycleTrainingContext'));
+ if(!cal||!periodP||!logP||!settingsP||!summaryP||!historyP||!periodsP)return;
+ const notice=view.querySelector(':scope > .notice'),notes=[...view.querySelectorAll('.cycle-calendar-note')];
+ // Eingabe-Bereich direkt unter dem Kalender
+ const host=document.createElement('div');host.id='cyEntryHost';host.append(periodP,logP);
+ // Überblick
+ summaryP.id='cySummaryCard';summaryP.querySelector('.panel-head h3').textContent='Überblick';
+ // Blutungen-Liste (vorher „Training im Zusammenhang“)
+ periodsP.id='cyPeriodsCard';periodsP.querySelector('.panel-head h3').textContent='Blutungen';
+ historyP.querySelector('.panel-head h3').textContent='Befinden';const hs=historyP.querySelector('.panel-head .sub');if(hs)hs.remove();
+ // Falt-Bereiche
+ function fold(title,...nodes){const d=document.createElement('details');d.className='cy-fold';d.innerHTML=`<summary>${title}</summary><div class="cy-fold-body"></div>`;d.lastChild.append(...nodes);return d}
+ const settingsFold=fold('⚙︎ Zyklus-Einstellungen',settingsP);
+ const infoFold=fold('ℹ︎ Hinweise',...[notice,...notes].filter(Boolean));
+ [cal,host,summaryP,historyP,periodsP].forEach(p=>p.classList.add('cy-card'));
+ view.append(cal,host,summaryP,historyP,periodsP,settingsFold,infoFold);
+ // Formulare: Titel, Abbrechen, kompakter
+ periodP.querySelector('.panel-head h3').textContent='Blutung eintragen';
+ logP.querySelector('.panel-head h3').textContent='Befinden eintragen';
+ const pf=$id('periodForm'),lf=$id('cycleLogForm');
+ function addActions(form,label){const sub=form.querySelector(':scope > button[type=submit]');if(!sub)return;const wrap=document.createElement('div');wrap.className='cy-actions';const cancel=document.createElement('button');cancel.type='button';cancel.className='btn secondary';cancel.textContent='Abbrechen';cancel.addEventListener('click',close);sub.textContent=label;sub.before(wrap);wrap.append(cancel,sub)}
+ addActions(pf,'Speichern');addActions(lf,'Speichern');
+ const startF=pf.elements.start?.closest('.field'),endF=pf.elements.end?.closest('.field');
+ if(startF&&endF){const two=document.createElement('div');two.className='cy-two';startF.before(two);two.append(startF,endF);endF.querySelector('label').textContent='Ende (optional)';startF.querySelector('label').textContent='Beginn'}
+ const dateF=lf.elements.date?.closest('.field');if(dateF)dateF.style.display='none';
+ const sliders=[['pain','Schmerzen','0 keine · 10 sehr stark'],['energy','Energie','0 sehr niedrig · 10 sehr hoch'],['recovery','Schlaf / Erholung','0 schlecht · 10 sehr gut']];
+ const outs=[];
+ sliders.forEach(([n,l,hint])=>{const inp=lf.elements[n];if(!inp)return;const f=inp.closest('.field');inp.type='range';inp.min=0;inp.max=10;inp.step=1;const lab=f.querySelector('label');lab.innerHTML=`${l} <span class="cy-hint">${hint}</span>`;const row=document.createElement('div');row.className='cy-range';inp.before(row);const o=document.createElement('output');row.append(inp,o);const upd=()=>{o.textContent=inp.value+'/10'};inp.addEventListener('input',upd);outs.push(upd);upd()});
+ const updAll=()=>outs.forEach(u=>u());
+ lf.addEventListener('reset',()=>setTimeout(updAll));
+ const trainingF=lf.elements.training?.closest('.field');if(trainingF){const l=trainingF.querySelector('label');if(l)l.textContent='Training heute'}
+ // Öffnen / Schließen
+ let openP=null;
+ function close(){[periodP,logP].forEach(p=>p.classList.remove('cy-open'));openP=null}
+ function open(kind){close();openP=kind==='period'?periodP:logP;openP.classList.add('cy-open');const sel=lf.elements.date?.value;const d=document.querySelector('#cycleDayDetails h4')?.textContent||'';const h=openP.querySelector('.panel-head h3');h.textContent=(kind==='period'?'Blutung eintragen':'Befinden eintragen')+(d?' · '+d:'');updAll();setTimeout(()=>openP.scrollIntoView({behavior:'smooth',block:'start'}),30)}
+ document.addEventListener('click',e=>{const b=e.target.closest('#cycleDayDetails [data-cycle-entry]');if(!b)return;setTimeout(()=>open(b.dataset.cycleEntry),0)});
+ document.addEventListener('submit',e=>{if(e.target===pf||e.target===lf)setTimeout(()=>{close();updAll();cal.scrollIntoView({behavior:'smooth',block:'start'})},0)});
+ // Speichern der Einstellungen schließt die Falte nicht; nichts weiter nötig
+})();
+</script>
+
 </body></html>
